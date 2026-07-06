@@ -74,7 +74,7 @@ export default function ConfirmationPage() {
               {booking.passengers.map((p, i) => (
                 <div key={i} className="flex justify-between text-sm">
                   <span className="font-medium uppercase">{p.fullName}</span>
-                  <span className="text-vna-muted">({t(`hold.passenger.${p.type}` as any)})</span>
+                  <span className="text-vna-muted">({t(`hold.passenger.${p.type}`)})</span>
                 </div>
               ))}
             </div>

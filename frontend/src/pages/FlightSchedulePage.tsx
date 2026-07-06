@@ -12,7 +12,16 @@ export default function FlightSchedulePage() {
   const [to, setTo] = useState('');
   const [date, setDate] = useState('');
   const [isSearching, setIsSearching] = useState(false);
-  const [results, setResults] = useState<any[] | null>(null);
+  interface ScheduleResult {
+    id: number;
+    flightNo: string;
+    depart: string;
+    arrive: string;
+    duration: string;
+    aircraft: string;
+    days: string;
+  }
+  const [results, setResults] = useState<ScheduleResult[] | null>(null);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();

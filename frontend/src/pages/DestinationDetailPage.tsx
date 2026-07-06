@@ -4,7 +4,17 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, MapPin, Plane, Info, Calendar, Camera } from 'lucide-react';
 
-const db: Record<string, any> = {
+const db: Record<string, {
+  name: string;
+  country: string;
+  hero: string;
+  description: string;
+  airport: string;
+  weather: string;
+  bestTime?: string;
+  image?: string;
+  attractions: string[];
+}> = {
   han: {
     name: 'Hà Nội',
     country: 'Việt Nam',
@@ -47,8 +57,8 @@ export default function DestinationDetailPage() {
       {/* Hero */}
       <div className="relative h-[60vh] min-h-[500px]">
         <img 
-          src={data.hero} 
-          alt={data.name} 
+          src={data?.hero} 
+          alt={data?.name} 
           className="absolute inset-0 w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
@@ -62,12 +72,14 @@ export default function DestinationDetailPage() {
         <div className="absolute bottom-16 left-0 right-0 px-4">
           <div className="max-w-5xl mx-auto text-white">
             <div className="flex items-center gap-2 text-vna-gold font-medium mb-3 tracking-wider uppercase text-sm">
-              <MapPin className="w-4 h-4" /> {data.country}
+              <MapPin className="w-4 h-4" /> {data?.country}
             </div>
-            <h1 className="text-5xl md:text-7xl font-bold mb-6 drop-shadow-lg">{data.name}</h1>
-            <p className="text-lg md:text-xl max-w-2xl text-slate-200 drop-shadow-md">
-              {data.description}
-            </p>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 animate-in fade-in slide-in-from-bottom-4">
+            {data?.name}
+          </h1>
+          <p className="text-xl opacity-90 max-w-2xl animate-in fade-in slide-in-from-bottom-5">
+            {data?.description}
+          </p>
           </div>
         </div>
       </div>
@@ -81,7 +93,7 @@ export default function DestinationDetailPage() {
             </div>
             <div>
               <h3 className="font-bold text-slate-800 mb-1">Cửa ngõ chính</h3>
-              <p className="text-sm text-slate-600">{data.airport}</p>
+                    <p className="text-sm font-semibold">{data?.airport}</p>
             </div>
           </div>
           
@@ -91,13 +103,13 @@ export default function DestinationDetailPage() {
             </div>
             <div>
               <h3 className="font-bold text-slate-800 mb-1">Thời tiết & Mùa vụ</h3>
-              <p className="text-sm text-slate-600">{data.weather}</p>
+                    <p className="text-sm font-semibold">{data?.weather}</p>
             </div>
           </div>
           
           <div className="flex gap-4 items-center md:justify-end">
             <Button size="lg" className="w-full md:w-auto bg-vna-gold text-white shadow-md hover:bg-vna-gold/90 rounded-lg transition-all duration-300" onClick={() => navigate('/')}>
-              Đặt vé đi {data.name}
+              Đặt vé đi {data?.name}
             </Button>
           </div>
 
@@ -111,7 +123,7 @@ export default function DestinationDetailPage() {
         </div>
         
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {data.attractions.map((attr: string, idx: number) => (
+                  {data?.attractions.map((attr: string, idx: number) => (
             <Card key={idx} className="overflow-hidden border-0 bg-slate-50 hover:bg-white hover:shadow-lg transition-all rounded-xl">
               <CardContent className="p-6 rounded-xl">
                 <div className="text-vna-blue font-bold text-4xl opacity-20 mb-4">0{idx + 1}</div>

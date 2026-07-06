@@ -14,7 +14,20 @@ export default function CheckinPage() {
   const [lastName, setLastName] = useState('');
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [isSearching, setIsSearching] = useState(false);
-  const [booking, setBooking] = useState<any>(null);
+  interface FlightBooking {
+    id: string;
+    bookingCode: string;
+    route: string;
+    from: string;
+    to: string;
+    flightNo: string;
+    date: string;
+    departTime: string;
+    arriveTime: string;
+    gate: string;
+    passengers: { id: string, name: string, seat: string }[];
+  }
+  const [booking, setBooking] = useState<FlightBooking | null>(null);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,12 +44,15 @@ export default function CheckinPage() {
       if (code.toUpperCase() === 'BK1234' && lastName.toUpperCase() === 'NGUYEN') {
         setBooking({
           id: 'BK1234',
+          bookingCode: 'BK1234',
+          route: 'HAN - SGN',
           flightNo: 'VN201',
           date: '15/10/2025',
-          from: 'HAN',
-          to: 'SGN',
+          from: 'Hà Nội',
+          to: 'TP. Hồ Chí Minh',
           departTime: '08:00',
-          gate: '12A',
+          arriveTime: '10:15',
+          gate: '4',
           passengers: [
             { id: 'p1', name: 'NGUYEN VAN A', seat: '12A' },
             { id: 'p2', name: 'LE THI B', seat: '12B' }
@@ -143,7 +159,7 @@ export default function CheckinPage() {
 
                 <h4 className="font-semibold mb-4 text-slate-800">{t('checkin.passengers')}</h4>
                 <div className="space-y-3 mb-8">
-                  {booking.passengers.map((p: any, idx: number) => (
+                  {booking.passengers.map((p: {id: string, name: string, seat: string}, idx: number) => (
                     <div key={p.id} className="flex justify-between items-center p-4 bg-slate-50 rounded-lg border border-slate-100">
                       <div className="flex items-center gap-3">
                         <CheckCircle2 className="w-5 h-5 text-green-500" />
@@ -196,7 +212,7 @@ export default function CheckinPage() {
 
             {/* Boarding Pass Cards (Rendered for Print) */}
             <div className="space-y-6">
-              {booking.passengers.map((p: any) => (
+              {booking.passengers.map((p: {id: string, name: string, seat: string}) => (
                 <div key={p.id} className="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden flex flex-col md:flex-row print:shadow-none print:border print:border-black print:mb-8 break-inside-avoid">
                   
                   {/* Left Side (Main) */}

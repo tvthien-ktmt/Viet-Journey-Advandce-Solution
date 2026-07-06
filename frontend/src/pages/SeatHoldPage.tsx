@@ -86,7 +86,7 @@ export default function SeatHoldPage() {
   const { register, handleSubmit, formState: { errors }, control } = useForm<HoldFormValues>({
     resolver: zodResolver(holdFormSchema),
     defaultValues: {
-      passengers: location.state ? Array.from({ length: (location.state as any).request.adults }).map(() => ({
+      passengers: location.state ? Array.from({ length: (location.state as HoldRequest).request.adults }).map(() => ({
         type: 'adult', fullName: '', idNumber: '', birthDate: '', gender: 'M'
       })) : [],
       contactEmail: 'guest@example.com',
@@ -137,7 +137,7 @@ export default function SeatHoldPage() {
             <div className="space-y-4">
               {fields.map((field, index) => (
                 <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-slate-50 rounded-lg border border-vna-border">
-                  <div className="md:col-span-4 font-semibold">{t(`hold.passenger.${field.type}` as any)} {index + 1}</div>
+                  <div className="md:col-span-4 font-semibold">{t(`hold.passenger.${field.type}`)} {index + 1}</div>
                   <div>
                     <label className="text-xs font-medium">{t('hold.fullName')}</label>
                     <input {...register(`passengers.${index}.fullName`)} className="w-full border rounded p-2 text-sm uppercase rounded-lg" />

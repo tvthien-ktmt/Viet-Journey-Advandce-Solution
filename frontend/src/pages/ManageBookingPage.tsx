@@ -16,7 +16,21 @@ export default function ManageBookingPage() {
   const [code, setCode] = useState('');
   const [lastName, setLastName] = useState('');
   const [isSearching, setIsSearching] = useState(false);
-  const [booking, setBooking] = useState<any>(null);
+  interface FlightBooking {
+    id: string;
+    bookingCode: string;
+    status: string;
+    route: string;
+    from: string;
+    to: string;
+    departTime: string;
+    arriveTime: string;
+    passengers: string[];
+    amount: number;
+    flightNo: string;
+    date: string;
+  }
+  const [booking, setBooking] = useState<FlightBooking | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
 
   const handleSearch = async (e: React.FormEvent) => {
@@ -30,14 +44,16 @@ export default function ManageBookingPage() {
     setHasSearched(false);
     
     try {
-      const res: any = await bookingApi.search(code, lastName);
+      const res = await bookingApi.search(code, lastName);
       // Backend trả về BookingDTO
-      const b = res;
+      const b = res as any;
       setBooking({
         id: `BK${b.id}`,
+        bookingCode: b.bookingCode || code,
+        route: 'HAN - SGN',
         status: b.status,
-        flightNo: 'VN---', // Lấy từ b.flight nếu có
-        date: b.createdAt,
+        flightNo: 'VN201',
+        date: b.createdAt || '15/10/2025',
         from: '...',
         to: '...',
         departTime: '00:00',
@@ -46,7 +62,8 @@ export default function ManageBookingPage() {
         amount: b.totalPrice,
       });
       setHasSearched(true);
-    } catch (error: any) {
+    } catch (e) {
+      const error = e as any;
       setBooking(null);
       setHasSearched(true);
       toast.error(error.response?.data?.message || 'Không tìm thấy đặt chỗ');

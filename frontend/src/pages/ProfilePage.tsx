@@ -25,10 +25,10 @@ export default function ProfilePage() {
     e.preventDefault();
     setIsUpdating(true);
     try {
-      const res: any = await profileApi.updateProfile({ fullName, phone });
+      const res = await profileApi.updateProfile({ fullName, phone });
       setAuth(res, useAuth.getState().token || '');
       toast.success('Cập nhật thông tin thành công');
-    } catch (error: any) {
+    } catch (error) {
       toast.error('Cập nhật thất bại');
     } finally {
       setIsUpdating(false);
@@ -185,7 +185,7 @@ export default function ProfilePage() {
               <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
                 <h2 className="text-xl font-bold mb-4">Chuyến bay sắp tới</h2>
                 
-                {bookings?.map((b: any) => (
+                {bookings?.map((b) => (
                   <Card key={b.id} className="hover:shadow-md transition-shadow cursor-pointer border-l-4 border-l-vna-blue rounded-xl mb-4" onClick={() => navigate(`/manage`)}>
                     <CardContent className="p-6 flex items-center justify-between rounded-xl">
                       <div>

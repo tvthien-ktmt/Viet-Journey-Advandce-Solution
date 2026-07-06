@@ -12,7 +12,15 @@ export default function RefundPage() {
   const [code, setCode] = useState('');
   const [email, setEmail] = useState('');
   const [isSearching, setIsSearching] = useState(false);
-  const [booking, setBooking] = useState<any>(null);
+  interface RefundBooking {
+    id: string;
+    route: string;
+    date: string;
+    price: number;
+    refundFee: number;
+    passengers: number;
+  }
+  const [booking, setBooking] = useState<RefundBooking | null>(null);
   const [isRefunding, setIsRefunding] = useState(false);
   const [isRefunded, setIsRefunded] = useState(false);
 

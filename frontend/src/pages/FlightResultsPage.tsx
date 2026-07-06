@@ -46,7 +46,7 @@ export default function FlightResultsPage() {
             {data?.outbound && <Badge className="bg-vna-gold text-white hover:bg-vna-gold border-none transition-all duration-300">{data.outbound.length} chuyến bay</Badge>}
           </div>
           <p className="text-white/80 text-sm mt-1">
-            {formatDate(form.departDate)} · {paxCount} hành khách · {t(`cabin.${form.cabin}` as any)}
+            {formatDate(form.departDate)} · {paxCount} hành khách · {t(`cabin.${form.cabin}`)}
           </p>
         </div>
 
@@ -144,7 +144,7 @@ const FlightCard = React.memo(function FlightCard({ flight, selected, onSelect }
               </p>
             </div>
           </div>
-          <p className="text-xs text-vna-muted mt-3 md:mt-2">{flight.aircraft} · {t(`cabin.${flight.cabin}` as any)}</p>
+          <p className="text-xs text-vna-muted mt-3 md:mt-2">{flight.aircraft} · {t(`cabin.${flight.cabin}`)}</p>
         </div>
         
         <div className="text-right w-full md:w-auto flex md:flex-col items-center md:items-end justify-between md:justify-center border-t md:border-t-0 pt-3 md:pt-0">

@@ -28,7 +28,7 @@ export default function LoginPage() {
     
     setIsLoading(true);
     try {
-      const res: any = await authApi.login(email, password);
+      const res = await authApi.login(email, password) as any;
       setAuth(res.user, res.accessToken || res.token);
       toast.success(t('login.success'));
       
@@ -37,7 +37,8 @@ export default function LoginPage() {
         : (res.user.roles?.includes('ADMIN') ? '/admin' : '/profile');
         
       navigate(redirectPath, { replace: true });
-    } catch (error: any) {
+    } catch (e) {
+      const error = e as any;
       toast.error(error.response?.data?.message || t('login.failed'));
     } finally {
       setIsLoading(false);

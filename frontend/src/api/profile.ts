@@ -2,14 +2,23 @@ import { api } from './client';
 
 const USE_MOCK = import.meta.env.VITE_USE_MOCK_API === 'true' || false;
 
+export interface ProfileBooking {
+  id: string;
+  bookingCode: string;
+  route: string;
+  date: string;
+  amount: number;
+  status: string;
+}
+
 export const profileApi = {
   bookings: {
-    list: () => USE_MOCK ? Promise.resolve([
+    list: (): Promise<ProfileBooking[]> => USE_MOCK ? Promise.resolve([
       { id: 'B1', bookingCode: 'VNA123', route: 'HAN-SGN', date: '2025-06-15', amount: 3500000, status: 'CONFIRMED' },
       { id: 'B2', bookingCode: 'VNA999', route: 'SGN-DAD', date: '2025-07-20', amount: 1250000, status: 'EXPIRED' }
     ]) : api.get('/profile/bookings'),
   },
-  updateProfile: (data: { fullName: string; phone: string }) => 
+  updateProfile: (data: { fullName: string; phone: string }): Promise<any> => 
     api.put('/users/profile', data),
   wishlist: {
     list: () => {

@@ -12,7 +12,15 @@ export default function ChangeFlightPage() {
   const [code, setCode] = useState('');
   const [email, setEmail] = useState('');
   const [isSearching, setIsSearching] = useState(false);
-  const [booking, setBooking] = useState<any>(null);
+  interface ChangeFlightBooking {
+    id: string;
+    route: string;
+    oldDate: string;
+    flightNo: string;
+    changeFee: number;
+    fareDifference: number;
+  }
+  const [booking, setBooking] = useState<ChangeFlightBooking | null>(null);
   
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [newDate, setNewDate] = useState('');

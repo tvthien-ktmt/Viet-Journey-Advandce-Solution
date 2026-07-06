@@ -16,9 +16,9 @@ apiClient.interceptors.request.use((config) => {
 });
 
 let isRefreshing = false;
-let failedQueue: { resolve: (value?: unknown) => void; reject: (reason?: any) => void }[] = [];
+let failedQueue: { resolve: (value?: unknown) => void; reject: (reason?: Error | unknown) => void }[] = [];
 
-const processQueue = (error: any, token: string | null = null) => {
+const processQueue = (error: Error | unknown | null, token: string | null = null) => {
   failedQueue.forEach((prom) => {
     if (error) {
       prom.reject(error);
@@ -79,9 +79,9 @@ apiClient.interceptors.response.use(
 );
 
 export const api = {
-  get: <T>(url: string, params?: object) => apiClient.get<any>(url, { params }).then(r => r.data?.success !== undefined ? r.data.data : r.data),
-  post: <T>(url: string, body?: object) => apiClient.post<any>(url, body).then(r => r.data?.success !== undefined ? r.data.data : r.data),
-  put: <T>(url: string, body?: object) => apiClient.put<any>(url, body).then(r => r.data?.success !== undefined ? r.data.data : r.data),
-  patch: <T>(url: string, body?: object) => apiClient.patch<any>(url, body).then(r => r.data?.success !== undefined ? r.data.data : r.data),
-  delete: <T>(url: string) => apiClient.delete<any>(url).then(r => r.data?.success !== undefined ? r.data.data : r.data),
+  get: <T>(url: string, params?: object): Promise<T> => apiClient.get(url, { params }).then(r => r.data?.success !== undefined ? r.data.data : r.data),
+  post: <T>(url: string, body?: object): Promise<T> => apiClient.post(url, body).then(r => r.data?.success !== undefined ? r.data.data : r.data),
+  put: <T>(url: string, body?: object): Promise<T> => apiClient.put(url, body).then(r => r.data?.success !== undefined ? r.data.data : r.data),
+  patch: <T>(url: string, body?: object): Promise<T> => apiClient.patch(url, body).then(r => r.data?.success !== undefined ? r.data.data : r.data),
+  delete: <T>(url: string): Promise<T> => apiClient.delete(url).then(r => r.data?.success !== undefined ? r.data.data : r.data),
 };

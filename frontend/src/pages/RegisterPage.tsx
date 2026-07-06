@@ -34,7 +34,8 @@ export default function RegisterPage() {
       });
       toast.success('Đăng ký thành công! Vui lòng đăng nhập.');
       navigate('/login');
-    } catch (error: any) {
+    } catch (e) {
+      const error = e as any;
       toast.error(error.response?.data?.message || 'Đăng ký thất bại');
     } finally {
       setIsLoading(false);

@@ -40,7 +40,7 @@ export default function AddonsPage() {
   const LOUNGE_PRICE = 350000;
   const INSURANCE_PRICE = 120000;
 
-  const updatePassenger = useCallback((pid: string, field: keyof Passenger, value: any) => {
+  const updatePassenger = useCallback((pid: string, field: keyof Passenger, value: string | number | boolean) => {
     setPassengers(prev => prev.map(p => p.id === pid ? { ...p, [field]: value } : p));
   }, []);
 
