@@ -101,6 +101,9 @@ public class BookingServiceImpl implements BookingService {
     @Transactional
     public BookingDTO confirmBooking(Long id) {
         Booking booking = getBookingEntityById(id);
+        if (booking.getStatus() == BookingStatus.EXPIRED) {
+            throw new com.vietjourney.backend.exception.BusinessException("Booking đã hết hạn", 400);
+        }
         booking.transitionTo(BookingStatus.CONFIRMED);
         return BookingDTO.fromEntity(bookingRepository.save(booking));
     }

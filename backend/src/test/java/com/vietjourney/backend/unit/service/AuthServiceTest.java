@@ -42,6 +42,12 @@ public class AuthServiceTest {
     @Mock
     private AuthenticationManager authenticationManager;
 
+    @Mock
+    private com.vietjourney.backend.repository.RefreshTokenRepository refreshTokenRepository;
+
+    @Mock
+    private org.springframework.data.redis.core.StringRedisTemplate redisTemplate;
+
     @InjectMocks
     private AuthServiceImpl authService;
 
@@ -121,7 +127,7 @@ public class AuthServiceTest {
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenThrow(new BadCredentialsException("Bad credentials"));
 
-        assertThrows(BadCredentialsException.class, () -> authService.login(loginRequest));
+        assertThrows(UnauthorizedActionException.class, () -> authService.login(loginRequest));
     }
 
     @Test

@@ -49,6 +49,13 @@ public class User {
     @Column(name = "lotusmiles_miles")
     private Integer lotusmilesMiles = 0;
 
+    @Builder.Default
+    @Column(name = "failed_login_count")
+    private Integer failedLoginCount = 0;
+
+    @Column(name = "locked_until")
+    private LocalDateTime lockedUntil;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

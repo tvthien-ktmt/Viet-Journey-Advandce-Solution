@@ -6,12 +6,21 @@ import { ChevronLeft, Calendar, Share2, Link as LinkIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import DOMPurify from 'dompurify';
 
+import { useQuery } from '@tanstack/react-query';
+import { blogApi } from '@/api/blog';
+
 export default function BlogDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
-  // MOCK CONTENT
-  const blog = {
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ['blog', id],
+    queryFn: () => blogApi.get(id as string),
+    enabled: !!id
+  });
+
+  // MOCK CONTENT (Fallback)
+  const mockBlog = {
     id: id,
     title: 'Vietnam Airlines chính thức mở đường bay thẳng đến Munich (Đức)',
     category: 'Tin tức VNA',
@@ -38,6 +47,8 @@ export default function BlogDetailPage() {
     `
   };
 
+  const blog = data || mockBlog;
+
   const copyLink = () => {
     navigator.clipboard.writeText(window.location.href);
     toast.success('Đã sao chép liên kết');
@@ -51,6 +62,9 @@ export default function BlogDetailPage() {
         <Button variant="ghost" className="flex items-center gap-2 mb-8 text-slate-500 hover:text-vna-blue rounded-lg transition-all duration-300" onClick={() => navigate('/blog')}>
           <ChevronLeft className="w-5 h-5 mr-1" /> Trở về danh sách
         </Button>
+
+        {isLoading && <p className="text-center py-10">Đang tải...</p>}
+        {isError && <p className="text-center py-10 text-red-500">Lỗi tải dữ liệu. Bạn đang xem dữ liệu mẫu.</p>}
 
         <div className="mb-10">
           <Badge className="bg-blue-50 text-vna-blue hover:bg-blue-100 mb-6 text-sm px-3 py-1 transition-all duration-300">{blog.category}</Badge>
@@ -77,7 +91,7 @@ export default function BlogDetailPage() {
         {/* Render HTML content securely using DOMPurify */}
         <div 
           className="prose prose-lg prose-slate max-w-none prose-headings:text-slate-800 prose-a:text-vna-blue hover:prose-a:text-vna-gold transition-all duration-300"
-          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(blog.content) }}
+          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(data?.content || '') }}
         />
         
         <div className="mt-16 pt-8 border-t border-slate-200">

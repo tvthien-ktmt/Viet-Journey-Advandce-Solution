@@ -26,7 +26,8 @@ export default function ProfilePage() {
     setIsUpdating(true);
     try {
       const res = await profileApi.updateProfile({ fullName, phone });
-      setAuth(res, useAuth.getState().token || '');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      setAuth((res as any).user, useAuth.getState().token || '', useAuth.getState().refreshToken || '');
       toast.success('Cập nhật thông tin thành công');
     } catch (error) {
       toast.error('Cập nhật thất bại');

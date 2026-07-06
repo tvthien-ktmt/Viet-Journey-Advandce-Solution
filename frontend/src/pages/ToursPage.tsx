@@ -14,15 +14,7 @@ const mockTours = [
   { id: '6', name: 'Đảo rồng Komodo huyền bí', duration: '5 Ngày 4 Đêm', location: 'Bali - Komodo', price: 19500000, rating: 4.8, image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?q=80&w=2038&auto=format&fit=crop' },
 ];
 
-interface Tour {
-  id: string;
-  name: string;
-  duration: string;
-  location: string;
-  price: number;
-  rating: number;
-  image: string;
-}
+// Removed local Tour interface in favor of imported type
 
 const TourCard = React.memo(({ tour, isWishlist, onToggleWishlist, onClick }: { 
   tour: Tour, 
@@ -64,9 +56,20 @@ const TourCard = React.memo(({ tour, isWishlist, onToggleWishlist, onClick }: {
   );
 });
 
+import { useQuery } from '@tanstack/react-query';
+import { getTours } from '@/api/tours';
+import type { Tour } from '@/api/tours';
+
 export default function ToursPage() {
   const navigate = useNavigate();
   const [wishlist, setWishlist] = useState<Record<string, boolean>>({});
+
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ['tours'],
+    queryFn: () => getTours(),
+  });
+
+  const tours = data?.content || mockTours;
 
   const toggleWishlist = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
@@ -104,15 +107,21 @@ export default function ToursPage() {
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {mockTours.map(tour => (
-            <TourCard 
-              key={tour.id} 
-              tour={tour} 
-              isWishlist={!!wishlist[tour.id]} 
-              onToggleWishlist={toggleWishlist} 
-              onClick={() => navigate(`/tour/${tour.id}`)} 
-            />
-          ))}
+          {isLoading ? (
+            <div className="col-span-full py-12 text-center text-slate-500">Đang tải dữ liệu...</div>
+          ) : tours && tours.length > 0 ? (
+            tours.map((tour: any) => (
+              <TourCard 
+                key={tour.id} 
+                tour={tour} 
+                isWishlist={!!wishlist[tour.id]} 
+                onToggleWishlist={toggleWishlist} 
+                onClick={() => navigate(`/tour/${tour.slug || tour.id}`)} 
+              />
+            ))
+          ) : (
+            <p className="col-span-full text-center">Không tìm thấy tour nào.</p>
+          )}
         </div>
 
       </div>

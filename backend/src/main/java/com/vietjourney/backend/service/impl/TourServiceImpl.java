@@ -67,7 +67,19 @@ public class TourServiceImpl implements TourService {
     @CacheEvict(value = {"tour_slug", "tour_id"}, allEntries = true)
     public Tour updateTour(Long id, Tour updatedTour) {
         Tour tour = getTourById(id);
-        // Logic update here
+        tour.setName(updatedTour.getName());
+        tour.setSlug(updatedTour.getSlug());
+        tour.setImage(updatedTour.getImage());
+        tour.setLocation(updatedTour.getLocation());
+        tour.setPrice(updatedTour.getPrice());
+        tour.setOldPrice(updatedTour.getOldPrice());
+        tour.setRating(updatedTour.getRating());
+        tour.setReviewCount(updatedTour.getReviewCount());
+        tour.setDuration(updatedTour.getDuration());
+        tour.setOverview(updatedTour.getOverview());
+        tour.setIsFeatured(updatedTour.getIsFeatured());
+        // Collections should be updated carefully, but for now simple replacement or leaving them alone might be needed.
+        // Assuming collections are managed via other endpoints or cascade.
         return tourRepository.save(tour);
     }
 

@@ -6,6 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { ChevronLeft, MapPin, Clock, Star, Calendar, CheckCircle2, XCircle, Info, Plane } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/store/authStore';
+import { useQuery } from '@tanstack/react-query';
+import { getTourBySlug } from '@/api/tours';
 
 export default function TourDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -13,6 +15,12 @@ export default function TourDetailPage() {
   const location = useLocation();
   const isAuthenticated = useAuth((s) => s.isAuthenticated);
   const [isBooking, setIsBooking] = useState(false);
+
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ['tour', id],
+    queryFn: () => getTourBySlug(id as string),
+    enabled: !!id
+  });
 
   const handleBook = () => {
     if (!isAuthenticated()) {
@@ -36,21 +44,24 @@ export default function TourDetailPage() {
           <ChevronLeft className="w-5 h-5 mr-1" /> Quay lại danh sách
         </Button>
 
+        {isLoading && <p className="text-center py-10">Đang tải...</p>}
+        {isError && <p className="text-center py-10 text-red-500">Lỗi tải dữ liệu. Bạn đang xem dữ liệu mẫu.</p>}
+
         {/* Header */}
         <div className="mb-8">
           <Badge className="bg-vna-gold hover:bg-vna-gold text-white mb-4 uppercase tracking-widest text-xs px-3 py-1 transition-all duration-300">VNA Holidays</Badge>
-          <h1 className="text-3xl md:text-5xl font-bold text-vna-text mb-4">Khám phá Mùa Thu Nhật Bản</h1>
+          <h1 className="text-3xl md:text-5xl font-bold text-vna-text mb-4">{data?.name || 'Khám phá Mùa Thu Nhật Bản'}</h1>
           <div className="flex flex-wrap items-center gap-6 text-slate-600 font-medium">
-            <div className="flex items-center"><MapPin className="w-5 h-5 mr-2 text-vna-blue" /> Tokyo - Kyoto - Osaka</div>
-            <div className="flex items-center"><Clock className="w-5 h-5 mr-2 text-vna-blue" /> 6 Ngày 5 Đêm</div>
-            <div className="flex items-center text-yellow-500"><Star className="w-5 h-5 mr-1 fill-current" /> 4.8 (124 đánh giá)</div>
+            <div className="flex items-center"><MapPin className="w-5 h-5 mr-2 text-vna-blue" /> {data?.location || 'Tokyo - Kyoto - Osaka'}</div>
+            <div className="flex items-center"><Clock className="w-5 h-5 mr-2 text-vna-blue" /> {data?.duration || '6 Ngày 5 Đêm'}</div>
+            <div className="flex items-center text-yellow-500"><Star className="w-5 h-5 mr-1 fill-current" /> {data?.rating || 4.8} (124 đánh giá)</div>
           </div>
         </div>
 
         {/* Gallery */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-12 h-[300px] md:h-[500px]">
           <div className="col-span-2 row-span-2 rounded-2xl overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=800&auto=format&fit=crop" loading="lazy" width="800" height="600" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" alt="Japan" />
+            <img src={data?.image || "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=800&auto=format&fit=crop"} loading="lazy" width="800" height="600" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" alt="Japan" />
           </div>
           <div className="rounded-2xl overflow-hidden">
             <img src="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=800&auto=format&fit=crop" loading="lazy" width="800" height="600" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" alt="Tokyo" />
@@ -70,7 +81,7 @@ export default function TourDetailPage() {
             <section>
               <h2 className="text-2xl font-bold text-slate-800 mb-4 flex items-center gap-2"><Info className="w-6 h-6 text-vna-blue" /> Tổng quan hành trình</h2>
               <p className="text-slate-600 leading-relaxed">
-                Trải nghiệm trọn vẹn vẻ đẹp mùa thu Nhật Bản với lá đỏ rực rỡ tại Kyoto cổ kính, sự sầm uất hiện đại của Tokyo và nhịp sống sôi động tại Osaka. Hành trình được thiết kế đẳng cấp với vé máy bay Vietnam Airlines và hệ thống khách sạn 4 sao tiêu chuẩn quốc tế.
+                {data?.description || 'Trải nghiệm trọn vẹn vẻ đẹp mùa thu Nhật Bản với lá đỏ rực rỡ tại Kyoto cổ kính, sự sầm uất hiện đại của Tokyo và nhịp sống sôi động tại Osaka. Hành trình được thiết kế đẳng cấp với vé máy bay Vietnam Airlines và hệ thống khách sạn 4 sao tiêu chuẩn quốc tế.'}
               </p>
             </section>
 
@@ -148,7 +159,7 @@ export default function TourDetailPage() {
                 
                 <div className="mb-6 pb-6 border-b">
                   <p className="text-slate-500 mb-1">Giá trọn gói từ</p>
-                  <p className="text-3xl font-bold text-vna-blue mb-2">25,900,000 ₫</p>
+                  <p className="text-3xl font-bold text-vna-blue mb-2">{data?.price?.toLocaleString('vi-VN') || '25.900.000'} ₫</p>
                   <p className="text-sm text-slate-500 flex items-center"><Calendar className="w-4 h-4 mr-1" /> Khởi hành: 15, 20, 25 hàng tháng</p>
                 </div>
 

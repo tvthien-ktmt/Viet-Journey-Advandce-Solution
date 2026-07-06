@@ -1,4 +1,5 @@
 import { api } from './client';
+import type { UpdateProfileDTO, ChangePasswordDTO } from '@/types/user';
 
 const USE_MOCK = import.meta.env.VITE_USE_MOCK_API === 'true' || false;
 
@@ -11,6 +12,11 @@ export interface ProfileBooking {
   status: string;
 }
 
+export interface ProfileUpdateResponse {
+  success: boolean;
+  message?: string;
+}
+
 export const profileApi = {
   bookings: {
     list: (): Promise<ProfileBooking[]> => USE_MOCK ? Promise.resolve([
@@ -18,7 +24,7 @@ export const profileApi = {
       { id: 'B2', bookingCode: 'VNA999', route: 'SGN-DAD', date: '2025-07-20', amount: 1250000, status: 'EXPIRED' }
     ]) : api.get('/profile/bookings'),
   },
-  updateProfile: (data: { fullName: string; phone: string }): Promise<any> => 
+  updateProfile: (data: { fullName: string; phone: string }): Promise<ProfileUpdateResponse> => 
     api.put('/users/profile', data),
   wishlist: {
     list: () => {
@@ -56,6 +62,6 @@ export const profileApi = {
       ],
     }) : api.get('/lotusmiles/me'),
   },
-  updateInfo: (data: Record<string, string>) => USE_MOCK ? Promise.resolve({ success: true }) : api.put('/profile', data),
-  changePassword: (data: Record<string, string>) => USE_MOCK ? Promise.resolve({ success: true }) : api.post('/profile/change-password', data),
+  updateInfo: (data: UpdateProfileDTO): Promise<ProfileUpdateResponse> => USE_MOCK ? Promise.resolve({ success: true }) : api.put('/profile', data),
+  changePassword: (data: ChangePasswordDTO): Promise<ProfileUpdateResponse> => USE_MOCK ? Promise.resolve({ success: true }) : api.post('/profile/change-password', data),
 };

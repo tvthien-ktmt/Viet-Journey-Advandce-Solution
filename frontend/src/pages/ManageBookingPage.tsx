@@ -44,21 +44,21 @@ export default function ManageBookingPage() {
     setHasSearched(false);
     
     try {
-      const res = await bookingApi.search(code, lastName);
-      // Backend trả về BookingDTO
-      const b = res as any;
+      const res: any = await bookingApi.search(code, lastName);
+      // Backend trả về ApiResponse<BookingDTO>, interceptor hoặc client đã extract data
+      const b = res.content || res.data || res;
       setBooking({
-        id: `BK${b.id}`,
+        id: b.id ? `${b.id}` : b.bookingCode || code,
         bookingCode: b.bookingCode || code,
-        route: 'HAN - SGN',
+        route: b.flight?.route ? `${b.flight.route.origin.city} - ${b.flight.route.destination.city}` : 'HAN - SGN',
         status: b.status,
-        flightNo: 'VN201',
+        flightNo: b.flight?.flightNumber || 'VN201',
         date: b.createdAt || '15/10/2025',
-        from: '...',
-        to: '...',
-        departTime: '00:00',
-        arriveTime: '00:00',
-        passengers: b.passengers?.map((p: any) => p.fullName) || [],
+        from: b.flight?.route?.origin?.code || 'HAN',
+        to: b.flight?.route?.destination?.code || 'SGN',
+        departTime: b.flight?.departureTime ? new Date(b.flight.departureTime).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) : '00:00',
+        arriveTime: b.flight?.arrivalTime ? new Date(b.flight.arrivalTime).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) : '00:00',
+        passengers: b.passengers?.map((p: any) => `${p.firstName} ${p.lastName}`) || [],
         amount: b.totalPrice,
       });
       setHasSearched(true);
@@ -139,13 +139,20 @@ export default function ManageBookingPage() {
                   <div className="flex justify-between items-center">
                     <div>
                       <CardTitle className="text-xl text-vna-blue flex items-center gap-2 rounded-xl">
-                        <Ticket className="w-5 h-5" /> Mã Đặt Chỗ: {booking.id}
+                        <Ticket className="w-5 h-5" /> Mã Đặt Chỗ: {booking.bookingCode}
                       </CardTitle>
-                      <CardDescription className="mt-1 rounded-xl">Trạng thái: <strong className="text-green-600">Đã xác nhận</strong></CardDescription>
+                      <CardDescription className="mt-1 rounded-xl">Trạng thái: <strong className="text-green-600">{
+                        {
+                          RESERVED: 'Chờ thanh toán',
+                          CONFIRMED: 'Đã xác nhận',
+                          CANCELLED: 'Đã hủy',
+                          EXPIRED: 'Hết hạn',
+                        }[booking.status] || booking.status
+                      }</strong></CardDescription>
                     </div>
                     <div className="text-right">
                       <p className="text-sm text-slate-500">Ngày đặt</p>
-                      <p className="font-medium">10/06/2025</p>
+                      <p className="font-medium">{booking.date}</p>
                     </div>
                   </div>
                 </CardHeader>
@@ -154,7 +161,7 @@ export default function ManageBookingPage() {
                   <div className="flex items-center justify-between mb-8">
                     <div className="text-center">
                       <p className="text-3xl font-bold text-vna-blue">{booking.from}</p>
-                      <p className="text-sm font-medium mt-1">Hà Nội</p>
+                      <p className="text-sm font-medium mt-1">{booking.route.split(' - ')[0]}</p>
                       <p className="text-xs text-slate-500">{booking.departTime}</p>
                     </div>
                     
@@ -171,7 +178,7 @@ export default function ManageBookingPage() {
                     
                     <div className="text-center">
                       <p className="text-3xl font-bold text-vna-blue">{booking.to}</p>
-                      <p className="text-sm font-medium mt-1">TP. Hồ Chí Minh</p>
+                      <p className="text-sm font-medium mt-1">{booking.route.split(' - ')[1]}</p>
                       <p className="text-xs text-slate-500">{booking.arriveTime}</p>
                     </div>
                   </div>

@@ -37,6 +37,7 @@ const NotFoundPage = lazy(() => import('@/pages/NotFoundPage'));
 const NotificationsPage = lazy(() => import('@/pages/NotificationsPage'));
 const PaymentFailedPage = lazy(() => import('@/pages/PaymentFailedPage'));
 const PaymentPage = lazy(() => import('@/pages/PaymentPage'));
+const PaymentCallbackPage = lazy(() => import('@/pages/PaymentCallbackPage'));
 const ProfilePage = lazy(() => import('@/pages/ProfilePage'));
 const RefundPage = lazy(() => import('@/pages/RefundPage'));
 const RegisterPage = lazy(() => import('@/pages/RegisterPage'));
@@ -86,6 +87,7 @@ export default function App() {
             <Route path="/manage-booking" element={<ManageBookingPage />} />
             <Route path="/notifications" element={<NotificationsPage />} />
             <Route path="/payment-failed" element={<PaymentFailedPage />} />
+            <Route path="/payments/callback" element={<PaymentCallbackPage />} />
             <Route path="/refund" element={<RefundPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/server-error" element={<ServerErrorPage />} />

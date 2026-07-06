@@ -5,16 +5,15 @@ import com.vietjourney.backend.dto.request.PassengerRequest;
 import com.vietjourney.backend.entity.Booking;
 import com.vietjourney.backend.entity.Tour;
 import com.vietjourney.backend.entity.User;
+import com.vietjourney.backend.entity.enums.BookingStatus;
 import com.vietjourney.backend.exception.BusinessException;
 import com.vietjourney.backend.exception.ResourceNotFoundException;
 import com.vietjourney.backend.repository.BookingRepository;
-import com.vietjourney.backend.repository.FlightRepository;
-import com.vietjourney.backend.repository.HotelRepository;
-import com.vietjourney.backend.repository.TourRepository;
 import com.vietjourney.backend.repository.UserRepository;
 import com.vietjourney.backend.service.impl.BookingServiceImpl;
 import com.vietjourney.backend.service.strategy.booking.BookingItemStrategy;
 import com.vietjourney.backend.service.strategy.booking.BookingStrategyFactory;
+import com.vietjourney.backend.dto.response.BookingDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -73,7 +72,7 @@ public class BookingServiceTest {
                 .user(testUser)
                 .bookingType("tour")
                 .referenceId(1L)
-                .status("reserved")
+                .status(BookingStatus.RESERVED)
                 .reservedUntil(LocalDateTime.now().plusMinutes(10))
                 .totalPrice(new BigDecimal("100.0"))
                 .build();
@@ -86,10 +85,10 @@ public class BookingServiceTest {
         when(bookingItemStrategy.getUnitPrice(anyLong())).thenReturn(new BigDecimal("100.0"));
         when(bookingRepository.save(any(Booking.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        Booking booking = bookingService.createReservation(bookingRequest, "user@test.com");
+        BookingDTO booking = bookingService.createReservation(bookingRequest, "user@test.com");
 
         assertNotNull(booking);
-        assertEquals("reserved", booking.getStatus());
+        assertEquals(BookingStatus.RESERVED.name(), booking.getStatus());
         assertNotNull(booking.getReservedUntil());
         assertTrue(booking.getReservedUntil().isAfter(LocalDateTime.now().plusMinutes(9)));
         assertEquals(new BigDecimal("100.0"), booking.getTotalPrice());
@@ -108,7 +107,7 @@ public class BookingServiceTest {
 
     @Test
     void confirmBooking_AlreadyExpired_ThrowsException() {
-        testBooking.setStatus("expired");
+        testBooking.setStatus(BookingStatus.EXPIRED);
         when(bookingRepository.findById(anyLong())).thenReturn(Optional.of(testBooking));
 
         assertThrows(BusinessException.class, () -> bookingService.confirmBooking(1L));

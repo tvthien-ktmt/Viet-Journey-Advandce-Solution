@@ -30,11 +30,10 @@ public class LoginRateLimitFilter extends OncePerRequestFilter {
     }
 
     private String getClientIP(HttpServletRequest request) {
-        String xfHeader = request.getHeader("X-Forwarded-For");
-        if (xfHeader == null) {
-            return request.getRemoteAddr();
-        }
-        return xfHeader.split(",")[0].trim();
+        // To prevent X-Forwarded-For spoofing, we use the direct connection IP.
+        // If we are behind a reverse proxy (e.g., Nginx, Cloudflare), we should configure Tomcat 
+        // with RemoteIpValve and still use getRemoteAddr(), rather than manually parsing headers here.
+        return request.getRemoteAddr();
     }
 
     @Override

@@ -34,6 +34,9 @@ public class SecurityTest {
     @MockBean
     private CustomUserDetailsService customUserDetailsService;
 
+    @MockBean
+    private org.springframework.data.redis.core.StringRedisTemplate redisTemplate;
+
     @Test
     @WithAnonymousUser
     void requestWithoutToken_ReturnsUnauthorized() throws Exception {

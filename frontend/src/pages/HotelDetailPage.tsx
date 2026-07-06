@@ -5,12 +5,20 @@ import { Button } from '@/components/ui/button';
 import { ChevronLeft, MapPin, Star, Wifi, Coffee, Wind, Tv, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/store/authStore';
+import { useQuery } from '@tanstack/react-query';
+import { getHotelBySlug } from '@/api/hotels';
 
 export default function HotelDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const location = useLocation();
   const isAuthenticated = useAuth((s) => s.isAuthenticated);
+
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ['hotel', id],
+    queryFn: () => getHotelBySlug(id as string),
+    enabled: !!id
+  });
 
   const handleBook = () => {
     if (!isAuthenticated()) {
@@ -29,6 +37,9 @@ export default function HotelDetailPage() {
           <ChevronLeft className="w-5 h-5 mr-1" /> Quay lại tìm kiếm
         </Button>
 
+        {isLoading && <p className="text-center py-10">Đang tải...</p>}
+        {isError && <p className="text-center py-10 text-red-500">Lỗi tải dữ liệu. Bạn đang xem dữ liệu mẫu.</p>}
+
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-2">
             <span className="bg-vna-gold text-white text-xs font-bold px-2 py-1 rounded">VNA Holidays Khuyên Dùng</span>
@@ -40,9 +51,9 @@ export default function HotelDetailPage() {
               <Star className="w-4 h-4 fill-current" />
             </div>
           </div>
-          <h1 className="text-3xl md:text-4xl font-bold text-vna-text mb-4">InterContinental Hanoi Westlake</h1>
+          <h1 className="text-3xl md:text-4xl font-bold text-vna-text mb-4">{data?.name || 'InterContinental Hanoi Westlake'}</h1>
           <div className="flex items-center text-slate-500 font-medium">
-            <MapPin className="w-5 h-5 mr-1 text-vna-blue" /> 05 Từ Hoa, Tây Hồ, Hà Nội, Việt Nam
+            <MapPin className="w-5 h-5 mr-1 text-vna-blue" /> {data?.location || '05 Từ Hoa, Tây Hồ, Hà Nội, Việt Nam'}
           </div>
         </div>
 
@@ -105,30 +116,58 @@ export default function HotelDetailPage() {
               <h2 className="text-2xl font-bold text-slate-800 mb-4">Các loại phòng trống</h2>
               <div className="space-y-4">
                 
-                <Card className="border border-slate-200 rounded-xl">
-                  <CardContent className="p-6 flex flex-col md:flex-row gap-6 rounded-xl">
-                    <div className="w-full md:w-1/3 h-48 rounded-xl overflow-hidden shrink-0">
-                      <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=800&auto=format&fit=crop" loading="lazy" width="800" height="600" className="w-full h-full object-cover" alt="Room" />
-                    </div>
-                    <div className="flex-1 flex flex-col justify-between">
-                      <div>
-                        <h3 className="text-xl font-bold text-slate-800 mb-2">Phòng Classic Hướng Hồ</h3>
-                        <p className="text-sm text-slate-500 mb-4">43 m² • 1 Giường đôi lớn hoặc 2 Giường đơn • Hướng hồ</p>
-                        <ul className="space-y-1">
-                          <li className="flex items-center text-sm text-slate-600"><CheckCircle2 className="w-4 h-4 mr-2 text-green-500" /> Bao gồm bữa sáng cho 2 người</li>
-                          <li className="flex items-center text-sm text-slate-600"><CheckCircle2 className="w-4 h-4 mr-2 text-green-500" /> Hủy phòng miễn phí trước 24h</li>
-                        </ul>
+                {data?.rooms?.map((room: any) => (
+                  <Card key={room.id} className="border border-slate-200 rounded-xl">
+                    <CardContent className="p-6 flex flex-col md:flex-row gap-6 rounded-xl">
+                      <div className="w-full md:w-1/3 h-48 rounded-xl overflow-hidden shrink-0">
+                        <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=800&auto=format&fit=crop" loading="lazy" width="800" height="600" className="w-full h-full object-cover" alt="Room" />
                       </div>
-                      <div className="flex items-end justify-between mt-6">
+                      <div className="flex-1 flex flex-col justify-between">
                         <div>
-                          <p className="text-sm text-slate-500 line-through">4,500,000 ₫</p>
-                          <p className="text-2xl font-bold text-vna-gold">3,850,000 ₫<span className="text-sm text-slate-500 font-normal"> / đêm</span></p>
+                          <h3 className="text-xl font-bold text-slate-800 mb-2">{room.type || 'Phòng Classic Hướng Hồ'}</h3>
+                          <p className="text-sm text-slate-500 mb-4">{room.capacity || 2} Khách • Hướng hồ</p>
+                          <ul className="space-y-1">
+                            <li className="flex items-center text-sm text-slate-600"><CheckCircle2 className="w-4 h-4 mr-2 text-green-500" /> Bao gồm bữa sáng cho 2 người</li>
+                            <li className="flex items-center text-sm text-slate-600"><CheckCircle2 className="w-4 h-4 mr-2 text-green-500" /> Hủy phòng miễn phí trước 24h</li>
+                          </ul>
                         </div>
-                        <Button onClick={handleBook} className="bg-vna-blue text-white px-8 rounded-lg">Chọn phòng</Button>
+                        <div className="flex items-end justify-between mt-6">
+                          <div>
+                            <p className="text-2xl font-bold text-vna-gold">{room.pricePerNight?.toLocaleString('vi-VN')} ₫<span className="text-sm text-slate-500 font-normal"> / đêm</span></p>
+                          </div>
+                          <Button onClick={handleBook} className="bg-vna-blue text-white px-8 rounded-lg">Chọn phòng</Button>
+                        </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                    </CardContent>
+                  </Card>
+                ))}
+
+                {!data?.rooms?.length && (
+                  <Card className="border border-slate-200 rounded-xl">
+                    <CardContent className="p-6 flex flex-col md:flex-row gap-6 rounded-xl">
+                      <div className="w-full md:w-1/3 h-48 rounded-xl overflow-hidden shrink-0">
+                        <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=800&auto=format&fit=crop" loading="lazy" width="800" height="600" className="w-full h-full object-cover" alt="Room" />
+                      </div>
+                      <div className="flex-1 flex flex-col justify-between">
+                        <div>
+                          <h3 className="text-xl font-bold text-slate-800 mb-2">Phòng Classic Hướng Hồ</h3>
+                          <p className="text-sm text-slate-500 mb-4">43 m² • 1 Giường đôi lớn hoặc 2 Giường đơn • Hướng hồ</p>
+                          <ul className="space-y-1">
+                            <li className="flex items-center text-sm text-slate-600"><CheckCircle2 className="w-4 h-4 mr-2 text-green-500" /> Bao gồm bữa sáng cho 2 người</li>
+                            <li className="flex items-center text-sm text-slate-600"><CheckCircle2 className="w-4 h-4 mr-2 text-green-500" /> Hủy phòng miễn phí trước 24h</li>
+                          </ul>
+                        </div>
+                        <div className="flex items-end justify-between mt-6">
+                          <div>
+                            <p className="text-sm text-slate-500 line-through">4,500,000 ₫</p>
+                            <p className="text-2xl font-bold text-vna-gold">3,850,000 ₫<span className="text-sm text-slate-500 font-normal"> / đêm</span></p>
+                          </div>
+                          <Button onClick={handleBook} className="bg-vna-blue text-white px-8 rounded-lg">Chọn phòng</Button>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
 
               </div>
             </section>

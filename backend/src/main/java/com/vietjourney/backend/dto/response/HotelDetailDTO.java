@@ -27,8 +27,59 @@ public class HotelDetailDTO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     
-    // In a real scenario, these should also be DTOs, but since the original entity 
-    // serialization just serialized the collections, we can include them here.
-    private List<HotelAmenity> amenities;
-    private List<HotelRoom> rooms;
+    private List<HotelAmenityDTO> amenities;
+    private List<HotelRoomDTO> rooms;
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class HotelAmenityDTO {
+        private Long id;
+        private String name;
+        private String icon;
+    }
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class HotelRoomDTO {
+        private Long id;
+        private String roomType;
+        private Integer capacity;
+        private BigDecimal pricePerNight;
+        private String image;
+    }
+
+    public static HotelDetailDTO fromEntity(com.vietjourney.backend.entity.Hotel hotel) {
+        return HotelDetailDTO.builder()
+                .id(hotel.getId())
+                .name(hotel.getName())
+                .slug(hotel.getSlug())
+                .image(hotel.getImage())
+                .location(hotel.getLocation())
+                .price(hotel.getPrice())
+                .rating(hotel.getRating())
+                .reviewCount(hotel.getReviewCount())
+                .createdAt(hotel.getCreatedAt())
+                .updatedAt(hotel.getUpdatedAt())
+                .amenities(hotel.getAmenities().stream()
+                        .map(a -> HotelAmenityDTO.builder()
+                                .id(a.getId())
+                                .name(a.getName())
+                                .icon("") // placeholder
+                                .build())
+                        .collect(java.util.stream.Collectors.toList()))
+                .rooms(hotel.getRooms().stream()
+                        .map(r -> HotelRoomDTO.builder()
+                                .id(r.getId())
+                                .roomType(r.getName())
+                                .capacity(r.getCapacity())
+                                .pricePerNight(r.getPrice())
+                                .image("") // placeholder
+                                .build())
+                        .collect(java.util.stream.Collectors.toList()))
+                .build();
+    }
 }

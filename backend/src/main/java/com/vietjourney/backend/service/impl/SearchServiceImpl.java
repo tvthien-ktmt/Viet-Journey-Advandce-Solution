@@ -1,7 +1,7 @@
 package com.vietjourney.backend.service.impl;
 
 import com.vietjourney.backend.dto.response.SearchResponse;
-import com.vietjourney.backend.repository.HotelRepository;
+import com.vietjourney.backend.service.HotelService;
 import com.vietjourney.backend.service.SearchService;
 import com.vietjourney.backend.service.TourService;
 import lombok.RequiredArgsConstructor;
@@ -15,21 +15,24 @@ import java.util.Collections;
 public class SearchServiceImpl implements SearchService {
 
     private final TourService tourService;
-    private final HotelRepository hotelRepository;
+    private final HotelService hotelService;
 
     @Override
     public SearchResponse searchAll(String query, String type, Pageable pageable) {
         SearchResponse response = new SearchResponse();
 
         if (type == null || type.isEmpty() || type.equals("all")) {
-            response.setTours(tourService.searchTours(query, null, null, null, pageable).getContent());
-            response.setHotels(hotelRepository.searchHotels(query, null, null, null, pageable).getContent());
+            int halfSize = Math.max(1, pageable.getPageSize() / 2);
+            org.springframework.data.domain.Pageable tourPageable = org.springframework.data.domain.PageRequest.of(0, halfSize, pageable.getSort());
+            org.springframework.data.domain.Pageable hotelPageable = org.springframework.data.domain.PageRequest.of(0, halfSize);
+            response.setTours(tourService.searchTours(query, null, null, null, tourPageable).getContent().stream().map(com.vietjourney.backend.dto.response.TourDTO::fromEntity).collect(java.util.stream.Collectors.toList()));
+            response.setHotels(hotelService.searchHotels(query, null, null, null, hotelPageable).getContent());
         } else if (type.equals("tour")) {
-            response.setTours(tourService.searchTours(query, null, null, null, pageable).getContent());
+            response.setTours(tourService.searchTours(query, null, null, null, pageable).getContent().stream().map(com.vietjourney.backend.dto.response.TourDTO::fromEntity).collect(java.util.stream.Collectors.toList()));
             response.setHotels(Collections.emptyList());
         } else if (type.equals("hotel")) {
             response.setTours(Collections.emptyList());
-            response.setHotels(hotelRepository.searchHotels(query, null, null, null, pageable).getContent());
+            response.setHotels(hotelService.searchHotels(query, null, null, null, pageable).getContent());
         }
 
         return response;

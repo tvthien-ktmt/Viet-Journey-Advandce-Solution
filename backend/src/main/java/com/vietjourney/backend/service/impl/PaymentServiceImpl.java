@@ -49,7 +49,14 @@ public class PaymentServiceImpl implements PaymentService {
         paymentRepository.save(payment);
 
         PaymentGatewayStrategy strategy = paymentGatewayFactory.getStrategy(request.getPaymentMethod());
-        return strategy.generatePaymentUrl(transactionRef);
+        
+        com.vietjourney.backend.service.strategy.payment.PaymentContext context = com.vietjourney.backend.service.strategy.payment.PaymentContext.builder()
+            .transactionRef(transactionRef)
+            .amount(booking.getTotalPrice())
+            .orderInfo("Thanh toan don hang " + transactionRef)
+            .build();
+            
+        return strategy.generatePaymentUrl(context);
     }
 
     @Override
@@ -57,9 +64,29 @@ public class PaymentServiceImpl implements PaymentService {
     public PaymentResponse handleCallback(java.util.Map<String, String> params) {
         String transactionRef = params.get("vnp_TxnRef");
         String status = params.get("vnp_ResponseCode");
+        String amountRaw = params.get("vnp_Amount");
         
         Payment payment = paymentRepository.findByTransactionRef(transactionRef)
                 .orElseThrow(() -> new com.vietjourney.backend.exception.ResourceNotFoundException("Payment not found"));
+
+        if (amountRaw != null) {
+            try {
+                long amount = Long.parseLong(amountRaw);
+                // VNPAY uses amount in VND * 100
+                if ("VNPAY".equalsIgnoreCase(payment.getPaymentMethod())) {
+                    long expectedAmount = payment.getBooking().getTotalPrice().longValue() * 100;
+                    if (amount != expectedAmount) {
+                        payment.setStatus("failed");
+                        paymentRepository.save(payment);
+                        throw new com.vietjourney.backend.exception.BusinessException("Amount mismatch. Expected: " + expectedAmount + ", Got: " + amount, 400);
+                    }
+                }
+            } catch (NumberFormatException e) {
+                payment.setStatus("failed");
+                paymentRepository.save(payment);
+                throw new com.vietjourney.backend.exception.BusinessException("Malformed amount", 400);
+            }
+        }
 
         PaymentGatewayStrategy strategy = paymentGatewayFactory.getStrategy(payment.getPaymentMethod());
         if (!strategy.verifyCallback(params)) {

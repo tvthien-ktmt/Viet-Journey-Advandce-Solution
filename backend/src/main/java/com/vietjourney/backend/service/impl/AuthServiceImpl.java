@@ -38,6 +38,7 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
     private final JwtUtil jwtUtil;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final org.springframework.data.redis.core.StringRedisTemplate redisTemplate;
 
     @Override
     public AuthResponse register(RegisterRequest request) {
@@ -64,12 +65,35 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new com.vietjourney.backend.exception.UnauthorizedActionException("Email hoặc mật khẩu không chính xác"));
 
-        return authenticate(request.getEmail(), request.getPassword(), user);
+        if (user.getLockedUntil() != null && user.getLockedUntil().isAfter(LocalDateTime.now())) {
+            throw new com.vietjourney.backend.exception.BusinessException("Tài khoản đã bị khóa. Vui lòng thử lại sau.", 403);
+        }
+
+        try {
+            AuthResponse response = authenticate(request.getEmail(), request.getPassword(), user);
+            
+            // Reset on success
+            if (user.getFailedLoginCount() > 0) {
+                user.setFailedLoginCount(0);
+                user.setLockedUntil(null);
+                userRepository.save(user);
+            }
+            
+            return response;
+        } catch (org.springframework.security.authentication.BadCredentialsException ex) {
+            int failedAttempts = user.getFailedLoginCount() + 1;
+            user.setFailedLoginCount(failedAttempts);
+            if (failedAttempts >= 5) {
+                user.setLockedUntil(LocalDateTime.now().plusMinutes(15));
+            }
+            userRepository.save(user);
+            throw new com.vietjourney.backend.exception.UnauthorizedActionException("Email hoặc mật khẩu không chính xác");
+        }
     }
 
     @Override
     public AuthResponse refreshToken(String token) {
-        RefreshToken refreshToken = refreshTokenRepository.findByTokenAndRevokedFalse(token)
+        RefreshToken refreshToken = refreshTokenRepository.findByTokenAndRevokedFalse(hashToken(token))
                 .orElseThrow(() -> new com.vietjourney.backend.exception.UnauthorizedActionException("Refresh token không hợp lệ hoặc đã bị thu hồi"));
 
         if (refreshToken.getExpiresAt().isBefore(LocalDateTime.now())) {
@@ -88,7 +112,7 @@ public class AuthServiceImpl implements AuthService {
         String newRefreshTokenString = UUID.randomUUID().toString();
         RefreshToken newRefreshToken = new RefreshToken();
         newRefreshToken.setUser(user);
-        newRefreshToken.setToken(newRefreshTokenString);
+        newRefreshToken.setToken(hashToken(newRefreshTokenString));
         newRefreshToken.setExpiresAt(LocalDateTime.now().plusDays(7));
         refreshTokenRepository.save(newRefreshToken);
 
@@ -115,13 +139,42 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @org.springframework.transaction.annotation.Transactional
-    public void logoutCurrentUser() {
+    public void logoutCurrentUser(String token) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getPrincipal())) {
             String email = authentication.getName();
             userRepository.findByEmail(email).ifPresent(user -> {
                 refreshTokenRepository.deleteByUserId(user.getId());
             });
+            
+            if (token != null) {
+                // Blacklist the token until it expires
+                long expirationTime = jwtUtil.getExpirationTime(token) - System.currentTimeMillis();
+                if (expirationTime > 0) {
+                    redisTemplate.opsForValue().set(
+                            "jwt_blacklist:" + token,
+                            "revoked",
+                            expirationTime,
+                            java.util.concurrent.TimeUnit.MILLISECONDS
+                    );
+                }
+            }
+        }
+    }
+
+    private String hashToken(String token) {
+        try {
+            java.security.MessageDigest digest = java.security.MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(token.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hash) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            return hexString.toString();
+        } catch (java.security.NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -136,7 +189,7 @@ public class AuthServiceImpl implements AuthService {
         String refreshTokenString = UUID.randomUUID().toString();
         RefreshToken refreshToken = new RefreshToken();
         refreshToken.setUser(user);
-        refreshToken.setToken(refreshTokenString);
+        refreshToken.setToken(hashToken(refreshTokenString));
         refreshToken.setExpiresAt(LocalDateTime.now().plusDays(7)); // 7 days
         refreshTokenRepository.save(refreshToken);
 

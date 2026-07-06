@@ -14,15 +14,15 @@ export interface HoldRequest {
 
 export const bookingApi = {
   createHold: (req: HoldRequest): Promise<FlightBooking> =>
-    USE_MOCK ? mockCreateHold(req) : api.post('/booking/hold', req),
+    USE_MOCK ? mockCreateHold(req) : api.post('/bookings', req),
   get: (id: string): Promise<FlightBooking> =>
-    USE_MOCK ? mockGetBooking(id) : api.get(`/booking/${id}`),
+    USE_MOCK ? mockGetBooking(id) : api.get(`/bookings/${id}`),
   updatePassengers: (id: string, pax: Passenger[]): Promise<FlightBooking> =>
-    USE_MOCK ? mockUpdatePassengers(id, pax) : api.post(`/booking/${id}/passengers`, pax),
+    USE_MOCK ? mockUpdatePassengers(id, pax) : api.post(`/bookings/${id}/passengers`, pax),
   payVnpay: (bookingId: string) =>
-    USE_MOCK ? mockPayVnpay(bookingId) : api.post('/payment/vnpay/mock', { bookingId }),
+    USE_MOCK ? mockPayVnpay(bookingId) : api.post('/payments/create', { bookingId, paymentMethod: 'VNPAY' }),
   search: (code: string, lastName: string) => 
     api.get(`/bookings/search`, { params: { code, lastName } }),
-  getMyBookings: () => 
-    api.get(`/bookings/my-bookings`),
+  getMyBookings: (page = 0, size = 10) => 
+    api.get(`/bookings/my-bookings`, { params: { page, size } }),
 };

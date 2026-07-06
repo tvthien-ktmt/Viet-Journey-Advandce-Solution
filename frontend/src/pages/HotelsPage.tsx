@@ -42,25 +42,35 @@ const HotelCard = React.memo(({ hotel, isWishlist, onToggleWishlist }: {
         <div className="flex justify-between items-end">
           <div>
             <p className="text-xs text-slate-400">Giá từ</p>
-            <p className="font-bold text-vna-gold text-lg">{hotel.price.toLocaleString('vi-VN')} ₫</p>
+            <p className="font-bold text-vna-gold text-lg">{hotel.price?.toLocaleString('vi-VN')} ₫</p>
           </div>
-          <Button size="sm" variant="outline" className="text-vna-blue border-vna-blue hover:bg-blue-50 rounded-lg transition-all duration-300">Đặt phòng</Button>
+          <Button size="sm" variant="outline" onClick={() => (window.location.href = `/hotel/${hotel.id}`)} className="text-vna-blue border-vna-blue hover:bg-blue-50 rounded-lg transition-all duration-300">Đặt phòng</Button>
         </div>
       </CardContent>
     </Card>
   );
 });
 
+import { useQuery } from '@tanstack/react-query';
+import { getHotels } from '@/api/hotels';
+import { useNavigate } from 'react-router-dom';
+
 export default function HotelsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [wishlist, setWishlist] = useState<Record<number, boolean>>({});
+  const navigate = useNavigate();
+
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ['hotels', searchTerm],
+    queryFn: () => getHotels({ query: searchTerm }),
+  });
 
   const toggleWishlist = (e: React.MouseEvent, id: number) => {
     e.stopPropagation();
     setWishlist(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
-  const filteredHotels = HOTELS.filter(h => h.location.toLowerCase().includes(searchTerm.toLowerCase()));
+  const filteredHotels = data?.content || HOTELS.filter(h => h.location.toLowerCase().includes(searchTerm.toLowerCase()));
 
   return (
     <div className="min-h-screen bg-slate-50 pb-20 pt-24">
@@ -89,9 +99,11 @@ export default function HotelsPage() {
           <Button className="h-12 px-8 bg-vna-blue rounded-lg">Tìm kiếm</Button>
         </div>
 
+        {isLoading && <p className="text-center py-10">Đang tải...</p>}
+        {isError && <p className="text-center py-10 text-red-500">Lỗi tải dữ liệu. Hiển thị dữ liệu mẫu.</p>}
         {/* List */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {filteredHotels.map(hotel => (
+          {filteredHotels.map((hotel: any) => (
             <HotelCard 
               key={hotel.id} 
               hotel={hotel} 

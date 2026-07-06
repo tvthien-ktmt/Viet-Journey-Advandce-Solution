@@ -1,8 +1,17 @@
 
-import { Link } from 'react-router-dom';
-
+import { Link, useParams } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { bookingApi } from '@/api/booking';
+import { format } from 'date-fns';
 
 export default function BookingDetailPage() {
+  const { id } = useParams<{ id: string }>();
+
+  const { data: booking, isLoading, isError } = useQuery({
+    queryKey: ['booking', id],
+    queryFn: () => bookingApi.get(id as string),
+    enabled: !!id
+  });
   return (
     <>
       <div className="flex flex-col flex-grow py-8 md:py-12">
@@ -18,15 +27,17 @@ export default function BookingDetailPage() {
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-[12px] uppercase tracking-wider text-onSurface-variant">Booking ID</span>
-                <span className="text-[16px] font-mono">#VJ-88392-TL</span>
+                <span className="text-[16px] font-mono">#{booking?.bookingCode || id}</span>
               </div>
-              <h1 className="text-[32px] md:text-[40px] font-bold text-onSurface">Ha Long Bay Luxury Cruise</h1>
+              <h1 className="text-[32px] md:text-[40px] font-bold text-onSurface">
+                {booking?.outboundFlight?.from} - {booking?.outboundFlight?.to}
+              </h1>
             </div>
             
             <div className="flex items-center gap-4">
               <div className="inline-flex items-center gap-2 bg-success/15 text-primary-dark py-2 px-4 rounded-full border border-success/30 w-fit m-0">
                 <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1" }}>check_circle</span>
-                <span className="text-[12px] font-bold uppercase">Confirmed</span>
+                <span className="text-[12px] font-bold uppercase">{booking?.status || 'Confirmed'}</span>
               </div>
               <button onClick={() => window.print()} className="px-4 py-2 border border-outline rounded-lg text-[12px] font-medium flex items-center gap-1 hover:bg-surface-variant transition-colors bg-transparent">
                 <span className="material-symbols-outlined text-[18px]">print</span>
@@ -35,6 +46,9 @@ export default function BookingDetailPage() {
             </div>
           </div>
         </div>
+
+        {isLoading && <p className="text-center py-10">Đang tải thông tin booking...</p>}
+        {isError && <p className="text-center py-10 text-red-500">Lỗi tải dữ liệu. Bạn đang xem dữ liệu mẫu.</p>}
 
         {/* Bento Grid Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -50,26 +64,26 @@ export default function BookingDetailPage() {
               <div className="p-6 flex-grow flex flex-col justify-between">
                 <div>
                   <div className="flex items-center gap-1 text-primary mb-2 text-[12px]">
-                    <span className="material-symbols-outlined text-[18px]">directions_boat</span>
-                    <span>2 Days, 1 Night Cruise</span>
+                    <span className="material-symbols-outlined text-[18px]">flight</span>
+                    <span>Flight Booking</span>
                   </div>
-                  <h3 className="text-[24px] font-bold text-onSurface mb-2">Stella Maris Signature Cruise</h3>
+                  <h3 className="text-[24px] font-bold text-onSurface mb-2">{booking?.outboundFlight?.flightNo || 'VN-123'}</h3>
                   <div className="flex items-center text-onSurface-variant text-[14px] mb-4 gap-1">
-                    <span className="material-symbols-outlined text-[18px]">location_on</span>
-                    <span>Tuan Chau Marina, Ha Long, Quang Ninh</span>
+                    <span className="material-symbols-outlined text-[18px]">airlines</span>
+                    <span>{booking?.outboundFlight?.airline || 'Vietnam Airlines'}</span>
                   </div>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-outline-variant/30">
                   <div>
-                    <span className="block text-[12px] text-onSurface-variant mb-1">Check-in</span>
-                    <span className="block text-[16px] font-semibold text-onSurface">Oct 15, 2024</span>
-                    <span className="block text-[14px] text-onSurface-variant">11:30 AM</span>
+                    <span className="block text-[12px] text-onSurface-variant mb-1">Khởi hành</span>
+                    <span className="block text-[16px] font-semibold text-onSurface">{booking?.outboundFlight?.departTime ? 'Oct 15, 2024' : 'Oct 15, 2024'}</span>
+                    <span className="block text-[14px] text-onSurface-variant">{booking?.outboundFlight?.departTime || '11:30 AM'}</span>
                   </div>
                   <div>
-                    <span className="block text-[12px] text-onSurface-variant mb-1">Check-out</span>
-                    <span className="block text-[16px] font-semibold text-onSurface">Oct 16, 2024</span>
-                    <span className="block text-[14px] text-onSurface-variant">10:30 AM</span>
+                    <span className="block text-[12px] text-onSurface-variant mb-1">Đến nơi</span>
+                    <span className="block text-[16px] font-semibold text-onSurface">{booking?.outboundFlight?.arriveTime ? 'Oct 16, 2024' : 'Oct 16, 2024'}</span>
+                    <span className="block text-[14px] text-onSurface-variant">{booking?.outboundFlight?.arriveTime || '10:30 AM'}</span>
                   </div>
                 </div>
               </div>
@@ -83,30 +97,31 @@ export default function BookingDetailPage() {
               </h4>
               
               <div className="flex flex-col gap-4">
-                {/* Guest 1 */}
-                <div className="flex items-center justify-between p-4 bg-surface-container-low rounded-lg border border-outline-variant/10">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center">
-                      <span className="material-symbols-outlined">person</span>
-                    </div>
-                    <div>
-                      <p className="text-[16px] font-semibold text-onSurface">Alex Tran</p>
-                      <p className="text-[14px] text-onSurface-variant">Lead Guest • Adult</p>
-                    </div>
-                  </div>
-                </div>
-                {/* Guest 2 */}
-                <div className="flex items-center justify-between p-4 bg-surface-container-low rounded-lg border border-outline-variant/10">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center">
-                      <span className="material-symbols-outlined">person</span>
-                    </div>
-                    <div>
-                      <p className="text-[16px] font-semibold text-onSurface">Mai Nguyen</p>
-                      <p className="text-[14px] text-onSurface-variant">Adult</p>
+                {booking?.passengers ? booking.passengers.map((pax: any, i: number) => (
+                  <div key={i} className="flex items-center justify-between p-4 bg-surface-container-low rounded-lg border border-outline-variant/10">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                        <span className="material-symbols-outlined">person</span>
+                      </div>
+                      <div>
+                        <p className="text-[16px] font-semibold text-onSurface">{pax.firstName} {pax.lastName}</p>
+                        <p className="text-[14px] text-onSurface-variant">{pax.type || 'Adult'} {i === 0 ? '• Lead Guest' : ''}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
+                )) : (
+                  <div className="flex items-center justify-between p-4 bg-surface-container-low rounded-lg border border-outline-variant/10">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                        <span className="material-symbols-outlined">person</span>
+                      </div>
+                      <div>
+                        <p className="text-[16px] font-semibold text-onSurface">Alex Tran</p>
+                        <p className="text-[14px] text-onSurface-variant">Lead Guest • Adult</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
               
               <div className="mt-4 p-4 bg-secondary-container/30 border border-secondary-container/50 rounded-lg flex gap-2 items-start">
@@ -134,23 +149,19 @@ export default function BookingDetailPage() {
               
               <div className="flex flex-col gap-2 text-[14px] text-onSurface-variant mb-6">
                 <div className="flex justify-between items-center">
-                  <span>Stella Maris Suite x 1</span>
-                  <span>$380.00</span>
+                  <span>Vé Máy Bay x {booking?.passengers?.length || 1}</span>
+                  <span>{(booking?.totalAmount || 380)?.toLocaleString('vi-VN')} ₫</span>
                 </div>
-                <div className="flex justify-between items-center">
-                  <span>Taxes & Fees (10%)</span>
-                  <span>$38.00</span>
-                </div>
-                <div className="flex justify-between items-center text-success">
-                  <span>Early Bird Promo</span>
-                  <span>-$20.00</span>
-                </div>
+                <div className="flex justify-between font-bold text-lg text-vna-red pt-4 border-t border-vna-border">
+                <span>Tổng cộng</span>
+                <span>{(booking?.totalAmount || 0).toLocaleString('vi-VN')} ₫</span>
+              </div>
               </div>
               
               <div className="border-t border-outline-variant/30 pt-4 mb-6">
                 <div className="flex justify-between items-end mb-1">
                   <span className="text-[16px] font-semibold text-onSurface">Total Amount</span>
-                  <span className="text-[32px] font-bold text-primary tracking-tight leading-none">$398.00</span>
+                  <span className="text-[32px] font-bold text-primary tracking-tight leading-none">{(booking?.totalAmount || 398)?.toLocaleString('vi-VN')} ₫</span>
                 </div>
                 <p className="text-[12px] text-onSurface-variant text-right">Paid via Visa ending in •••• 4242</p>
               </div>

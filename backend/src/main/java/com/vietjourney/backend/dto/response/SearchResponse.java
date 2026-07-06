@@ -14,6 +14,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class SearchResponse {
-    private List<Tour> tours;
-    private List<Hotel> hotels;
+    private List<com.vietjourney.backend.dto.response.TourDTO> tours;
+    private List<com.vietjourney.backend.dto.response.HotelDTO> hotels;
 }

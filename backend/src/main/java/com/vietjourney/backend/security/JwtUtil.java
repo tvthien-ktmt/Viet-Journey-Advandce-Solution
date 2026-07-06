@@ -60,4 +60,13 @@ public class JwtUtil {
         }
         return false;
     }
+
+    public long getExpirationTime(String token) {
+        try {
+            return Jwts.parserBuilder().setSigningKey(getSigningKey()).build()
+                    .parseClaimsJws(token).getBody().getExpiration().getTime();
+        } catch (Exception e) {
+            return 0;
+        }
+    }
 }

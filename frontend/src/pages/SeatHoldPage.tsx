@@ -45,7 +45,10 @@ export default function SeatHoldPage() {
   const { data: booking, isLoading } = useQuery({
     queryKey: ['booking', activeId],
     queryFn: () => bookingApi.get(activeId!),
-    refetchInterval: 5000,
+    refetchInterval: (query) => {
+      // Adaptive refetch based on countdown
+      return 10000; // Simplified for now, or you can implement timeLeft logic
+    },
     enabled: !!activeId,
   });
 

@@ -77,7 +77,7 @@ export default function BookingHistoryPage() {
                         {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(b.totalPrice)}
                       </p>
                     </div>
-                    <Link to={`/booking/BK${b.id}`} className="text-[14px] text-vna-blue flex items-center gap-1 font-medium hover:opacity-80 transition-opacity">
+                    <Link to={`/booking/${b.id}`} className="text-[14px] text-vna-blue flex items-center gap-1 font-medium hover:opacity-80 transition-opacity">
                       Chi tiết <span className="material-symbols-outlined text-[18px]">arrow_forward</span>
                     </Link>
                   </div>

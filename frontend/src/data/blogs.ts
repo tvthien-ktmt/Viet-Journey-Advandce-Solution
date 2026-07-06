@@ -1,13 +1,16 @@
 import { IMAGES } from './images';
 
 export interface Blog {
-  id: number;
+  id?: string | number;
   slug: string;
-  date: string;
   title: string;
-  excerpt: string;
-  coverImage: string;
-  content: string;
+  excerpt?: string;
+  content?: string;
+  image?: string;
+  date?: string;
+  category?: string;
+  readTime?: string;
+  coverImage?: string;
 }
 
 export const BLOGS: Blog[] = [

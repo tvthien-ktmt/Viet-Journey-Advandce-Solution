@@ -25,4 +25,9 @@ public class TourBookingStrategy implements BookingItemStrategy {
             throw new com.vietjourney.backend.exception.ResourceNotFoundException("Tour not found");
         }
     }
+
+    @Override
+    public void release(Long referenceId, int quantity) {
+        // Tour reservation release logic here if applicable
+    }
 }

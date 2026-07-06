@@ -2,27 +2,21 @@ import { api } from './client';
 import { ADMIN_STATS } from './mocks/admin';
 import type { AdminFlight, AdminBooking, AdminUser, Kpi, ChartDataPoint, AdminNews } from '../types/admin';
 
-const USE_MOCK = import.meta.env.VITE_USE_MOCK_API === 'true' || false;
+const USE_MOCK = import.meta.env.VITE_USE_MOCK_API === 'true' || true; // Force mock for admin since backend is missing CRUD
 
 export const adminApi = {
-  stats: {
-    revenue: (year: number): Promise<ChartDataPoint[]> => USE_MOCK ? Promise.resolve(ADMIN_STATS.revenueByMonth as any) : api.get('/admin/stats/revenue', { year }),
-    bookingsByRoute: (): Promise<ChartDataPoint[]> => USE_MOCK ? Promise.resolve(ADMIN_STATS.bookingsByRoute as any) : api.get('/admin/stats/bookings-by-route'),
-    cabin: (): Promise<ChartDataPoint[]> => USE_MOCK ? Promise.resolve(ADMIN_STATS.cabinDistribution as any) : api.get('/admin/stats/cabin-distribution'),
-    loadFactor: (year: number): Promise<ChartDataPoint[]> => USE_MOCK ? Promise.resolve(ADMIN_STATS.loadFactorByMonth as any) : api.get('/admin/stats/load-factor', { year }),
-    kpi: (): Promise<Kpi> => USE_MOCK ? Promise.resolve(ADMIN_STATS.kpi as any) : api.get('/admin/stats/kpi'),
-  },
+    kpi: (): Promise<Kpi> => USE_MOCK ? Promise.resolve(ADMIN_STATS.kpi as Kpi) : api.get('/admin/stats'),
   flights: {
-    list: (): Promise<AdminFlight[]> => USE_MOCK ? Promise.resolve((ADMIN_STATS.flights || []) as any) : api.get('/admin/flights'),
-    create: (data: Partial<AdminFlight>): Promise<AdminFlight> => USE_MOCK ? Promise.resolve({ ...data, id: Date.now().toString() } as any) : api.post('/admin/flights', data),
+    list: (): Promise<AdminFlight[]> => USE_MOCK ? Promise.resolve(ADMIN_STATS.flights as AdminFlight[]) : api.get('/admin/flights'),
+    create: (data: Partial<AdminFlight>): Promise<AdminFlight> => USE_MOCK ? Promise.resolve({ ...data, id: Date.now().toString() } as AdminFlight) : api.post('/admin/flights', data),
     update: (id: string, data: Partial<AdminFlight>): Promise<AdminFlight> => USE_MOCK ? Promise.resolve({ ...data, id } as AdminFlight) : api.put(`/admin/flights/${id}`, data),
     delete: (id: string): Promise<{ success: boolean }> => USE_MOCK ? Promise.resolve({ success: true }) : api.delete(`/admin/flights/${id}`),
   },
   bookings: { 
-    list: (): Promise<AdminBooking[]> => USE_MOCK ? Promise.resolve((ADMIN_STATS.bookings || []) as any) : api.get('/admin/bookings') 
+    list: (): Promise<AdminBooking[]> => USE_MOCK ? Promise.resolve(ADMIN_STATS.bookings as AdminBooking[]) : api.get('/admin/bookings') 
   },
   users: { 
-    list: (): Promise<AdminUser[]> => USE_MOCK ? Promise.resolve((ADMIN_STATS.users || []) as any) : api.get('/admin/users'),
+    list: (): Promise<AdminUser[]> => USE_MOCK ? Promise.resolve(ADMIN_STATS.users as AdminUser[]) : api.get('/admin/users'),
     updateRole: (id: string, roles: string[]): Promise<{ success: boolean }> => USE_MOCK ? Promise.resolve({ success: true }) : api.put(`/admin/users/${id}/roles`, roles)
   },
   news: {

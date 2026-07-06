@@ -41,6 +41,9 @@ public class Payment {
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
+
+    @Version
+    private Long version;
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

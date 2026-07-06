@@ -9,11 +9,18 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Stage 2: Create the runtime image
-FROM eclipse-temurin:17-jre-focal
+FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
+
+# Run as non-root user
+RUN addgroup -S spring && adduser -S spring -G spring
+USER spring:spring
+
 # Copy the built jar from the build stage
 COPY --from=build /app/target/*.jar app.jar
+
 # Expose the application port
 EXPOSE 8080
-# Run the application
-ENTRYPOINT ["java", "-jar", "app.jar"]
+
+# Run the application with memory limit settings
+ENTRYPOINT ["java", "-XX:MaxRAMPercentage=75.0", "-jar", "app.jar"]

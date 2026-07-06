@@ -3,6 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Calendar, ArrowRight, BookOpen } from 'lucide-react';
+import { BlogCard } from '@/components/blog/BlogCard';
+
+import { useQuery } from '@tanstack/react-query';
+import { blogApi } from '@/api/blog';
 
 const mockBlogs = [
   { id: '1', title: 'Vietnam Airlines chính thức mở đường bay thẳng đến Munich (Đức)', category: 'Tin tức VNA', date: '04/10/2025', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=2074&auto=format&fit=crop' },
@@ -16,9 +20,18 @@ export default function BlogPage() {
   const navigate = useNavigate();
   const [filter, setFilter] = useState('Tất cả');
   
-  const categories = ['Tất cả', 'Tin tức VNA', 'Cẩm nang du lịch', 'Khuyến mãi'];
-  const filteredBlogs = mockBlogs.filter(b => filter === 'Tất cả' || b.category === filter);
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ['blogs'],
+    queryFn: () => blogApi.list()
+  });
 
+  const blogs = data || mockBlogs;
+  const categories = ['Tất cả', 'Tin tức VNA', 'Cẩm nang du lịch', 'Khuyến mãi'];
+  const [searchTerm, setSearchTerm] = useState('');
+  const filteredBlogs = (data || []).filter((blog: any) => 
+    blog.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    (blog.category && blog.category.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
   const featuredBlog = filteredBlogs[0];
   const otherBlogs = filteredBlogs.slice(1);
 
@@ -43,20 +56,29 @@ export default function BlogPage() {
           ))}
         </div>
 
-        {filteredBlogs.length === 0 && (
-          <div className="flex flex-col items-center py-16 text-center">
-            <BookOpen className="w-14 h-14 text-gray-300 mb-4" />
-            <h3 className="text-lg font-semibold text-[#0b1f3a]">Chưa có bài viết nào</h3>
-            <p className="text-[#64748b] mt-1 text-sm">Chúng tôi đang cập nhật thêm nội dung cho chuyên mục này.</p>
-          </div>
-        )}
+        {isLoading && <p className="text-center py-10">Đang tải...</p>}
+        {isError && <p className="text-center py-10 text-red-500">Lỗi tải dữ liệu. Bạn đang xem dữ liệu mẫu.</p>}
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {filteredBlogs && filteredBlogs.length > 0 ? (
+            filteredBlogs.map((blog: any) => (
+              <BlogCard key={blog.id || blog.slug} blog={blog} />
+            ))
+          ) : (
+            <div className="flex flex-col items-center py-16 text-center">
+              <BookOpen className="w-14 h-14 text-gray-300 mb-4" />
+              <h3 className="text-lg font-semibold text-[#0b1f3a]">Chưa có bài viết nào</h3>
+              <p className="text-[#64748b] mt-1 text-sm">Chúng tôi đang cập nhật thêm nội dung cho chuyên mục này.</p>
+            </div>
+          )}
+        </div>
 
         {featuredBlog && (
           <div className="mb-12">
             <h2 className="text-2xl font-bold text-slate-800 mb-6">Bài viết nổi bật</h2>
             <Card 
               className="overflow-hidden cursor-pointer group border-0 shadow-lg rounded-xl"
-              onClick={() => navigate(`/blog/${featuredBlog.id}`)}
+              onClick={() => navigate(`/blog/${featuredBlog.slug || featuredBlog.id}`)}
             >
               <div className="flex flex-col md:flex-row">
                 <div className="w-full md:w-2/3 h-[300px] md:h-[450px] relative overflow-hidden">
@@ -85,7 +107,7 @@ export default function BlogPage() {
                 <Card 
                   key={blog.id} 
                   className="overflow-hidden cursor-pointer group border-0 shadow hover:shadow-xl transition-all rounded-xl"
-                  onClick={() => navigate(`/blog/${blog.id}`)}
+                  onClick={() => navigate(`/blog/${blog.slug || blog.id}`)}
                 >
                   <div className="h-[240px] relative overflow-hidden">
                     <img src={blog.image} alt={blog.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />

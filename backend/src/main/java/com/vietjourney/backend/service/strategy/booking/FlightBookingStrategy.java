@@ -26,4 +26,9 @@ public class FlightBookingStrategy implements BookingItemStrategy {
             throw new com.vietjourney.backend.exception.BusinessException("Không đủ ghế trống. Vui lòng chọn chuyến bay khác.", 409);
         }
     }
+
+    @Override
+    public void release(Long referenceId, int quantity) {
+        flightRepository.incrementAvailableSeats(referenceId, quantity);
+    }
 }

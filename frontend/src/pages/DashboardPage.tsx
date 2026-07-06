@@ -1,10 +1,26 @@
 
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-
+import { useAuth } from '@/store/authStore';
+import { useQuery } from '@tanstack/react-query';
+import { bookingApi } from '@/api/booking';
+import { profileApi } from '@/api/profile';
+import { format } from 'date-fns';
 
 export default function DashboardPage() {
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const { user } = useAuth();
+  
+  const { data: bookingsData } = useQuery({
+    queryKey: ['my-bookings'],
+    queryFn: () => bookingApi.getMyBookings()
+  });
+
+  const { data: wishlistData } = useQuery({
+    queryKey: ['wishlist'],
+    queryFn: () => profileApi.wishlist.list()
+  });
+
+  const bookings = (bookingsData as any)?.content || (bookingsData as any)?.data?.content || [];
 
   return (
     <>
@@ -13,7 +29,7 @@ export default function DashboardPage() {
         {/* Header */}
         <header className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
           <div>
-            <h1 className="text-[32px] md:text-[40px] font-bold text-onBackground mb-2">Xin chào, Nguyễn Văn A!</h1>
+            <h1 className="text-[32px] md:text-[40px] font-bold text-onBackground mb-2">Xin chào, {user?.fullName || 'bạn'}!</h1>
             <p className="text-[18px] text-onSurface-variant">Here is a summary of your travel activities.</p>
           </div>
           <div className="flex gap-2">
@@ -36,7 +52,7 @@ export default function DashboardPage() {
                 </div>
               </div>
               <div>
-                <h3 className="text-[48px] md:text-[56px] font-bold text-onSurface leading-tight">12</h3>
+                <h3 className="text-[48px] md:text-[56px] font-bold text-onSurface leading-tight">{bookings.length}</h3>
                 <p className="text-[12px] uppercase tracking-wider text-onSurface-variant">Chuyến đi</p>
               </div>
             </div>
@@ -139,11 +155,13 @@ export default function DashboardPage() {
             {/* Right Column (Col Span 2) */}
             <section className="lg:col-span-2 flex flex-col gap-8">
               
-              {/* Chart Placeholder */}
               <div>
-                <h2 className="text-[20px] font-bold text-onSurface mb-4">Thống kê chi tiêu (Canvas)</h2>
-                <div className="bg-surface border border-outline-variant rounded-md p-4 w-full flex items-center justify-center h-48 text-onSurface-variant text-[14px] italic">
-                  [Chart Component Placeholder - Replace with actual canvas/chartjs]
+                <h2 className="text-[20px] font-bold text-onSurface mb-4">Thống kê chi tiêu</h2>
+                <div className="bg-surface border border-outline-variant rounded-md p-4 w-full flex flex-col justify-center h-48 text-onSurface-variant">
+                  <p className="text-[14px] text-center mb-2">Tổng chi tiêu</p>
+                  <p className="text-[32px] font-bold text-primary text-center">
+                    {bookings.reduce((sum: number, b: any) => sum + (b.totalPrice || 0), 0).toLocaleString('vi-VN')} ₫
+                  </p>
                 </div>
               </div>
 
@@ -170,62 +188,35 @@ export default function DashboardPage() {
                         </tr>
                       </thead>
                       <tbody className="text-[14px]">
-                        <tr className="hover:bg-surface-bright transition-colors cursor-pointer">
-                          <td className="p-4 border-b border-surface-variant font-medium text-onSurface">#VJ-8924</td>
-                          <td className="p-4 border-b border-surface-variant">
-                            <div className="inline-flex items-center gap-1 px-2 py-1 rounded bg-primary-light text-primary">
-                              <span className="material-symbols-outlined text-[14px]">tour</span> Tour
-                            </div>
-                          </td>
-                          <td className="p-4 border-b border-surface-variant text-onSurface">Trang An - Bai Dinh</td>
-                          <td className="p-4 border-b border-surface-variant text-onSurface-variant">Sep 12, 2024</td>
-                          <td className="p-4 border-b border-surface-variant font-medium text-onSurface">1,250,000 ₫</td>
-                          <td className="p-4 border-b border-surface-variant">
-                            <span className="inline-flex items-center px-2 py-1 rounded-full text-[12px] font-medium bg-success/10 text-success">Hoàn tất</span>
-                          </td>
-                        </tr>
-                        <tr className="hover:bg-surface-bright transition-colors cursor-pointer">
-                          <td className="p-4 border-b border-surface-variant font-medium text-onSurface">#VJ-7531</td>
-                          <td className="p-4 border-b border-surface-variant">
-                            <div className="inline-flex items-center gap-1 px-2 py-1 rounded bg-info/10 text-info">
-                              <span className="material-symbols-outlined text-[14px]">hotel</span> Hotel
-                            </div>
-                          </td>
-                          <td className="p-4 border-b border-surface-variant text-onSurface">Melia Danang Beach Resort</td>
-                          <td className="p-4 border-b border-surface-variant text-onSurface-variant">Aug 05 - 08, 2024</td>
-                          <td className="p-4 border-b border-surface-variant font-medium text-onSurface">8,400,000 ₫</td>
-                          <td className="p-4 border-b border-surface-variant">
-                            <span className="inline-flex items-center px-2 py-1 rounded-full text-[12px] font-medium bg-success/10 text-success">Hoàn tất</span>
-                          </td>
-                        </tr>
-                        <tr className="hover:bg-surface-bright transition-colors cursor-pointer">
-                          <td className="p-4 border-b border-surface-variant font-medium text-onSurface">#VJ-6210</td>
-                          <td className="p-4 border-b border-surface-variant">
-                            <div className="inline-flex items-center gap-1 px-2 py-1 rounded bg-primary-light text-primary">
-                              <span className="material-symbols-outlined text-[14px]">tour</span> Tour
-                            </div>
-                          </td>
-                          <td className="p-4 border-b border-surface-variant text-onSurface">Mekong Delta 1 Day</td>
-                          <td className="p-4 border-b border-surface-variant text-onSurface-variant">Jul 22, 2024</td>
-                          <td className="p-4 border-b border-surface-variant font-medium text-onSurface">850,000 ₫</td>
-                          <td className="p-4 border-b border-surface-variant">
-                            <span className="inline-flex items-center px-2 py-1 rounded-full text-[12px] font-medium bg-success/10 text-success">Hoàn tất</span>
-                          </td>
-                        </tr>
-                        <tr className="hover:bg-surface-bright transition-colors cursor-pointer">
-                          <td className="p-4 border-b border-surface-variant font-medium text-onSurface">#VJ-5988</td>
-                          <td className="p-4 border-b border-surface-variant">
-                            <div className="inline-flex items-center gap-1 px-2 py-1 rounded bg-secondary-fixed/50 text-onSecondary-container">
-                              <span className="material-symbols-outlined text-[14px]">flight</span> Flight
-                            </div>
-                          </td>
-                          <td className="p-4 border-b border-surface-variant text-onSurface">HAN -&gt; SGN</td>
-                          <td className="p-4 border-b border-surface-variant text-onSurface-variant">Jun 10, 2024</td>
-                          <td className="p-4 border-b border-surface-variant font-medium text-onSurface">2,100,000 ₫</td>
-                          <td className="p-4 border-b border-surface-variant">
-                            <span className="inline-flex items-center px-2 py-1 rounded-full text-[12px] font-medium bg-success/10 text-success">Hoàn tất</span>
-                          </td>
-                        </tr>
+                        {bookings.slice(0, 5).map((booking: any) => (
+                          <tr key={booking.id} className="hover:bg-surface-bright transition-colors cursor-pointer">
+                            <td className="p-4 border-b border-surface-variant font-medium text-onSurface">#{booking.bookingCode}</td>
+                            <td className="p-4 border-b border-surface-variant">
+                              <div className="inline-flex items-center gap-1 px-2 py-1 rounded bg-secondary-fixed/50 text-onSecondary-container">
+                                <span className="material-symbols-outlined text-[14px]">flight</span> Flight
+                              </div>
+                            </td>
+                            <td className="p-4 border-b border-surface-variant text-onSurface">
+                              {booking.flight?.route?.origin?.code} -&gt; {booking.flight?.route?.destination?.code}
+                            </td>
+                            <td className="p-4 border-b border-surface-variant text-onSurface-variant">
+                              {booking.createdAt ? format(new Date(booking.createdAt), 'MMM dd, yyyy') : ''}
+                            </td>
+                            <td className="p-4 border-b border-surface-variant font-medium text-onSurface">
+                              {booking.totalPrice?.toLocaleString('vi-VN')} ₫
+                            </td>
+                            <td className="p-4 border-b border-surface-variant">
+                              <span className={`inline-flex items-center px-2 py-1 rounded-full text-[12px] font-medium ${booking.status === 'CONFIRMED' ? 'bg-success/10 text-success' : 'bg-warning/10 text-warning'}`}>
+                                {booking.status}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                        {bookings.length === 0 && (
+                          <tr>
+                            <td colSpan={6} className="p-8 text-center text-onSurface-variant">Chưa có đặt chỗ nào.</td>
+                          </tr>
+                        )}
                       </tbody>
                     </table>
                   </div>

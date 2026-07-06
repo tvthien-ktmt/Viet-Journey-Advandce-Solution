@@ -49,7 +49,7 @@ function genFlights(from: string, to: string, date: string, cabin: string): Mock
       duration: `${Math.floor(durationMin / 60)}h ${durationMin % 60}m`,
       stops: rand() > 0.7 ? 1 : 0,
       aircraft: AIRCRAFT[Math.floor(rand() * AIRCRAFT.length)] ?? 'Airbus A321',
-      cabin: cabinLabel,
+      cabin: cabin,
       priceVND: Math.round((basePrice + i * 150_000) * multiplier),
       seatsLeft: 1 + Math.floor(rand() * 9),
     };

@@ -30,15 +30,69 @@ public class VNPayStrategyImpl implements PaymentGatewayStrategy {
         }
     }
 
+    @Value("${app.payment.vnp-tmn-code}")
+    private String vnpTmnCode;
+
+    @Value("${app.payment.vnp-pay-url}")
+    private String vnpPayUrl;
+
+    @Value("${app.payment.vnp-return-url}")
+    private String vnpReturnUrl;
+
     @Override
-    public PaymentResponse generatePaymentUrl(String transactionRef) {
-        String hashPayload = "vnp_TxnRef=" + transactionRef;
-        String secureHash = calculateChecksum(hashPayload);
-        String paymentUrl = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html?vnp_TxnRef=" + transactionRef + "&vnp_SecureHash=" + secureHash;
+    public PaymentResponse generatePaymentUrl(PaymentContext ctx) {
+        String vnp_Version = "2.1.0";
+        String vnp_Command = "pay";
+        String vnp_OrderInfo = ctx.getOrderInfo() != null ? ctx.getOrderInfo() : "Thanh toan don hang " + ctx.getTransactionRef();
+        String orderType = "other";
+        String vnp_TxnRef = ctx.getTransactionRef();
+        String vnp_IpAddr = ctx.getIpAddr() != null ? ctx.getIpAddr() : "127.0.0.1";
+        String vnp_TmnCode = this.vnpTmnCode;
+
+        long amount = ctx.getAmount().longValue() * 100;
+        java.util.Map<String, String> vnp_Params = new java.util.HashMap<>();
+        vnp_Params.put("vnp_Version", vnp_Version);
+        vnp_Params.put("vnp_Command", vnp_Command);
+        vnp_Params.put("vnp_TmnCode", vnp_TmnCode);
+        vnp_Params.put("vnp_Amount", String.valueOf(amount));
+        vnp_Params.put("vnp_CurrCode", "VND");
+        vnp_Params.put("vnp_TxnRef", vnp_TxnRef);
+        vnp_Params.put("vnp_OrderInfo", vnp_OrderInfo);
+        vnp_Params.put("vnp_OrderType", orderType);
+        vnp_Params.put("vnp_Locale", "vn");
+        vnp_Params.put("vnp_ReturnUrl", this.vnpReturnUrl);
+        vnp_Params.put("vnp_IpAddr", vnp_IpAddr);
+
+        java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+        String vnp_CreateDate = formatter.format(java.time.LocalDateTime.now());
+        vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
+
+        java.util.List<String> fieldNames = new java.util.ArrayList<>(vnp_Params.keySet());
+        java.util.Collections.sort(fieldNames);
+        StringBuilder hashData = new StringBuilder();
+        StringBuilder query = new StringBuilder();
+
+        try {
+            for (String fieldName : fieldNames) {
+                String fieldValue = vnp_Params.get(fieldName);
+                if ((fieldValue != null) && (fieldValue.length() > 0)) {
+                    hashData.append(fieldName).append("=").append(java.net.URLEncoder.encode(fieldValue, "UTF-8")).append("&");
+                    query.append(java.net.URLEncoder.encode(fieldName, "UTF-8")).append("=").append(java.net.URLEncoder.encode(fieldValue, "UTF-8")).append("&");
+                }
+            }
+        } catch (Exception e) {
+            throw new com.vietjourney.backend.exception.BusinessException("Lỗi encode VNPay parameters", 500);
+        }
+        if (hashData.length() > 0) hashData.setLength(hashData.length() - 1);
+        if (query.length() > 0) query.setLength(query.length() - 1);
+
+        String secureHash = calculateChecksum(hashData.toString());
+        query.append("&vnp_SecureHash=").append(secureHash);
+        String paymentUrl = this.vnpPayUrl + "?" + query.toString();
 
         return PaymentResponse.builder()
                 .paymentUrl(paymentUrl)
-                .transactionRef(transactionRef)
+                .transactionRef(vnp_TxnRef)
                 .status("pending")
                 .build();
     }

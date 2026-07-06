@@ -21,9 +21,12 @@ export default function PaymentPage() {
 
   const payMutation = useMutation({
     mutationFn: () => bookingApi.payVnpay(bookingId!),
-    onSuccess: () => {
-      toast.success('Thanh toán thành công');
-      navigate(`/confirmation/${bookingId}`);
+    onSuccess: (data: any) => {
+      if (data?.paymentUrl) {
+        window.location.href = data.paymentUrl;
+      } else {
+        toast.error('Không nhận được URL thanh toán');
+      }
     },
     onError: () => {
       toast.error('Thanh toán thất bại');

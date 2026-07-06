@@ -51,8 +51,11 @@ public class AuthController {
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<Void>> logout(HttpServletResponse response) {
-        authService.logoutCurrentUser();
+    public ResponseEntity<ApiResponse<Void>> logout(jakarta.servlet.http.HttpServletRequest request, HttpServletResponse response) {
+        String token = extractJwtFromCookie(request);
+        if (token != null) {
+            authService.logoutCurrentUser(token);
+        }
         ResponseCookie cookie = ResponseCookie.from("jwt", "")
                 .httpOnly(true)
                 .secure(cookieSecure)
@@ -79,5 +82,16 @@ public class AuthController {
     public ResponseEntity<ApiResponse<UserDTO>> getCurrentUser() {
         UserDTO user = authService.getCurrentUser();
         return ResponseEntity.ok(ApiResponse.success(user, "Lấy thông tin người dùng thành công"));
+    }
+
+    private String extractJwtFromCookie(jakarta.servlet.http.HttpServletRequest request) {
+        if (request.getCookies() != null) {
+            for (jakarta.servlet.http.Cookie cookie : request.getCookies()) {
+                if ("jwt".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+        return null;
     }
 }

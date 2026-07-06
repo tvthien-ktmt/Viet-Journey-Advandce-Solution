@@ -34,6 +34,7 @@ public class SecurityConfig {
     private final CustomUserDetailsService userDetailsService;
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final LoginRateLimitFilter loginRateLimitFilter = new LoginRateLimitFilter();
+    private final VnpayIpnFilter vnpayIpnFilter = new VnpayIpnFilter();
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
@@ -61,7 +62,8 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> 
                 auth.requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
-                    .requestMatchers("/api/tours/**", "/api/hotels/**", "/api/flights/**", "/api/search/**").permitAll()
+                    .requestMatchers("/api/tours/**", "/api/hotels/**", "/api/flights/**", "/api/search/**", "/api/blogs/**", "/api/reviews/**").permitAll()
+                    .requestMatchers("/api/bookings/search").permitAll()
                     .requestMatchers("/api/payments/callback", "/api/payments/ipn").permitAll()
                     .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll() // For swagger later
                     .anyRequest().authenticated()
@@ -84,6 +86,7 @@ public class SecurityConfig {
             );
 
         http.authenticationProvider(authenticationProvider());
+        http.addFilterBefore(vnpayIpnFilter, UsernamePasswordAuthenticationFilter.class);
         http.addFilterBefore(loginRateLimitFilter, UsernamePasswordAuthenticationFilter.class);
         http.addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
         

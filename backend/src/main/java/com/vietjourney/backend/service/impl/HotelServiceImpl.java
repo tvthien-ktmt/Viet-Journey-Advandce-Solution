@@ -57,19 +57,6 @@ public class HotelServiceImpl implements HotelService {
     }
 
     private HotelDetailDTO mapToDetailDTO(Hotel hotel) {
-        return HotelDetailDTO.builder()
-                .id(hotel.getId())
-                .name(hotel.getName())
-                .slug(hotel.getSlug())
-                .image(hotel.getImage())
-                .location(hotel.getLocation())
-                .price(hotel.getPrice())
-                .rating(hotel.getRating())
-                .reviewCount(hotel.getReviewCount())
-                .createdAt(hotel.getCreatedAt())
-                .updatedAt(hotel.getUpdatedAt())
-                .amenities(hotel.getAmenities())
-                .rooms(hotel.getRooms())
-                .build();
+        return HotelDetailDTO.fromEntity(hotel);
     }
 }

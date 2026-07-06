@@ -58,8 +58,11 @@ public class Booking {
     private List<BookingPassenger> passengers;
 
     public void transitionTo(BookingStatus nextStatus) {
-        if (this.status == BookingStatus.CANCELLED || this.status == BookingStatus.EXPIRED) {
+        if (this.status == BookingStatus.CANCELLED) {
             throw new IllegalStateException("Cannot transition from terminal state: " + this.status);
+        }
+        if (this.status == BookingStatus.EXPIRED && nextStatus != BookingStatus.CONFIRMED) {
+            throw new IllegalStateException("Cannot transition from EXPIRED to anything other than CONFIRMED");
         }
         if (this.status == BookingStatus.CONFIRMED && nextStatus != BookingStatus.CONFIRMED) {
             throw new IllegalStateException("Cannot change status of a confirmed booking");

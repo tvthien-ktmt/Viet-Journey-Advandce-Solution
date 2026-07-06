@@ -25,6 +25,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final CustomUserDetailsService userDetailsService;
+    private final org.springframework.data.redis.core.StringRedisTemplate redisTemplate;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
@@ -33,6 +34,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             String jwt = parseJwt(request);
             if (jwt != null && jwtUtil.validateJwtToken(jwt)) {
+                // Check if token is blacklisted
+                if (Boolean.TRUE.equals(redisTemplate.hasKey("jwt_blacklist:" + jwt))) {
+                    log.warn("Attempt to use blacklisted JWT token");
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token is revoked");
+                    return;
+                }
+
                 String email = jwtUtil.getUserNameFromJwtToken(jwt);
 
                 UserDetails userDetails = userDetailsService.loadUserByUsername(email);
