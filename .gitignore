@@ -1,5 +1,8 @@
-
 # Environment files v?i secret th?t
 .env
 .env.local
 *.env.local
+
+# Gemini AI / Workspace
+.gemini/
+*AUDIT_REPORT*.md
