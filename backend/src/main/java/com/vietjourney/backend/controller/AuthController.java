@@ -46,7 +46,16 @@ public class AuthController {
                 .sameSite("Lax")
                 .build();
                 
+        ResponseCookie refreshCookie = ResponseCookie.from("refresh_token", authResponse.getRefreshToken())
+                .httpOnly(true)
+                .secure(cookieSecure)
+                .path("/api/auth/refresh")
+                .maxAge(7 * 24 * 60 * 60) // 7 days
+                .sameSite("Lax")
+                .build();
+                
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
         return ResponseEntity.ok(ApiResponse.success(authResponse, "Đăng nhập thành công"));
     }
 
@@ -64,17 +73,53 @@ public class AuthController {
                 .sameSite("Lax")
                 .build();
                 
+        ResponseCookie refreshCookie = ResponseCookie.from("refresh_token", "")
+                .httpOnly(true)
+                .secure(cookieSecure)
+                .path("/api/auth/refresh")
+                .maxAge(0)
+                .sameSite("Lax")
+                .build();
+                
         response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
         return ResponseEntity.ok(ApiResponse.success(null, "Đăng xuất thành công"));
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<ApiResponse<AuthResponse>> refreshToken(@RequestBody java.util.Map<String, String> request) {
-        String token = request.get("refreshToken");
+    public ResponseEntity<ApiResponse<AuthResponse>> refreshToken(
+            @CookieValue(value = "refresh_token", required = false) String cookieToken,
+            @RequestBody(required = false) java.util.Map<String, String> request, 
+            HttpServletResponse httpServletResponse) {
+        
+        String token = cookieToken;
+        if (token == null && request != null) {
+            token = request.get("refreshToken");
+        }
+        
         if (token == null || token.isEmpty()) {
             return ResponseEntity.badRequest().body(ApiResponse.error("Refresh token is missing", null));
         }
         AuthResponse response = authService.refreshToken(token);
+        
+        ResponseCookie cookie = ResponseCookie.from("jwt", response.getToken())
+                .httpOnly(true)
+                .secure(cookieSecure)
+                .path("/")
+                .maxAge(jwtExpirationMs / 1000)
+                .sameSite("Lax")
+                .build();
+                
+        ResponseCookie refreshCookie = ResponseCookie.from("refresh_token", response.getRefreshToken())
+                .httpOnly(true)
+                .secure(cookieSecure)
+                .path("/api/auth/refresh")
+                .maxAge(7 * 24 * 60 * 60)
+                .sameSite("Lax")
+                .build();
+                
+        httpServletResponse.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
+        httpServletResponse.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
         return ResponseEntity.ok(ApiResponse.success(response, "Refresh token thành công"));
     }
 

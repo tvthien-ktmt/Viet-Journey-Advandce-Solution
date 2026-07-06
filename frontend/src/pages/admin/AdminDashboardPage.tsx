@@ -16,11 +16,11 @@ export default function AdminDashboardPage() {
 
   // Use real stats for totals if available, otherwise mock. For charts, fallback to mock since backend only returns scalar stats currently.
   const kpi = stats?.totalBookings !== undefined ? {
-    totalRevenue: parseInt(stats.totalRevenue?.toString().replace(/\D/g, '') || '0') || 12500000000,
-    totalBookings: stats.totalBookings || 4520,
-    totalFlights: stats.totalFlights || 1250,
-    loadFactor: stats.loadFactor || 86.5,
-    trends: stats.trends || { revenue: 12.5, bookings: 8.2, flights: 5.0, loadFactor: 2.1 }
+    totalRevenue: Number(stats.totalRevenue) ?? 12500000000,
+    totalBookings: stats.totalBookings ?? 4520,
+    totalFlights: stats.totalFlights ?? 1250,
+    loadFactor: stats.loadFactor ?? 86.5,
+    trends: stats.trends ?? { revenue: 12.5, bookings: 8.2, flights: 5.0, loadFactor: 2.1 }
   } : ADMIN_STATS.kpi;
 
   const revenue = ADMIN_STATS.revenueByMonth;

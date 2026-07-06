@@ -38,7 +38,7 @@ export default function ConfirmationPage() {
             <CheckCircle2 className="text-green-600 w-12 h-12" />
           </div>
           <h1 className="text-3xl font-bold text-vna-text">{t('confirm.title')}</h1>
-          <p className="text-vna-muted mt-2">{t('confirm.emailSent').replace('{email}', booking.contactEmail)}</p>
+          <p className="text-vna-muted mt-2">{t('confirm.emailSent').replace('{email}', booking.contactEmail || '')}</p>
         </div>
 
         <Card className="p-6 border-2 border-vna-blue shadow-xl rounded-xl">
@@ -57,7 +57,7 @@ export default function ConfirmationPage() {
           </div>
 
           <div className="py-4 space-y-4">
-            <FlightDetail flight={booking.outboundFlight} label={t('flight.outbound')} />
+            {booking.outboundFlight && <FlightDetail flight={booking.outboundFlight} label={t('flight.outbound')} />}
             {booking.returnFlight && (
               <>
                 <Separator className="border-dashed" />
@@ -83,7 +83,7 @@ export default function ConfirmationPage() {
           <Separator className="my-2 bg-vna-blue/20" />
           <div className="flex justify-between items-center font-bold text-vna-blue text-xl pt-4">
             <span>{t('confirm.paid')}</span>
-            <span>{formatVND(booking.totalAmount)}</span>
+            <span>{formatVND(booking.totalAmount || 0)}</span>
           </div>
         </Card>
 

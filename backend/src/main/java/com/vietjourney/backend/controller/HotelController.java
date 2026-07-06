@@ -26,8 +26,11 @@ public class HotelController {
             @RequestParam(required = false) BigDecimal minPrice,
             @RequestParam(required = false) BigDecimal maxPrice,
             @RequestParam(required = false) String location,
-            Pageable pageable) {
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id,desc") String sort) {
         
+        Pageable pageable = com.vietjourney.backend.util.PageableUtil.createPageable(page, size, sort);
         Page<HotelDTO> hotels = hotelService.searchHotels(query, minPrice, maxPrice, location, pageable);
         return ResponseEntity.ok(ApiResponse.success(hotels, "Lấy danh sách Khách sạn thành công"));
     }

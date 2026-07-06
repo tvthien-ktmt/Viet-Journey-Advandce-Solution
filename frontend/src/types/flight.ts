@@ -49,13 +49,15 @@ export type BookingStatus = 'HOLD' | 'PENDING_PAYMENT' | 'CONFIRMED' | 'CANCELLE
 
 export interface FlightBooking {
   id: string;
-  status: BookingStatus;
-  bookingCode: string;
-  expiresAt: string;
-  outboundFlight: Flight;
+  status: BookingStatus | string;
+  bookingCode?: string;
+  expiresAt?: string;
+  reservedUntil?: string;
+  outboundFlight?: Flight;
   returnFlight?: Flight;
   passengers: Passenger[];
-  totalAmount: number;
-  contactEmail: string;
-  contactPhone: string;
+  totalAmount?: number;
+  totalPrice?: number;
+  contactEmail?: string;
+  contactPhone?: string;
 }

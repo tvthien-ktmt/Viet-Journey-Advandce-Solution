@@ -32,7 +32,7 @@ const processQueue = (error: Error | unknown | null, token: string | null = null
 apiClient.interceptors.response.use(
   (res) => res,
   async (error) => {
-    const originalRequest = error.config;
+    const originalRequest = error.config as any;
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
@@ -79,8 +79,8 @@ apiClient.interceptors.response.use(
 );
 
 export const api = {
-  get: <T>(url: string, params?: object): Promise<T> => apiClient.get(url, { params }).then(r => r.data?.success !== undefined ? r.data.data : r.data),
-  post: <T>(url: string, body?: object): Promise<T> => apiClient.post(url, body).then(r => r.data?.success !== undefined ? r.data.data : r.data),
+  get: <T>(url: string, config?: object): Promise<T> => apiClient.get(url, config).then(r => r.data?.success !== undefined ? r.data.data : r.data),
+  post: <T>(url: string, body?: object, config?: object): Promise<T> => apiClient.post(url, body, config).then(r => r.data?.success !== undefined ? r.data.data : r.data),
   put: <T>(url: string, body?: object): Promise<T> => apiClient.put(url, body).then(r => r.data?.success !== undefined ? r.data.data : r.data),
   patch: <T>(url: string, body?: object): Promise<T> => apiClient.patch(url, body).then(r => r.data?.success !== undefined ? r.data.data : r.data),
   delete: <T>(url: string): Promise<T> => apiClient.delete(url).then(r => r.data?.success !== undefined ? r.data.data : r.data),

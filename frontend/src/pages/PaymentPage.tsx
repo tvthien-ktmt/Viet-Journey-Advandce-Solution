@@ -36,7 +36,7 @@ export default function PaymentPage() {
   if (isLoading) return <div className="text-center py-20">Đang tải...</div>;
   if (!booking) return null;
 
-  if (booking.status !== 'PENDING_PAYMENT') {
+  if (booking.status !== 'RESERVED' && booking.status !== 'PENDING') {
     return <Navigate to="/" replace />; // Redirect if wrong status
   }
 
@@ -77,6 +77,7 @@ export default function PaymentPage() {
                 <p className="text-xl font-bold text-vna-gold font-mono">{booking.bookingCode}</p>
               </div>
               
+              {booking.outboundFlight && (
               <div className="bg-slate-50 p-3 rounded-lg border border-vna-border mb-4">
                 <p className="font-semibold text-sm">{booking.outboundFlight.from} → {booking.outboundFlight.to}</p>
                 <p className="text-xs text-vna-muted">{booking.outboundFlight.departTime} - {booking.outboundFlight.airline}</p>
@@ -88,12 +89,13 @@ export default function PaymentPage() {
                   </>
                 )}
               </div>
+              )}
 
               <Separator className="my-4" />
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-vna-muted">Hành khách ({booking.passengers.length})</span>
-                  <span>{formatVND(booking.totalAmount)}</span>
+                  <span>{formatVND(booking.totalAmount || 0)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-vna-muted">Phí dịch vụ</span>
@@ -103,7 +105,7 @@ export default function PaymentPage() {
               <Separator className="my-4" />
               <div className="flex justify-between items-center font-bold text-vna-blue text-lg">
                 <span>Tổng cộng</span>
-                <span className="text-2xl">{formatVND(booking.totalAmount)}</span>
+                  <span className="text-xl text-vna-blue">{formatVND(booking.totalAmount || 0)}</span>
               </div>
               
               <Button 

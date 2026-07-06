@@ -33,10 +33,16 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional
     public BookingDTO createReservation(BookingRequest request, String userEmail) {
-        User user = null;
-        if (userEmail != null) {
-            user = userRepository.findByEmail(userEmail)
-                    .orElseThrow(() -> new com.vietjourney.backend.exception.ResourceNotFoundException("User not found"));
+        if (userEmail == null || userEmail.isEmpty()) {
+            throw new com.vietjourney.backend.exception.UnauthorizedActionException("Phải đăng nhập để đặt chỗ");
+        }
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new com.vietjourney.backend.exception.ResourceNotFoundException("User not found"));
+                
+        long activeBookings = bookingRepository.countByUserIdAndStatusIn(user.getId(), 
+                java.util.Arrays.asList(com.vietjourney.backend.entity.enums.BookingStatus.RESERVED, com.vietjourney.backend.entity.enums.BookingStatus.PENDING));
+        if (activeBookings >= 3) {
+            throw new com.vietjourney.backend.exception.BusinessException("Bạn đang có quá nhiều đặt chỗ chưa thanh toán. Vui lòng thanh toán hoặc hủy trước khi đặt thêm.", 400);
         }
 
         BookingItemStrategy strategy = bookingStrategyFactory.getStrategy(request.getBookingType());
@@ -45,6 +51,10 @@ public class BookingServiceImpl implements BookingService {
         int quantity = request.getPassengers() != null && !request.getPassengers().isEmpty() 
                 ? request.getPassengers().size() 
                 : 1;
+
+        if (quantity > 9) {
+            throw new com.vietjourney.backend.exception.BusinessException("Không thể đặt quá 9 người trong một giao dịch", 400);
+        }
 
         strategy.validateAndReserve(request.getReferenceId(), quantity);
 

@@ -29,12 +29,12 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       const res = await authApi.login(email, password) as any;
-      setAuth(res.user, res.accessToken || res.token);
+      setAuth(res.user, res.accessToken || res.token, res.refreshToken);
       toast.success(t('login.success'));
       
       const redirectPath = location.state?.from?.pathname 
         ? location.state.from.pathname + (location.state.from.search || '')
-        : (res.user.roles?.includes('ADMIN') ? '/admin' : '/profile');
+        : ((res.user.roles?.includes('ADMIN') || res.user.role === 'ADMIN') ? '/admin' : '/profile');
         
       navigate(redirectPath, { replace: true });
     } catch (e) {

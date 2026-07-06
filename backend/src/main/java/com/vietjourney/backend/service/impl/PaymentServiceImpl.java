@@ -29,9 +29,13 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     @Transactional
-    public PaymentResponse createPayment(PaymentRequest request) {
+    public PaymentResponse createPayment(PaymentRequest request, String userEmail) {
         Booking booking = bookingRepository.findById(request.getBookingId())
                 .orElseThrow(() -> new com.vietjourney.backend.exception.ResourceNotFoundException("Booking not found"));
+
+        if (booking.getUser() != null && !booking.getUser().getEmail().equals(userEmail)) {
+            throw new com.vietjourney.backend.exception.UnauthorizedActionException("Bạn không có quyền thanh toán đặt chỗ này");
+        }
 
         if (booking.getStatus() != BookingStatus.RESERVED) {
             throw new com.vietjourney.backend.exception.BusinessException("Chỉ có thể thanh toán booking đang trong trạng thái reserved", 409);
@@ -69,6 +73,11 @@ public class PaymentServiceImpl implements PaymentService {
         Payment payment = paymentRepository.findByTransactionRef(transactionRef)
                 .orElseThrow(() -> new com.vietjourney.backend.exception.ResourceNotFoundException("Payment not found"));
 
+        PaymentGatewayStrategy strategy = paymentGatewayFactory.getStrategy(payment.getPaymentMethod());
+        if (!strategy.verifyCallback(params)) {
+            throw new com.vietjourney.backend.exception.BusinessException("Chữ ký thanh toán không hợp lệ.", 400);
+        }
+
         if (amountRaw != null) {
             try {
                 long amount = Long.parseLong(amountRaw);
@@ -86,11 +95,6 @@ public class PaymentServiceImpl implements PaymentService {
                 paymentRepository.save(payment);
                 throw new com.vietjourney.backend.exception.BusinessException("Malformed amount", 400);
             }
-        }
-
-        PaymentGatewayStrategy strategy = paymentGatewayFactory.getStrategy(payment.getPaymentMethod());
-        if (!strategy.verifyCallback(params)) {
-            throw new com.vietjourney.backend.exception.BusinessException("Chữ ký thanh toán không hợp lệ.", 400);
         }
 
         if (!"pending".equals(payment.getStatus())) {

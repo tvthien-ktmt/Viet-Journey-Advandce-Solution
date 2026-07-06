@@ -42,49 +42,28 @@ export default function SeatHoldPage() {
   const [createdBookingId, setCreatedBookingId] = useState<string | null>(null);
   const activeId = createdBookingId || (bookingId !== 'temp-id' ? bookingId : null);
 
-  const { data: booking, isLoading } = useQuery({
-    queryKey: ['booking', activeId],
-    queryFn: () => bookingApi.get(activeId!),
-    refetchInterval: (query) => {
-      // Adaptive refetch based on countdown
-      return 10000; // Simplified for now, or you can implement timeLeft logic
-    },
-    enabled: !!activeId,
-  });
-
-  const holdMutation = useMutation({
-    mutationFn: (req: HoldRequest) => bookingApi.createHold(req),
-    onSuccess: (data) => {
-      setCreatedBookingId(data.id);
-      window.history.replaceState({}, '', `/booking/${data.id}/hold`);
+  const createBookingMutation = useMutation({
+    mutationFn: (req: any) => bookingApi.createBooking(req),
+    onSuccess: (data: any) => {
+      navigate(`/booking/${data.id}/payment`);
     }
   });
 
   useEffect(() => {
-    if (bookingId === 'temp-id' && location.state) {
-      const state = location.state as HoldRequest;
-      if (!holdMutation.isPending && !activeId) {
-        // Fallback contact values if not logged in
-        holdMutation.mutate({
-          ...state,
-          contactEmail: 'guest@example.com',
-          contactPhone: '0901234567',
-        });
-      }
-    } else if (!activeId && bookingId !== 'temp-id') {
+    if (bookingId !== 'temp-id' && !bookingId) {
       navigate('/');
     }
-  }, [bookingId, location.state, activeId, holdMutation, navigate]);
+  }, [bookingId, navigate]);
 
-  const expiresAt = booking?.expiresAt || new Date(Date.now() + 10 * 60 * 1000).toISOString();
+  const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
   const remaining = useCountdown(expiresAt);
 
   useEffect(() => {
-    if (booking && remaining === 0) {
+    if (remaining === 0) {
       toast.error(t('hold.expired'));
       navigate('/');
     }
-  }, [remaining, booking, navigate, t]);
+  }, [remaining, navigate, t]);
 
   const { register, handleSubmit, formState: { errors }, control } = useForm<HoldFormValues>({
     resolver: zodResolver(holdFormSchema),
@@ -99,20 +78,25 @@ export default function SeatHoldPage() {
   
   const { fields } = useFieldArray({ control, name: 'passengers' });
 
-  const updateMutation = useMutation({
-    mutationFn: (passengers: Passenger[]) => bookingApi.updatePassengers(activeId!, passengers),
-    onSuccess: () => {
-      navigate(`/payment/${activeId}`);
-    },
-    onError: () => toast.error('Có lỗi xảy ra')
-  });
-
   const onSubmit = (data: HoldFormValues) => {
-    updateMutation.mutate(data.passengers as Passenger[]);
+    if (!location.state) return;
+    const state = location.state as HoldRequest;
+    
+    const mappedPax = data.passengers.map(p => ({
+      ...p,
+      email: data.contactEmail,
+      phone: data.contactPhone,
+      documentNumber: p.idNumber
+    }));
+    
+    const req = {
+       bookingType: 'FLIGHT',
+       referenceId: state.outbound.id,
+       passengers: mappedPax
+    };
+    
+    createBookingMutation.mutate(req);
   };
-
-  if (isLoading || holdMutation.isPending) return <div className="text-center py-20">Đang giữ chỗ...</div>;
-  if (!booking) return null;
 
   const mm = String(Math.floor(remaining / 60)).padStart(2, '0');
   const ss = String(remaining % 60).padStart(2, '0');
@@ -129,7 +113,7 @@ export default function SeatHoldPage() {
                 <p className="text-2xl font-bold font-mono">{mm}:{ss}</p>
               </div>
             </div>
-            <Badge className="bg-vna-gold text-white">{t('hold.bookingCode')}: {booking.bookingCode}</Badge>
+            <Badge className="bg-vna-gold text-white">{t('hold.bookingCode')}: PENDING</Badge>
           </div>
           <p className="text-xs text-white/60 mt-2">{t('hold.warning')}</p>
         </div>
@@ -184,8 +168,8 @@ export default function SeatHoldPage() {
             </div>
           </Card>
 
-          <Button type="submit" disabled={updateMutation.isPending} className="bg-vna-blue hover:bg-vna-blue-700 w-full py-6 text-lg rounded-lg transition-all duration-300">
-            {updateMutation.isPending ? 'Đang xử lý...' : `${t('hold.continue')} →`}
+          <Button type="submit" disabled={createBookingMutation.isPending} className="bg-vna-blue hover:bg-vna-blue-700 w-full py-6 text-lg rounded-lg transition-all duration-300">
+            {createBookingMutation.isPending ? 'Đang xử lý...' : `${t('hold.continue')} →`}
           </Button>
         </form>
       </div>

@@ -17,12 +17,13 @@ public class AdminServiceImpl implements AdminService {
     private final PaymentRepository paymentRepository;
 
     @Override
+    @org.springframework.cache.annotation.Cacheable(value = "admin_stats")
     public Map<String, Object> getAdminStats() {
         Map<String, Object> stats = new HashMap<>();
         stats.put("totalBookings", bookingRepository.count());
         
         java.math.BigDecimal revenue = paymentRepository.sumRevenue(null, null);
-        stats.put("revenue", revenue.longValue() + " VND");
+        stats.put("totalRevenue", revenue != null ? revenue.longValue() : 0);
         return stats;
     }
 }

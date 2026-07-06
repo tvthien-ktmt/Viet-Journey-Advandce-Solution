@@ -33,8 +33,8 @@ public class SecurityConfig {
 
     private final CustomUserDetailsService userDetailsService;
     private final JwtAuthenticationFilter jwtAuthFilter;
-    private final LoginRateLimitFilter loginRateLimitFilter = new LoginRateLimitFilter();
-    private final VnpayIpnFilter vnpayIpnFilter = new VnpayIpnFilter();
+    private final LoginRateLimitFilter loginRateLimitFilter;
+    private final VnpayIpnFilter vnpayIpnFilter;
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {

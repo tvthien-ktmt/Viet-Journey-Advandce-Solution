@@ -45,7 +45,7 @@ export async function mockGetBooking(id: string): Promise<FlightBooking> {
   const data = load();
   const b = data[id];
   if (!b) throw new Error('Booking not found');
-  if (b.status === 'HOLD' && new Date(b.expiresAt).getTime() < Date.now()) {
+  if (b.status === 'HOLD' && b.expiresAt && new Date(b.expiresAt).getTime() < Date.now()) {
     b.status = 'EXPIRED';
     data[id] = b;
     save(data);

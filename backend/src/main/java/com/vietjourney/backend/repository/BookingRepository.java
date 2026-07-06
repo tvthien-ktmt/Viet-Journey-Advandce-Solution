@@ -19,6 +19,8 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query("UPDATE Booking b SET b.status = com.vietjourney.backend.entity.enums.BookingStatus.EXPIRED WHERE b.status = com.vietjourney.backend.entity.enums.BookingStatus.RESERVED AND b.reservedUntil < :now")
     int expireReservations(LocalDateTime now);
 
+    List<Booking> findByStatusAndReservedUntilBefore(com.vietjourney.backend.entity.enums.BookingStatus status, LocalDateTime now);
+
     @EntityGraph(attributePaths = {"user", "passengers"})
     @Query("SELECT b FROM Booking b JOIN b.passengers p WHERE b.id = :id AND LOWER(p.fullName) LIKE LOWER(CONCAT('%', :lastName))")
     List<Booking> findByIdAndPassengerLastName(Long id, String lastName);
@@ -28,4 +30,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     @EntityGraph(attributePaths = {"user", "passengers"})
     Page<Booking> findByUserId(Long userId, Pageable pageable);
+
+    long countByUserIdAndStatusIn(Long userId, List<com.vietjourney.backend.entity.enums.BookingStatus> statuses);
 }

@@ -9,6 +9,9 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class VnpayIpnFilter extends OncePerRequestFilter {
 
     private final List<String> vnpayIps = Arrays.asList(
@@ -33,7 +36,12 @@ public class VnpayIpnFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         
         if (request.getRequestURI().equals("/api/payments/ipn")) {
-            String ip = request.getRemoteAddr();
+            String ip = request.getHeader("X-Forwarded-For");
+            if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
+                ip = request.getRemoteAddr();
+            } else {
+                ip = ip.split(",")[0].trim();
+            }
             if (!vnpayIps.contains(ip) && !ip.equals("127.0.0.1") && !ip.equals("0:0:0:0:0:0:0:1")) {
                 response.setStatus(403);
                 response.setContentType("application/json;charset=UTF-8");

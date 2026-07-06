@@ -1,8 +1,9 @@
 import React, { Suspense, lazy } from 'react';
-import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Outlet, useLocation } from 'react-router-dom';
 import { RootLayout } from '@/layouts/RootLayout';
 import { PageLoader } from '@/components/common/PageLoader';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
+import { ErrorBoundary } from '@/components/common/ErrorBoundary';
 
 // Main Pages
 import HomePage from '@/pages/HomePage';
@@ -55,69 +56,80 @@ const AdminUsersPage = lazy(() => import('@/pages/admin/AdminUsersPage'));
 const AdminNewsPage = lazy(() => import('@/pages/admin/AdminNewsPage'));
 const AdminLayout = lazy(() => import('@/layouts/AdminLayout'));
 
+function RouteBoundary() {
+  const location = useLocation();
+  return (
+    <ErrorBoundary key={location.pathname}>
+      <Outlet />
+    </ErrorBoundary>
+  );
+}
+
 export default function App() {
   return (
     <BrowserRouter>
       <Suspense fallback={<PageLoader />}>
         <Routes>
-          {/* Main App Layout */}
-          <Route element={<RootLayout />}>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/blog/:id" element={<BlogDetailPage />} />
-            <Route path="/blog" element={<BlogPage />} />
-            <Route path="/booking-expired" element={<BookingExpiredPage />} />
-            <Route path="/change-flight" element={<ChangeFlightPage />} />
-            <Route path="/checkin" element={<CheckinPage />} />
-            <Route path="/compare" element={<ComparePage />} />
-            <Route path="/contact" element={<ContactPage />} />
-            <Route path="/destination/:id" element={<DestinationDetailPage />} />
-            <Route path="/destinations" element={<DestinationsPage />} />
-            <Route path="/faq" element={<FaqPage />} />
-            <Route path="/flights/results" element={<FlightResultsPage />} />
-            <Route path="/flight-schedule" element={<FlightSchedulePage />} />
-            <Route path="/flight-status" element={<FlightStatusPage />} />
-            <Route path="/flights" element={<FlightsPage />} />
-            <Route path="/forbidden" element={<ForbiddenPage />} />
-            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-            <Route path="/hotel/:id" element={<HotelDetailPage />} />
-            <Route path="/hotels" element={<HotelsPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/lotusmiles" element={<LotusmilesPage />} />
-            <Route path="/maintenance" element={<MaintenancePage />} />
-            <Route path="/manage-booking" element={<ManageBookingPage />} />
-            <Route path="/notifications" element={<NotificationsPage />} />
-            <Route path="/payment-failed" element={<PaymentFailedPage />} />
-            <Route path="/payments/callback" element={<PaymentCallbackPage />} />
-            <Route path="/refund" element={<RefundPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/server-error" element={<ServerErrorPage />} />
-            <Route path="/tour/:id" element={<TourDetailPage />} />
-            <Route path="/tours" element={<ToursPage />} />
-            
-            {/* Protected User Routes */}
-            <Route element={<ProtectedRoute roles={['USER', 'ADMIN']} />}>
-              <Route path="/booking/:id/extras" element={<AddonsPage />} />
-              <Route path="/booking/:id" element={<BookingDetailPage />} />
-              <Route path="/booking-history" element={<BookingHistoryPage />} />
-              <Route path="/confirmation/:bookingId" element={<ConfirmationPage />} />
-              <Route path="/dashboard" element={<DashboardPage />} />
-              <Route path="/payment/:bookingId" element={<PaymentPage />} />
-              <Route path="/profile" element={<ProfilePage />} />
-              <Route path="/booking/:bookingId/hold" element={<SeatHoldPage />} />
-              <Route path="/booking/:id/seats" element={<SeatSelectionPage />} />
+          <Route element={<RouteBoundary />}>
+            {/* Main App Layout */}
+            <Route element={<RootLayout />}>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/blog/:id" element={<BlogDetailPage />} />
+              <Route path="/blog" element={<BlogPage />} />
+              <Route path="/booking-expired" element={<BookingExpiredPage />} />
+              <Route path="/change-flight" element={<ChangeFlightPage />} />
+              <Route path="/checkin" element={<CheckinPage />} />
+              <Route path="/compare" element={<ComparePage />} />
+              <Route path="/contact" element={<ContactPage />} />
+              <Route path="/destination/:id" element={<DestinationDetailPage />} />
+              <Route path="/destinations" element={<DestinationsPage />} />
+              <Route path="/faq" element={<FaqPage />} />
+              <Route path="/flights/results" element={<FlightResultsPage />} />
+              <Route path="/flight-schedule" element={<FlightSchedulePage />} />
+              <Route path="/flight-status" element={<FlightStatusPage />} />
+              <Route path="/flights" element={<FlightsPage />} />
+              <Route path="/forbidden" element={<ForbiddenPage />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+              <Route path="/hotel/:id" element={<HotelDetailPage />} />
+              <Route path="/hotels" element={<HotelsPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/lotusmiles" element={<LotusmilesPage />} />
+              <Route path="/maintenance" element={<MaintenancePage />} />
+              <Route path="/manage-booking" element={<ManageBookingPage />} />
+              <Route path="/notifications" element={<NotificationsPage />} />
+              <Route path="/payment-failed" element={<PaymentFailedPage />} />
+              <Route path="/payments/callback" element={<PaymentCallbackPage />} />
+              <Route path="/refund" element={<RefundPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/server-error" element={<ServerErrorPage />} />
+              <Route path="/tour/:id" element={<TourDetailPage />} />
+              <Route path="/tours" element={<ToursPage />} />
+              
+              {/* Protected User Routes */}
+              <Route element={<ProtectedRoute roles={['USER', 'ADMIN']} />}>
+                <Route path="/booking/:id/extras" element={<AddonsPage />} />
+                <Route path="/booking/:id" element={<BookingDetailPage />} />
+                <Route path="/booking-history" element={<BookingHistoryPage />} />
+                <Route path="/confirmation/:bookingId" element={<ConfirmationPage />} />
+                <Route path="/dashboard" element={<DashboardPage />} />
+                <Route path="/payment/:bookingId" element={<PaymentPage />} />
+                <Route path="/profile" element={<ProfilePage />} />
+                <Route path="/booking/:bookingId/hold" element={<SeatHoldPage />} />
+                <Route path="/booking/:id/seats" element={<SeatSelectionPage />} />
+              </Route>
+              
+              <Route path="*" element={<NotFoundPage />} />
             </Route>
-            
-            <Route path="*" element={<NotFoundPage />} />
-          </Route>
 
-          {/* Admin Routes */}
-          <Route element={<ProtectedRoute roles={['ADMIN']} />}>
-            <Route path="/admin" element={<AdminLayout />}>
-              <Route index element={<AdminDashboardPage />} />
-              <Route path="flights" element={<AdminFlightsPage />} />
-              <Route path="bookings" element={<AdminBookingsPage />} />
-              <Route path="users" element={<AdminUsersPage />} />
-              <Route path="news" element={<AdminNewsPage />} />
+            {/* Admin Routes */}
+            <Route element={<ProtectedRoute roles={['ADMIN']} />}>
+              <Route path="/admin" element={<AdminLayout />}>
+                <Route index element={<AdminDashboardPage />} />
+                <Route path="flights" element={<AdminFlightsPage />} />
+                <Route path="bookings" element={<AdminBookingsPage />} />
+                <Route path="users" element={<AdminUsersPage />} />
+                <Route path="news" element={<AdminNewsPage />} />
+              </Route>
             </Route>
           </Route>
         </Routes>

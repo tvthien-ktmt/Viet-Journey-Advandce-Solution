@@ -12,11 +12,26 @@ export interface HoldRequest {
   contactPhone: string;
 }
 
+export interface CreateBookingRequest {
+  bookingType: string;
+  referenceId: number;
+  passengers?: { type: string, fullName: string, gender: string, dateOfBirth: string }[];
+}
+
 export const bookingApi = {
-  createHold: (req: HoldRequest): Promise<FlightBooking> =>
-    USE_MOCK ? mockCreateHold(req) : api.post('/bookings', req),
-  get: (id: string): Promise<FlightBooking> =>
-    USE_MOCK ? mockGetBooking(id) : api.get(`/bookings/${id}`),
+  createHold: async (req: HoldRequest): Promise<FlightBooking> => {
+    if (USE_MOCK) return mockCreateHold(req);
+    const data: any = await api.post('/bookings', req);
+    return { ...data, bookingCode: 'BK' + data.id, totalAmount: data.totalPrice, expiresAt: data.reservedUntil };
+  },
+  createBooking: async (req: CreateBookingRequest): Promise<any> => {
+    return api.post('/bookings', req);
+  },
+  get: async (id: string): Promise<FlightBooking> => {
+    if (USE_MOCK) return mockGetBooking(id);
+    const data: any = await api.get(`/bookings/${id}`);
+    return { ...data, bookingCode: 'BK' + data.id, totalAmount: data.totalPrice, expiresAt: data.reservedUntil };
+  },
   updatePassengers: (id: string, pax: Passenger[]): Promise<FlightBooking> =>
     USE_MOCK ? mockUpdatePassengers(id, pax) : api.post(`/bookings/${id}/passengers`, pax),
   payVnpay: (bookingId: string) =>

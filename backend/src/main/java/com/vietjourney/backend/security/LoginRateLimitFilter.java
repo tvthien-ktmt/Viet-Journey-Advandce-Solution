@@ -16,6 +16,9 @@ import java.io.IOException;
 import java.time.Duration;
 
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class LoginRateLimitFilter extends OncePerRequestFilter {
 
     private final Cache<String, Bucket> cache = Caffeine.newBuilder()
@@ -40,7 +43,8 @@ public class LoginRateLimitFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         
-        if (request.getRequestURI().equals("/api/auth/login") && request.getMethod().equalsIgnoreCase("POST")) {
+        String uri = request.getRequestURI();
+        if ((uri.equals("/api/auth/login") || uri.equals("/api/auth/register")) && request.getMethod().equalsIgnoreCase("POST")) {
             String ip = getClientIP(request);
             Bucket bucket = cache.get(ip, k -> createNewBucket());
             
@@ -49,7 +53,7 @@ public class LoginRateLimitFilter extends OncePerRequestFilter {
             } else {
                 response.setStatus(429);
                 response.setContentType("application/json;charset=UTF-8");
-                response.getWriter().write("{\"success\":false,\"message\":\"Too many login attempts. Please try again later.\"}");
+                response.getWriter().write("{\"success\":false,\"message\":\"Too many attempts. Please try again later.\"}");
             }
         } else {
             filterChain.doFilter(request, response);

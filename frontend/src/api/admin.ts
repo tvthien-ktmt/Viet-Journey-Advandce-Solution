@@ -2,7 +2,7 @@ import { api } from './client';
 import { ADMIN_STATS } from './mocks/admin';
 import type { AdminFlight, AdminBooking, AdminUser, Kpi, ChartDataPoint, AdminNews } from '../types/admin';
 
-const USE_MOCK = import.meta.env.VITE_USE_MOCK_API === 'true' || true; // Force mock for admin since backend is missing CRUD
+const USE_MOCK = import.meta.env.VITE_USE_MOCK_API === 'true' || false; // Follow global config
 
 export const adminApi = {
     kpi: (): Promise<Kpi> => USE_MOCK ? Promise.resolve(ADMIN_STATS.kpi as Kpi) : api.get('/admin/stats'),

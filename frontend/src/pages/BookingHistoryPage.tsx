@@ -50,9 +50,11 @@ export default function BookingHistoryPage() {
             {bookings.map((b) => (
               <article key={b.id} className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden transition-shadow hover:shadow-md flex flex-col sm:flex-row group">
                 <div className="w-full sm:w-48 h-48 shrink-0 relative bg-slate-100 flex items-center justify-center">
-                  <span className="material-symbols-outlined text-[64px] text-vna-gold">flight</span>
+                  <span className="material-symbols-outlined text-[64px] text-vna-gold">
+                    {b.bookingType === 'FLIGHT' ? 'flight' : b.bookingType === 'TOUR' ? 'tour' : 'hotel'}
+                  </span>
                   <div className="absolute top-2 left-2 bg-white/90 backdrop-blur-sm px-2 py-1 rounded text-vna-blue text-[12px] font-medium tracking-wider shadow-sm flex items-center gap-1 uppercase">
-                    Chuyến bay
+                    {b.bookingType === 'FLIGHT' ? 'Chuyến bay' : b.bookingType === 'TOUR' ? 'Tour' : 'Khách sạn'}
                   </div>
                 </div>
                 <div className="p-6 flex-1 flex flex-col justify-between gap-4">
@@ -64,7 +66,7 @@ export default function BookingHistoryPage() {
                       </span>
                     </div>
                     <h3 className="text-[20px] font-bold text-slate-800 leading-tight mb-2">
-                      Vé máy bay / Tour / Khách sạn
+                      {b.bookingType === 'FLIGHT' ? 'Vé máy bay' : b.bookingType === 'TOUR' ? 'Tour du lịch' : 'Khách sạn'}
                     </h3>
                     <p className="flex items-center gap-2 text-[14px] text-slate-500 mt-2">
                       <span className="material-symbols-outlined text-[18px]">calendar_month</span> {new Date(b.createdAt).toLocaleDateString('vi-VN')}

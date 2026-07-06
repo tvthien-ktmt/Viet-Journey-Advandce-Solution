@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { useT } from '@/store/langStore';
 import { toast } from 'sonner';
 import { airports, IMAGES } from '@/data/vna-data';
-import { mockSearchFlights } from '@/api/mocks/flights';
+import { searchFlights } from '@/api/flights';
 import type { CabinId, FlightSearchRequest, FlightSearchResponse, TripType } from '@/types/flight';
 import { FlightResults } from '@/components/home/FlightResults';
 import { cn } from '@/lib/utils';
@@ -134,7 +134,7 @@ export function HeroSearch() {
     setResultsOpen(true);
 
     try {
-      const json = await mockSearchFlights(payload);
+      const json = await searchFlights(payload);
       setData(json);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');

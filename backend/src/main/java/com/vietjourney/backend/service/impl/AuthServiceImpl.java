@@ -57,21 +57,33 @@ public class AuthServiceImpl implements AuthService {
         userRepository.save(user);
 
         // Auto login after register
-        return authenticate(request.getEmail(), request.getPassword(), user);
+        LoginRequest loginRequest = new LoginRequest();
+        loginRequest.setEmail(request.getEmail());
+        loginRequest.setPassword(request.getPassword());
+        return login(loginRequest);
     }
 
     @Override
     public AuthResponse login(LoginRequest request) {
-        User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new com.vietjourney.backend.exception.UnauthorizedActionException("Email hoặc mật khẩu không chính xác"));
-
-        if (user.getLockedUntil() != null && user.getLockedUntil().isAfter(LocalDateTime.now())) {
-            throw new com.vietjourney.backend.exception.BusinessException("Tài khoản đã bị khóa. Vui lòng thử lại sau.", 403);
-        }
-
         try {
-            AuthResponse response = authenticate(request.getEmail(), request.getPassword(), user);
+            Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+            );
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            com.vietjourney.backend.security.CustomUserDetails userDetails = 
+                (com.vietjourney.backend.security.CustomUserDetails) authentication.getPrincipal();
+            User user = userDetails.getUser();
+
+            String token = jwtUtil.generateTokenFromUsername(user.getEmail(), user.getRole());
+            String refreshTokenString = UUID.randomUUID().toString();
             
+            RefreshToken refreshToken = new RefreshToken();
+            refreshToken.setToken(hashToken(refreshTokenString));
+            refreshToken.setUser(user);
+            refreshToken.setExpiresAt(LocalDateTime.now().plusDays(7));
+            refreshTokenRepository.save(refreshToken);
+
             // Reset on success
             if (user.getFailedLoginCount() > 0) {
                 user.setFailedLoginCount(0);
@@ -79,15 +91,34 @@ public class AuthServiceImpl implements AuthService {
                 userRepository.save(user);
             }
             
-            return response;
-        } catch (org.springframework.security.authentication.BadCredentialsException ex) {
-            int failedAttempts = user.getFailedLoginCount() + 1;
-            user.setFailedLoginCount(failedAttempts);
-            if (failedAttempts >= 5) {
-                user.setLockedUntil(LocalDateTime.now().plusMinutes(15));
-            }
-            userRepository.save(user);
-            throw new com.vietjourney.backend.exception.UnauthorizedActionException("Email hoặc mật khẩu không chính xác");
+            UserDTO userDTO = UserDTO.builder()
+                    .id(user.getId())
+                    .email(user.getEmail())
+                    .fullName(user.getFullName())
+                    .phone(user.getPhone())
+                    .role(user.getRole())
+                    .lotusmilesTier(user.getLotusmilesTier())
+                    .lotusmilesMiles(user.getLotusmilesMiles())
+                    .build();
+
+            return AuthResponse.builder()
+                    .token(token)
+                    .refreshToken(refreshTokenString)
+                    .user(userDTO)
+                    .build();
+        } catch (org.springframework.security.authentication.LockedException ex) {
+            throw new com.vietjourney.backend.exception.UnauthorizedActionException("Email hoặc mật khẩu không chính xác hoặc tài khoản bị khóa");
+        } catch (org.springframework.security.core.AuthenticationException ex) {
+            // Handle failed attempt tracking
+            userRepository.findByEmail(request.getEmail()).ifPresent(user -> {
+                int failedAttempts = user.getFailedLoginCount() + 1;
+                user.setFailedLoginCount(failedAttempts);
+                if (failedAttempts >= 5) {
+                    user.setLockedUntil(LocalDateTime.now().plusMinutes(15));
+                }
+                userRepository.save(user);
+            });
+            throw new com.vietjourney.backend.exception.UnauthorizedActionException("Email hoặc mật khẩu không chính xác hoặc tài khoản bị khóa");
         }
     }
 
@@ -107,7 +138,7 @@ public class AuthServiceImpl implements AuthService {
         refreshTokenRepository.save(refreshToken);
 
         User user = refreshToken.getUser();
-        String jwt = jwtUtil.generateTokenFromUsername(user.getEmail());
+        String jwt = jwtUtil.generateTokenFromUsername(user.getEmail(), user.getRole());
 
         String newRefreshTokenString = UUID.randomUUID().toString();
         RefreshToken newRefreshToken = new RefreshToken();
@@ -166,38 +197,10 @@ public class AuthServiceImpl implements AuthService {
         try {
             java.security.MessageDigest digest = java.security.MessageDigest.getInstance("SHA-256");
             byte[] hash = digest.digest(token.getBytes(java.nio.charset.StandardCharsets.UTF_8));
-            StringBuilder hexString = new StringBuilder();
-            for (byte b : hash) {
-                String hex = Integer.toHexString(0xff & b);
-                if (hex.length() == 1) hexString.append('0');
-                hexString.append(hex);
-            }
-            return hexString.toString();
+            return java.util.HexFormat.of().formatHex(hash);
         } catch (java.security.NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("Could not hash token", e);
         }
-    }
-
-    private AuthResponse authenticate(String email, String password, User user) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(email, password)
-        );
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = jwtUtil.generateJwtToken(authentication);
-
-        String refreshTokenString = UUID.randomUUID().toString();
-        RefreshToken refreshToken = new RefreshToken();
-        refreshToken.setUser(user);
-        refreshToken.setToken(hashToken(refreshTokenString));
-        refreshToken.setExpiresAt(LocalDateTime.now().plusDays(7)); // 7 days
-        refreshTokenRepository.save(refreshToken);
-
-        return AuthResponse.builder()
-                .token(jwt)
-                .refreshToken(refreshTokenString)
-                .user(mapToUserDTO(user))
-                .build();
     }
 
     private UserDTO mapToUserDTO(User user) {

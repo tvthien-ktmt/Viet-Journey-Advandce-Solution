@@ -16,7 +16,7 @@ export default function PaymentCallbackPage() {
         
         if (response?.status === 'completed') {
           toast.success('Thanh toán thành công!');
-          navigate(`/confirmation/${response.transactionRef}`);
+          navigate(`/booking-history`);
         } else {
           toast.error('Thanh toán thất bại hoặc bị hủy.');
           navigate('/payment-failed');

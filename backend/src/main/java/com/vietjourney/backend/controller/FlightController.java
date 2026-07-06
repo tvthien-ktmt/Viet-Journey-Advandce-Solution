@@ -19,13 +19,16 @@ public class FlightController {
 
     private final FlightService flightService;
 
-    @GetMapping
+    @GetMapping(value = {"", "/search"})
     public ResponseEntity<ApiResponse<Page<FlightDTO>>> getFlights(
             @RequestParam(required = false) String departureAirport,
             @RequestParam(required = false) String arrivalAirport,
             @RequestParam(required = false) LocalDateTime departureTime,
-            Pageable pageable) {
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id,desc") String sort) {
         
+        Pageable pageable = com.vietjourney.backend.util.PageableUtil.createPageable(page, size, sort);
         Page<Flight> flights = flightService.searchFlights(departureAirport, arrivalAirport, departureTime, pageable);
         Page<FlightDTO> flightDTOs = flights.map(this::mapToDTO);
         return ResponseEntity.ok(ApiResponse.success(flightDTOs, "Lấy danh sách Chuyến bay thành công"));

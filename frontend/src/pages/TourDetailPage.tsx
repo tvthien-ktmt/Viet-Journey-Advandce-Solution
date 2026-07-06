@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { useAuth } from '@/store/authStore';
 import { useQuery } from '@tanstack/react-query';
 import { getTourBySlug } from '@/api/tours';
+import { bookingApi } from '@/api/booking';
 
 export default function TourDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -22,18 +23,29 @@ export default function TourDetailPage() {
     enabled: !!id
   });
 
-  const handleBook = () => {
+  const handleBook = async () => {
     if (!isAuthenticated()) {
       toast.error('Vui lòng đăng nhập để đặt tour');
       navigate('/login', { state: { from: location.pathname } });
       return;
     }
 
+    if (!data) return;
+
     setIsBooking(true);
-    setTimeout(() => {
+    try {
+      const response = await bookingApi.createBooking({
+        bookingType: 'tour',
+        referenceId: parseInt(data.id, 10),
+        passengers: []
+      });
+      toast.success('Đặt tour thành công! Chuyển hướng đến trang thanh toán...');
+      navigate(`/payment/${response.id}`);
+    } catch (error: any) {
+      toast.error(error.message || 'Lỗi khi đặt tour. Vui lòng thử lại.');
+    } finally {
       setIsBooking(false);
-      toast.success('Gửi yêu cầu đặt tour thành công! Nhân viên sẽ liên hệ lại với bạn.');
-    }, 1500);
+    }
   };
 
   return (

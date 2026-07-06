@@ -78,8 +78,22 @@ public class TourServiceImpl implements TourService {
         tour.setDuration(updatedTour.getDuration());
         tour.setOverview(updatedTour.getOverview());
         tour.setIsFeatured(updatedTour.getIsFeatured());
-        // Collections should be updated carefully, but for now simple replacement or leaving them alone might be needed.
-        // Assuming collections are managed via other endpoints or cascade.
+        if (tour.getItinerary() != null) { tour.getItinerary().clear(); }
+        if (updatedTour.getItinerary() != null) {
+            updatedTour.getItinerary().forEach(item -> { item.setTour(tour); tour.getItinerary().add(item); });
+        }
+        if (tour.getHighlights() != null) { tour.getHighlights().clear(); }
+        if (updatedTour.getHighlights() != null) {
+            updatedTour.getHighlights().forEach(item -> { item.setTour(tour); tour.getHighlights().add(item); });
+        }
+        if (tour.getIncluded() != null) { tour.getIncluded().clear(); }
+        if (updatedTour.getIncluded() != null) {
+            updatedTour.getIncluded().forEach(item -> { item.setTour(tour); tour.getIncluded().add(item); });
+        }
+        if (tour.getExcluded() != null) { tour.getExcluded().clear(); }
+        if (updatedTour.getExcluded() != null) {
+            updatedTour.getExcluded().forEach(item -> { item.setTour(tour); tour.getExcluded().add(item); });
+        }
         return tourRepository.save(tour);
     }
 
