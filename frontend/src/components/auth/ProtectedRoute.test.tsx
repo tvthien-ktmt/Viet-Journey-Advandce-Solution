@@ -1,8 +1,8 @@
 
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import ProtectedRoute from './ProtectedRoute';
-import { useAuth } from '../store/authStore';
+import { ProtectedRoute } from './ProtectedRoute';
+import { useAuth } from '../../store/authStore';
 
 // Mục đích test: Đảm bảo route guard hoạt động đúng, tự redirect nếu chưa đăng nhập.
 // Tại sao quan trọng: Vấn đề cốt lõi của Security FE.

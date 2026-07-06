@@ -1,8 +1,9 @@
-
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminApi } from '@/api/admin';
+import type { AdminUser } from '@/types/admin';
 import { Input } from '@/components/ui/input';
+import { Card } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Avatar } from '@/components/ui/avatar';
@@ -34,7 +35,7 @@ export default function AdminUsersPage() {
     updateRoleMutation.mutate({ id, roles: newRoles });
   };
 
-  const filteredUsers = users?.filter((u: any) => 
+  const filteredUsers = users?.filter((u: AdminUser) => 
     u.email.toLowerCase().includes(search.toLowerCase()) ||
     u.fullName.toLowerCase().includes(search.toLowerCase())
   );
@@ -73,7 +74,7 @@ export default function AdminUsersPage() {
               ) : filteredUsers?.length === 0 ? (
                 <TableRow><TableCell colSpan={6} className="text-center py-10 text-vna-muted">Không tìm thấy dữ liệu</TableCell></TableRow>
               ) : (
-                filteredUsers?.map((u: any) => (
+                filteredUsers?.map((u: AdminUser) => (
                   <TableRow key={u.id}>
                     <TableCell>
                       <Avatar className="w-8 h-8 bg-vna-blue text-white flex items-center justify-center text-xs font-bold">
@@ -87,7 +88,7 @@ export default function AdminUsersPage() {
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-1">
-                        {u.roles.map((r: any) => (
+                        {u.roles.map((r: string) => (
                           <Badge key={r} variant="outline" className={r === 'ADMIN' ? 'border-vna-red text-vna-red' : 'border-vna-blue text-vna-blue'}>
                             {r}
                           </Badge>

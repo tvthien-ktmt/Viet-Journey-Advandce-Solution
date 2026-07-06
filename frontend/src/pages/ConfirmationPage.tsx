@@ -1,5 +1,5 @@
 
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Navigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { bookingApi } from '@/api/booking';
 import { Card } from '@/components/ui/card';
@@ -27,8 +27,7 @@ export default function ConfirmationPage() {
   if (!booking) return null;
 
   if (booking.status !== 'CONFIRMED') {
-    navigate('/');
-    return null;
+    return <Navigate to="/" replace />;
   }
 
   return (

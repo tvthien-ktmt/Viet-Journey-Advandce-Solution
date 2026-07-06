@@ -1,7 +1,7 @@
-
 import { useQuery } from '@tanstack/react-query';
 import { adminApi } from '@/api/admin';
 import { Wallet, Ticket, Plane, Percent } from 'lucide-react';
+import type { ChartDataPoint } from '@/types/admin';
 import { formatVND } from '@/lib/formatters';
 import { Card } from '@/components/ui/card';
 import {
@@ -85,7 +85,7 @@ export default function AdminDashboardPage() {
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie data={cabinStats} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label>
-                  {cabinStats?.map((_: any, i: number) => <Cell fill={['#023a78','#1f6fb2','#f5a623','#d4111a'][i]} key={i} />)}
+                  {cabinStats?.map((_: ChartDataPoint, i: number) => <Cell fill={['#023a78','#1f6fb2','#f5a623','#d4111a'][i]} key={i} />)}
                 </Pie>
                 <Legend />
                 <Tooltip contentStyle={{ borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 12 }} />

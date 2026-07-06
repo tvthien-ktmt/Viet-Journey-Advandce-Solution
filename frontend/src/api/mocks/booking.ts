@@ -3,11 +3,11 @@ import type { FlightBooking, Flight, Passenger, FlightSearchRequest } from '@/ty
 const STORAGE_KEY = 'vna_mock_bookings';
 const HOLD_MS = 10 * 60 * 1000;
 
-function load(): Record<string, Booking> {
+function load(): Record<string, FlightBooking> {
   return JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
 }
 
-function save(data: Record<string, Booking>) {
+function save(data: Record<string, FlightBooking>) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
 
@@ -18,7 +18,7 @@ function genCode(): string {
 export async function mockCreateHold(payload: {
   outbound: Flight; return?: Flight; request: FlightSearchRequest;
   contactEmail: string; contactPhone: string;
-}): Promise<Booking> {
+}): Promise<FlightBooking> {
   await new Promise(r => setTimeout(r, 400));
   const id = 'BK' + Date.now();
   const paxCount = payload.request.adults + payload.request.children + payload.request.infants;

@@ -1,7 +1,7 @@
-
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { adminApi } from '@/api/admin';
+import type { AdminFlight } from '@/types/admin';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -16,7 +16,7 @@ export default function AdminFlightsPage() {
     queryFn: () => adminApi.flights.list() 
   });
 
-  const filteredFlights = flights?.filter((f: any) => 
+  const filteredFlights = flights?.filter((f: AdminFlight) => 
     f.flightNo.toLowerCase().includes(search.toLowerCase()) ||
     f.from.toLowerCase().includes(search.toLowerCase()) ||
     f.to.toLowerCase().includes(search.toLowerCase())
@@ -58,7 +58,7 @@ export default function AdminFlightsPage() {
               ) : filteredFlights?.length === 0 ? (
                 <TableRow><TableCell colSpan={7} className="text-center py-10 text-vna-muted">Không tìm thấy chuyến bay</TableCell></TableRow>
               ) : (
-                filteredFlights?.map((flight: any) => (
+                filteredFlights?.map((flight: AdminFlight) => (
                   <TableRow key={flight.id}>
                     <TableCell className="font-semibold text-vna-blue">{flight.flightNo}</TableCell>
                     <TableCell>{flight.from} → {flight.to}</TableCell>

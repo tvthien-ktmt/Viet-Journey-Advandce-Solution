@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/store/authStore';
 import { formatVND } from '@/lib/formatters';
-import type { FlightSearchRequest, FlightSearchResponse, MockFlight } from '@/lib/vna-types';
+import type { FlightSearchRequest, FlightSearchResponse, Flight as MockFlight } from '@/types/flight';
 
 type DisplayFlight = MockFlight & { fromCode: string; toCode: string };
 
@@ -24,7 +24,7 @@ interface FlightResultsProps {
   error: string | null;
 }
 
-function FlightRow({
+const FlightRow = React.memo(function FlightRow({
   flight, selected, onSelect, cabinLabel,
 }: {
   flight: DisplayFlight;
@@ -60,7 +60,7 @@ function FlightRow({
         <div className="text-center">
           <div className="text-lg font-bold text-[#023a78]">
             {flight.arriveTime}
-            {flight.arriveNextDay && (
+            {flight.nextDay && (
               <span className="ml-0.5 align-top text-[10px] font-semibold text-[#d4111a]">+1</span>
             )}
           </div>
@@ -104,7 +104,7 @@ function FlightRow({
       </div>
     </div>
   );
-}
+});
 
 export function FlightResults({
   open, onOpenChange, loading, data, request, error,
@@ -125,22 +125,25 @@ export function FlightResults({
     }
   }, [open]);
 
+  const handleSelectOutbound = React.useCallback((f: DisplayFlight) => setOutbound(f), []);
+  const handleSelectRet = React.useCallback((f: DisplayFlight) => setRet(f), []);
+
   const isRound = request?.tripType === 'round';
 
   const cabinLabel =
     request?.cabin === 'business' ? t.hero.book.cabinBusiness
-      : request?.cabin === 'economy-special' ? t.hero.book.cabinEconomySpecial
-        : request?.cabin === 'premium' ? t.hero.book.cabinPremium
+      : request?.cabin === 'premium' ? t.hero.book.cabinEconomySpecial
+        : request?.cabin === 'premiumBusiness' ? t.hero.book.cabinPremium
           : t.hero.book.cabinEconomy;
 
   const totalPax = (request?.adults ?? 0) + (request?.children ?? 0) + (request?.infants ?? 0);
 
   const outFlights: DisplayFlight[] = React.useMemo(
-    () => (data?.outbound ?? []).map((f, i) => ({ ...f, fromCode: data!.from, toCode: data!.to, id: f.id || `out-${i}` })),
+    () => (data?.outbound ?? []).map((f, i) => ({ ...f, fromCode: data!.request.from, toCode: data!.request.to, id: f.id || `out-${i}` })),
     [data],
   );
   const retFlights: DisplayFlight[] = React.useMemo(
-    () => (data?.return ?? []).map((f, i) => ({ ...f, fromCode: data!.to, toCode: data!.from, id: f.id || `ret-${i}` })),
+    () => (data?.return ?? []).map((f, i) => ({ ...f, fromCode: data!.request.to, toCode: data!.request.from, id: f.id || `ret-${i}` })),
     [data],
   );
 
@@ -222,19 +225,19 @@ export function FlightResults({
               </TabsList>
               <TabsContent value="outbound" className="space-y-3">
                 {outFlights.map((f) => (
-                  <FlightRow key={f.id} flight={f} cabinLabel={cabinLabel} selected={outbound?.id === f.id} onSelect={() => setOutbound(f)} />
+                  <FlightRow key={f.id} flight={f} cabinLabel={cabinLabel} selected={outbound?.id === f.id} onSelect={() => handleSelectOutbound(f)} />
                 ))}
               </TabsContent>
               <TabsContent value="return" className="space-y-3">
                 {retFlights.map((f) => (
-                  <FlightRow key={f.id} flight={f} cabinLabel={cabinLabel} selected={ret?.id === f.id} onSelect={() => setRet(f)} />
+                  <FlightRow key={f.id} flight={f} cabinLabel={cabinLabel} selected={ret?.id === f.id} onSelect={() => handleSelectRet(f)} />
                 ))}
               </TabsContent>
             </Tabs>
           ) : (
             <div className="space-y-3">
               {outFlights.map((f) => (
-                <FlightRow key={f.id} flight={f} cabinLabel={cabinLabel} selected={outbound?.id === f.id} onSelect={() => setOutbound(f)} />
+                <FlightRow key={f.id} flight={f} cabinLabel={cabinLabel} selected={outbound?.id === f.id} onSelect={() => handleSelectOutbound(f)} />
               ))}
             </div>
           )}

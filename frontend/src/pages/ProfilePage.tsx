@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/store/authStore';
 import { profileApi } from '@/api/profile';
 import { toast } from 'sonner';
@@ -34,10 +35,15 @@ export default function ProfilePage() {
     }
   };
 
+  const { data: bookings } = useQuery({
+    queryKey: ['my-bookings'],
+    queryFn: () => profileApi.bookings.list(),
+    enabled: !!user,
+  });
+
   // Protect route
   if (!user) {
-    navigate('/login');
-    return null;
+    return <Navigate to="/login" replace />;
   }
 
   const handleLogout = () => {
@@ -179,25 +185,28 @@ export default function ProfilePage() {
               <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4">
                 <h2 className="text-xl font-bold mb-4">Chuyến bay sắp tới</h2>
                 
-                <Card className="hover:shadow-md transition-shadow cursor-pointer border-l-4 border-l-vna-blue rounded-xl" onClick={() => navigate('/manage')}>
-                  <CardContent className="p-6 flex items-center justify-between rounded-xl">
-                    <div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="bg-blue-100 text-vna-blue text-xs font-bold px-2 py-1 rounded">BK1234</span>
-                        <span className="text-sm font-semibold text-slate-600">15/10/2025</span>
+                {bookings?.map((b: any) => (
+                  <Card key={b.id} className="hover:shadow-md transition-shadow cursor-pointer border-l-4 border-l-vna-blue rounded-xl mb-4" onClick={() => navigate(`/manage`)}>
+                    <CardContent className="p-6 flex items-center justify-between rounded-xl">
+                      <div>
+                        <div className="flex items-center gap-2 mb-2">
+                          <span className="bg-blue-100 text-vna-blue text-xs font-bold px-2 py-1 rounded">{b.bookingCode}</span>
+                          <span className="text-sm font-semibold text-slate-600">{b.date}</span>
+                        </div>
+                        <p className="font-bold text-lg">{b.route}</p>
+                        <p className="text-sm text-slate-500">Trạng thái: {b.status}</p>
                       </div>
-                      <p className="font-bold text-lg">Hà Nội (HAN) - TP. Hồ Chí Minh (SGN)</p>
-                      <p className="text-sm text-slate-500">Chuyến bay VN201 • Đã thanh toán</p>
-                    </div>
-                    <ChevronRight className="w-5 h-5 text-slate-400" />
-                  </CardContent>
-                </Card>
+                      <ChevronRight className="w-5 h-5 text-slate-400" />
+                    </CardContent>
+                  </Card>
+                ))}
 
-                <h2 className="text-xl font-bold mb-4 mt-8">Lịch sử chuyến bay</h2>
-                <div className="text-center py-12 bg-white rounded-xl border border-slate-200">
-                  <Plane className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                  <p className="text-slate-500">Bạn chưa có chuyến bay nào trong quá khứ.</p>
-                </div>
+                {(!bookings || bookings.length === 0) && (
+                  <div className="text-center py-12 bg-white rounded-xl border border-slate-200">
+                    <Plane className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                    <p className="text-slate-500">Bạn chưa có chuyến bay nào.</p>
+                  </div>
+                )}
               </div>
             )}
 

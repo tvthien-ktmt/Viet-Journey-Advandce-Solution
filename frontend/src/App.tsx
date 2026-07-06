@@ -94,15 +94,15 @@ export default function App() {
             
             {/* Protected User Routes */}
             <Route element={<ProtectedRoute roles={['USER', 'ADMIN']} />}>
-              <Route path="/addons" element={<AddonsPage />} />
+              <Route path="/booking/:id/extras" element={<AddonsPage />} />
               <Route path="/booking/:id" element={<BookingDetailPage />} />
               <Route path="/booking-history" element={<BookingHistoryPage />} />
               <Route path="/confirmation/:bookingId" element={<ConfirmationPage />} />
               <Route path="/dashboard" element={<DashboardPage />} />
-              <Route path="/payment" element={<PaymentPage />} />
+              <Route path="/payment/:bookingId" element={<PaymentPage />} />
               <Route path="/profile" element={<ProfilePage />} />
-              <Route path="/seat-hold/:bookingId" element={<SeatHoldPage />} />
-              <Route path="/seat-selection" element={<SeatSelectionPage />} />
+              <Route path="/booking/:bookingId/hold" element={<SeatHoldPage />} />
+              <Route path="/booking/:id/seats" element={<SeatSelectionPage />} />
             </Route>
             
             <Route path="*" element={<NotFoundPage />} />

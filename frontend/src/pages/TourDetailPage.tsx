@@ -50,16 +50,16 @@ export default function TourDetailPage() {
         {/* Gallery */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-12 h-[300px] md:h-[500px]">
           <div className="col-span-2 row-span-2 rounded-2xl overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=2070&auto=format&fit=crop" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" alt="Japan" />
+            <img src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=800&auto=format&fit=crop" loading="lazy" width="800" height="600" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" alt="Japan" />
           </div>
           <div className="rounded-2xl overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=2094&auto=format&fit=crop" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" alt="Tokyo" />
+            <img src="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=800&auto=format&fit=crop" loading="lazy" width="800" height="600" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" alt="Tokyo" />
           </div>
           <div className="rounded-2xl overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1524413840807-0c3cb6fa808d?q=80&w=2070&auto=format&fit=crop" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" alt="Kyoto" />
+            <img src="https://images.unsplash.com/photo-1524413840807-0c3cb6fa808d?q=80&w=800&auto=format&fit=crop" loading="lazy" width="800" height="600" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" alt="Kyoto" />
           </div>
           <div className="col-span-2 rounded-2xl overflow-hidden relative">
-            <img src="https://images.unsplash.com/photo-1480796927426-f609979314bd?q=80&w=2070&auto=format&fit=crop" className="w-full h-full object-cover" alt="Osaka" />
+            <img src="https://images.unsplash.com/photo-1480796927426-f609979314bd?q=80&w=800&auto=format&fit=crop" loading="lazy" width="800" height="600" className="w-full h-full object-cover" alt="Osaka" />
           </div>
         </div>
 

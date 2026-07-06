@@ -10,17 +10,17 @@ import { Badge } from '@/components/ui/badge';
 import { useT } from '@/store/langStore';
 import { toast } from 'sonner';
 import { airports, IMAGES } from '@/data/vna-data';
-import type { CabinId, FlightSearchRequest, FlightSearchResponse, TripType } from '@/lib/vna-types';
 import { mockSearchFlights } from '@/api/mocks/flights';
+import type { CabinId, FlightSearchRequest, FlightSearchResponse, TripType } from '@/types/flight';
 import { FlightResults } from '@/components/home/FlightResults';
 import { cn } from '@/lib/utils';
 import { todayStr, addDaysStr } from '@/lib/formatters';
 
 const cabinOptions: { id: CabinId; key: 'cabinEconomy' | 'cabinEconomySpecial' | 'cabinBusiness' | 'cabinPremium' }[] = [
   { id: 'economy', key: 'cabinEconomy' },
-  { id: 'economy-special', key: 'cabinEconomySpecial' },
+  { id: 'premium', key: 'cabinEconomySpecial' },
   { id: 'business', key: 'cabinBusiness' },
-  { id: 'premium', key: 'cabinPremium' },
+  { id: 'premiumBusiness', key: 'cabinPremium' },
 ];
 
 function Stepper({
@@ -124,7 +124,7 @@ export function HeroSearch() {
       from, to, departDate,
       returnDate: tripType === 'round' ? returnDate : undefined,
       tripType, adults, children, infants, cabin,
-      promo: promo.trim() || undefined,
+      promoCode: promo.trim() || undefined,
     };
 
     setReq(payload);

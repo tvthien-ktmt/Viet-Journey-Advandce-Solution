@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -40,16 +40,16 @@ export default function AddonsPage() {
   const LOUNGE_PRICE = 350000;
   const INSURANCE_PRICE = 120000;
 
-  const updatePassenger = (pid: string, field: keyof Passenger, value: any) => {
+  const updatePassenger = useCallback((pid: string, field: keyof Passenger, value: any) => {
     setPassengers(prev => prev.map(p => p.id === pid ? { ...p, [field]: value } : p));
-  };
+  }, []);
 
-  const handleBaggageChange = (pid: string, current: number, delta: number) => {
+  const handleBaggageChange = useCallback((pid: string, current: number, delta: number) => {
     const newVal = current + delta;
     if (newVal >= 0 && newVal <= 60) {
       updatePassenger(pid, 'baggage', newVal);
     }
-  };
+  }, [updatePassenger]);
 
   const totalFee = useMemo(() => {
     return passengers.reduce((sum, p) => {
@@ -70,7 +70,7 @@ export default function AddonsPage() {
 
   const handleContinue = () => {
     localStorage.setItem(`booking_${id}_addons`, JSON.stringify(passengers));
-    navigate(`/payment`);
+    navigate(`/payment/${id}`);
   };
 
   return (

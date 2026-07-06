@@ -47,6 +47,6 @@ export const profileApi = {
       ],
     }) : api.get('/lotusmiles/me'),
   },
-  updateInfo: (data: any) => USE_MOCK ? Promise.resolve({ success: true }) : api.put('/profile', data),
-  changePassword: (data: any) => USE_MOCK ? Promise.resolve({ success: true }) : api.post('/profile/change-password', data),
+  updateInfo: (data: Record<string, string>) => USE_MOCK ? Promise.resolve({ success: true }) : api.put('/profile', data),
+  changePassword: (data: Record<string, string>) => USE_MOCK ? Promise.resolve({ success: true }) : api.post('/profile/change-password', data),
 };

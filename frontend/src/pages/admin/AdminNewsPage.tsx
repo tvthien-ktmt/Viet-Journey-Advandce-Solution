@@ -1,7 +1,7 @@
-
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { adminApi } from '@/api/admin';
+import type { AdminNews } from '@/types/admin';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -15,7 +15,7 @@ export default function AdminNewsPage() {
     queryFn: () => adminApi.news.list() 
   });
 
-  const filteredNews = news?.filter((n: any) => 
+  const filteredNews = news?.filter((n: AdminNews) => 
     n.title.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -52,7 +52,7 @@ export default function AdminNewsPage() {
               ) : filteredNews?.length === 0 ? (
                 <TableRow><TableCell colSpan={4} className="text-center py-10 text-vna-muted">Chưa có bài viết nào</TableCell></TableRow>
               ) : (
-                filteredNews?.map((n: any) => (
+                filteredNews?.map((n: AdminNews) => (
                   <TableRow key={n.id}>
                     <TableCell className="whitespace-nowrap">{n.date}</TableCell>
                     <TableCell className="font-medium line-clamp-2">{n.title}</TableCell>

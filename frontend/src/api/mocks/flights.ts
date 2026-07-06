@@ -1,4 +1,4 @@
-import type { FlightSearchRequest, FlightSearchResponse, MockFlight } from '@/lib/vna-types';
+import type { FlightSearchRequest, FlightSearchResponse, Flight as MockFlight } from '@/types/flight';
 
 function mulberry32(seed: number) {
   return function () {
@@ -16,11 +16,11 @@ function hashSeed(s: string): number {
 
 const AIRCRAFT = ['Airbus A321', 'Airbus A350', 'Boeing 787', 'Airbus A330'];
 const CABIN_MULTIPLIER: Record<string, number> = {
-  economy: 1, 'economy-special': 1.6, business: 3, premium: 4.5,
+  economy: 1, premium: 1.6, business: 3, premiumBusiness: 4.5,
 };
 const CABIN_LABEL: Record<string, string> = {
-  economy: 'Phổ thông', 'economy-special': 'Phổ thông đặc biệt',
-  business: 'Thương gia', premium: 'Thương nhân',
+  economy: 'Phổ thông', premium: 'Phổ thông đặc biệt',
+  business: 'Thương gia', premiumBusiness: 'Thương nhân',
 };
 
 function genFlights(from: string, to: string, date: string, cabin: string): MockFlight[] {
@@ -45,7 +45,7 @@ function genFlights(from: string, to: string, date: string, cabin: string): Mock
       airline: 'Vietnam Airlines',
       departTime: `${hh(departHour)}:${hh(departMin)}`,
       arriveTime: `${hh(arriveHour)}:${hh(arriveMin)}`,
-      arriveNextDay,
+      nextDay: arriveNextDay,
       duration: `${Math.floor(durationMin / 60)}h ${durationMin % 60}m`,
       stops: rand() > 0.7 ? 1 : 0,
       aircraft: AIRCRAFT[Math.floor(rand() * AIRCRAFT.length)] ?? 'Airbus A321',
@@ -63,9 +63,6 @@ export async function mockSearchFlights(req: FlightSearchRequest): Promise<Fligh
     return: req.tripType === 'round' && req.returnDate
       ? genFlights(req.to, req.from, req.returnDate, req.cabin)
       : undefined,
-    from: req.from, to: req.to,
-    departDate: req.departDate, returnDate: req.returnDate,
-    cabin: req.cabin,
-    adults: req.adults, children: req.children, infants: req.infants,
+    request: req,
   };
 }

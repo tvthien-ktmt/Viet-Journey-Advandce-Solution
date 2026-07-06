@@ -44,12 +44,10 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <Button asChild className="flex items-center gap-2 hidden bg-[#023a78] text-white hover:bg-vna-blue-800 sm:inline-flex rounded-lg transition-all duration-300" size="sm">
-            <a href="#booking" className="flex items-center gap-2">
-              <Ticket className="size-4" />
-              <span>{t.header.book}</span>
-            </a>
-          </Button>
+          <a href="#booking" className="flex items-center gap-2 hidden bg-[#023a78] text-white hover:bg-vna-blue-800 sm:inline-flex rounded-md transition-all duration-300 h-9 px-3 text-xs font-medium">
+            <Ticket className="size-4" />
+            <span>{t.header.book}</span>
+          </a>
 
           <Sheet open={open} onOpenChange={setOpen}>
               <SheetTrigger className="border-[#023a78]/30 text-[#023a78] lg:hidden p-2 rounded-md hover:bg-slate-100 transition-all duration-300" aria-label={t.header.menu}>
@@ -82,12 +80,10 @@ export function SiteHeader() {
               </nav>
 
               <div className="mt-auto space-y-3 border-t border-slate-200 p-4">
-                <Button className="flex items-center gap-2 w-full bg-[#023a78] hover:bg-vna-blue-800 rounded-lg transition-all duration-300">
-                  <a className="flex items-center gap-2" href="#booking" onClick={() => setOpen(false)}>
-                    <Ticket className="size-4" />
-                    {t.header.book}
-                  </a>
-                </Button>
+                <a href="#booking" onClick={() => setOpen(false)} className="flex items-center justify-center gap-2 w-full bg-[#023a78] text-white hover:bg-vna-blue-800 rounded-md transition-all duration-300 h-10 font-medium">
+                  <Ticket className="size-4" />
+                  {t.header.book}
+                </a>
                 <LotusLoginButton variant="outline" fullWidth className="border-[#023a78]/30 text-[#023a78] hover:bg-[#eaf3fb] hover:text-[#023a78] transition-all duration-300" />
               </div>
             </SheetContent>

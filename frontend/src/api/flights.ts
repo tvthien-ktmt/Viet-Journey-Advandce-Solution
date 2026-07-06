@@ -6,7 +6,7 @@ import { api } from './client';
 const USE_MOCK = import.meta.env.VITE_USE_MOCK_API === 'true' || false; // TODO: set false khi BE /flights/search ready
 
 export async function searchFlights(req: FlightSearchRequest): Promise<FlightSearchResponse> {
-  if (USE_MOCK) return mockSearchFlights(req as any) as any;
+  if (USE_MOCK) return mockSearchFlights(req);
   return api.post<FlightSearchResponse>('/flights/search', req);
 }
 

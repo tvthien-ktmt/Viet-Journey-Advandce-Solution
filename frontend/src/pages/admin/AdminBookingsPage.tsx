@@ -1,7 +1,8 @@
-
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { adminApi } from '@/api/admin';
+import type { AdminBooking } from '@/types/admin';
+import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
@@ -15,7 +16,7 @@ export default function AdminBookingsPage() {
     queryFn: () => adminApi.bookings.list() 
   });
 
-  const filteredBookings = bookings?.filter((b: any) => 
+  const filteredBookings = bookings?.filter((b: AdminBooking) => 
     b.bookingCode.toLowerCase().includes(search.toLowerCase()) ||
     b.contactEmail.toLowerCase().includes(search.toLowerCase())
   );
@@ -54,7 +55,7 @@ export default function AdminBookingsPage() {
               ) : filteredBookings?.length === 0 ? (
                 <TableRow><TableCell colSpan={6} className="text-center py-10 text-vna-muted">Không tìm thấy dữ liệu</TableCell></TableRow>
               ) : (
-                filteredBookings?.map((b: any) => (
+                filteredBookings?.map((b: AdminBooking) => (
                   <TableRow key={b.id} className="cursor-pointer hover:bg-slate-50 transition-all duration-300">
                     <TableCell className="font-bold text-vna-gold font-mono tracking-wider">{b.bookingCode}</TableCell>
                     <TableCell>{b.contactEmail}</TableCell>
