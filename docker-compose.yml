@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: vietjourney-mysql
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-vietjourney_db}
+      MYSQL_USER: ${MYSQL_USER:-vietjourney_web}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-vjw12345}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - vietjourney-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7.0-alpine
+    container_name: vietjourney-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - vietjourney-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: vietjourney-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/${MYSQL_DATABASE:-vietjourney_db}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      - SPRING_DATASOURCE_USERNAME=${MYSQL_USER:-vietjourney_web}
+      - SPRING_DATASOURCE_PASSWORD=${MYSQL_PASSWORD:-vjw12345}
+      - JWT_SECRET=${JWT_SECRET:-9848779c4a86b51eb582f3a61f5f3e9a4f6d8a221f2d65dbfb1b4f420db5ebc4}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - vietjourney-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: vietjourney-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      backend:
+        condition: service_started
+    networks:
+      - vietjourney-network
+
+volumes:
+  mysql_data:
+
+networks:
+  vietjourney-network:
+    driver: bridge

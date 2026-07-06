@@ -1,0 +1,5 @@
+
+# Environment files v?i secret th?t
+.env
+.env.local
+*.env.local

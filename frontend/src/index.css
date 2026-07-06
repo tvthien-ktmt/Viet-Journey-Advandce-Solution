@@ -1,0 +1,105 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Vietnam Airlines brand palette */
+:root {
+  --brand-blue: #023a78;
+  --brand-sky: #1f6fb2;
+  --brand-gold: #f5a623;
+  --brand-red: #d4111a;
+  --brand-tint: #eaf3fb;
+  --brand-tint-2: #f5f9fd;
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 211 97% 24%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 211 97% 24%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 211 97% 24%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .vna-deep-blue { background-color: #023a78; }
+  .vna-deep-blue-grad { background-image: linear-gradient(135deg, #023a78 0%, #1f6fb2 100%); }
+  .vna-text-deep { color: #023a78; }
+  .vna-text-gold { color: #f5a623; }
+  .vna-gold-grad { background-image: linear-gradient(135deg, #f5a623 0%, #ffd27a 100%); }
+  .vna-tint-bg { background-color: #eaf3fb; }
+  .vna-tint-bg-2 { background-color: #f5f9fd; }
+  .vna-nav-underline { position: relative; }
+  .vna-nav-underline::after {
+    content: ""; position: absolute; left: 0; bottom: -6px;
+    height: 2px; width: 0; background-color: #f5a623;
+    transition: width 0.25s ease;
+  }
+  .vna-nav-underline:hover::after,
+  .vna-nav-underline[data-active="true"]::after { width: 100%; }
+  .vna-scroll { scrollbar-width: thin; scrollbar-color: #1f6fb2 transparent; }
+  .vna-scroll::-webkit-scrollbar { width: 8px; height: 8px; }
+  .vna-scroll::-webkit-scrollbar-track { background: #f5f9fd; border-radius: 8px; }
+  .vna-scroll::-webkit-scrollbar-thumb {
+    background-color: #1f6fb2; border-radius: 8px; border: 2px solid #f5f9fd;
+  }
+  .vna-scroll::-webkit-scrollbar-thumb:hover { background-color: #023a78; }
+  .vna-no-scrollbar::-webkit-scrollbar { display: none; }
+  .vna-no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+}
+
+/* Override Tailwind default blue focus ring về VNA brand */
+input:focus,
+select:focus,
+textarea:focus,
+button:focus-visible {
+  outline: 2px solid #1f6fb2;
+  outline-offset: 2px;
+}

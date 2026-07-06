@@ -1,0 +1,5 @@
+INSERT INTO blogs (slug, title, excerpt, thumbnail, content) VALUES
+('khai-truong-ha-noi-sydney', 'Vietnam Airlines khai trương đường bay thẳng Hà Nội – Sydney', 'Từ tháng 7/2025...', 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05', '<p>Từ tháng 7/2025, Vietnam Airlines chính thức khai trương đường bay thẳng giữa Hà Nội và Sydney...</p>'),
+('uu-dai-lotusmiles-2025', 'Đặc quyền mới cho hội viên Lotusmiles năm 2025', 'Cập nhật những ưu đãi...', 'https://images.unsplash.com/photo-1544620347-c4fd4a3d5957', '<p>Chương trình Bông Sen Vàng (Lotusmiles) mang đến hàng loạt đặc quyền mới...</p>'),
+('kham-pha-kyoto-mua-thu', 'Cẩm nang du lịch Kyoto mùa lá đỏ', 'Nhật Bản luôn là điểm đến...', 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e', '<p>Kyoto vào thu khoác lên mình tấm áo lộng lẫy của sắc đỏ, vàng...</p>'),
+('ve-may-bay-tet-2026', 'Vietnam Airlines mở bán vé máy bay Tết Nguyên Đán 2026', 'Nhằm đáp ứng nhu cầu...', 'https://images.unsplash.com/photo-1569154941061-e231b4732ef1', '<p>Để phục vụ nhu cầu đi lại dịp Tết Bính Ngọ 2026...</p>');
