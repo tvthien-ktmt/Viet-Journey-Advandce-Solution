@@ -4,6 +4,7 @@ import com.vietjourney.backend.repository.BookingRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,6 +18,7 @@ public class ReservationScheduler {
     private final BookingRepository bookingRepository;
 
     // Chạy mỗi phút 1 lần
+    @Async
     @Scheduled(cron = "0 * * * * *")
     @Transactional
     public void releaseExpiredReservations() {

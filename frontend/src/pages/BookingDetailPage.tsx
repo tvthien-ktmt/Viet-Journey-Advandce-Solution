@@ -1,10 +1,10 @@
 
 import { Link } from 'react-router-dom';
-import SidebarLayout from '../layouts/SidebarLayout';
+
 
 export default function BookingDetailPage() {
   return (
-    <SidebarLayout>
+    <>
       <div className="flex flex-col flex-grow py-8 md:py-12">
         
         {/* Context Header & Breadcrumb */}
@@ -175,6 +175,6 @@ export default function BookingDetailPage() {
           
         </div>
       </div>
-    </SidebarLayout>
+    </>
   );
 }

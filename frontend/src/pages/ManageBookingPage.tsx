@@ -32,7 +32,7 @@ export default function ManageBookingPage() {
     try {
       const res: any = await bookingApi.search(code, lastName);
       // Backend trả về BookingDTO
-      const b = res.data.data;
+      const b = res;
       setBooking({
         id: `BK${b.id}`,
         status: b.status,

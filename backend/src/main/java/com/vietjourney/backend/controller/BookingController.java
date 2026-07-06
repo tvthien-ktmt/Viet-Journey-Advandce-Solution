@@ -3,7 +3,6 @@ package com.vietjourney.backend.controller;
 import com.vietjourney.backend.dto.request.BookingRequest;
 import com.vietjourney.backend.dto.response.ApiResponse;
 import com.vietjourney.backend.dto.response.BookingDTO;
-import com.vietjourney.backend.entity.Booking;
 import com.vietjourney.backend.service.BookingService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -11,9 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import com.vietjourney.backend.util.PageableUtil;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -28,16 +26,16 @@ public class BookingController {
     @PostMapping
     public ResponseEntity<ApiResponse<BookingDTO>> createBooking(@Valid @RequestBody BookingRequest request, Authentication authentication) {
         String email = authentication != null ? authentication.getName() : null;
-        Booking booking = bookingService.createReservation(request, email);
-        return ResponseEntity.ok(ApiResponse.success(BookingDTO.fromEntity(booking), "Tạo Booking thành công, giữ chỗ trong 10 phút."));
+        BookingDTO bookingDTO = bookingService.createReservation(request, email);
+        return ResponseEntity.ok(ApiResponse.success(bookingDTO, "Tạo Booking thành công, giữ chỗ trong 10 phút."));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<BookingDTO>> getBooking(@PathVariable Long id, Authentication authentication) {
         String email = authentication != null ? authentication.getName() : null;
         if (email == null) throw new com.vietjourney.backend.exception.UnauthorizedActionException("Unauthorized");
-        Booking booking = bookingService.getBookingByIdAndUser(id, email);
-        return ResponseEntity.ok(ApiResponse.success(BookingDTO.fromEntity(booking), "Chi tiết Booking"));
+        BookingDTO bookingDTO = bookingService.getBookingByIdAndUser(id, email);
+        return ResponseEntity.ok(ApiResponse.success(bookingDTO, "Chi tiết Booking"));
     }
 
     @GetMapping("/my-bookings")
@@ -50,13 +48,9 @@ public class BookingController {
             throw new com.vietjourney.backend.exception.UnauthorizedActionException("Unauthorized");
         }
         
-        String[] sortParts = sort.split(",");
-        Sort.Direction direction = sortParts.length > 1 && sortParts[1].equalsIgnoreCase("asc")
-            ? Sort.Direction.ASC : Sort.Direction.DESC;
-        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortParts[0]));
+        Pageable pageable = PageableUtil.createPageable(page, size, sort);
         
-        Page<Booking> bookings = bookingService.getUserBookings(authentication.getName(), pageable);
-        Page<BookingDTO> dtos = bookings.map(BookingDTO::fromEntity);
+        Page<BookingDTO> dtos = bookingService.getUserBookings(authentication.getName(), pageable);
         return ResponseEntity.ok(ApiResponse.success(dtos, "Lịch sử Booking"));
     }
 
@@ -64,7 +58,8 @@ public class BookingController {
     public ResponseEntity<ApiResponse<BookingDTO>> searchBooking(
             @RequestParam String code,
             @RequestParam String lastName) {
-        Booking booking = bookingService.searchByCodeAndLastName(code, lastName);
-        return ResponseEntity.ok(ApiResponse.success(BookingDTO.fromEntity(booking), "Tìm thấy đặt chỗ"));
+        BookingDTO dto = bookingService.searchByCodeAndLastName(code, lastName);
+        dto.maskPII();
+        return ResponseEntity.ok(ApiResponse.success(dto, "Tìm thấy đặt chỗ"));
     }
 }

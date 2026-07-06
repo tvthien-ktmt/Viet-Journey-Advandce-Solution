@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import SidebarLayout from '../layouts/SidebarLayout';
+
 import { bookingApi } from '@/api/booking';
 import { useAuth } from '@/store/authStore';
 import { toast } from 'sonner';
@@ -15,7 +15,7 @@ export default function BookingHistoryPage() {
     const fetchBookings = async () => {
       try {
         const res: any = await bookingApi.getMyBookings();
-        setBookings(res.data.data.content || []);
+        setBookings(res.content || res.data?.content || []);
       } catch (error) {
         toast.error('Lỗi khi tải lịch sử đặt chỗ');
       } finally {
@@ -26,7 +26,7 @@ export default function BookingHistoryPage() {
   }, [isAuthenticated]);
 
   return (
-    <SidebarLayout>
+    <>
       <div className="flex flex-col flex-grow py-8 md:py-12">
         
         {/* Header */}
@@ -87,6 +87,6 @@ export default function BookingHistoryPage() {
           </div>
         )}
       </div>
-    </SidebarLayout>
+    </>
   );
 }

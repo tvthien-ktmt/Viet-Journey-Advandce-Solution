@@ -79,9 +79,9 @@ apiClient.interceptors.response.use(
 );
 
 export const api = {
-  get: <T>(url: string, params?: object) => apiClient.get<T>(url, { params }).then(r => r.data),
-  post: <T>(url: string, body?: object) => apiClient.post<T>(url, body).then(r => r.data),
-  put: <T>(url: string, body?: object) => apiClient.put<T>(url, body).then(r => r.data),
-  patch: <T>(url: string, body?: object) => apiClient.patch<T>(url, body).then(r => r.data),
-  delete: <T>(url: string) => apiClient.delete<T>(url).then(r => r.data),
+  get: <T>(url: string, params?: object) => apiClient.get<any>(url, { params }).then(r => r.data?.success !== undefined ? r.data.data : r.data),
+  post: <T>(url: string, body?: object) => apiClient.post<any>(url, body).then(r => r.data?.success !== undefined ? r.data.data : r.data),
+  put: <T>(url: string, body?: object) => apiClient.put<any>(url, body).then(r => r.data?.success !== undefined ? r.data.data : r.data),
+  patch: <T>(url: string, body?: object) => apiClient.patch<any>(url, body).then(r => r.data?.success !== undefined ? r.data.data : r.data),
+  delete: <T>(url: string) => apiClient.delete<any>(url).then(r => r.data?.success !== undefined ? r.data.data : r.data),
 };

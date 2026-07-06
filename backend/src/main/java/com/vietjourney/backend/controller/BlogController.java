@@ -1,7 +1,7 @@
 package com.vietjourney.backend.controller;
 
 import com.vietjourney.backend.dto.response.ApiResponse;
-import com.vietjourney.backend.entity.Blog;
+import com.vietjourney.backend.dto.response.BlogDTO;
 import com.vietjourney.backend.service.BlogService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -17,14 +17,14 @@ public class BlogController {
     private final BlogService blogService;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<Page<Blog>>> getBlogs(Pageable pageable) {
-        Page<Blog> blogs = blogService.getBlogs(pageable);
+    public ResponseEntity<ApiResponse<Page<BlogDTO>>> getBlogs(Pageable pageable) {
+        Page<BlogDTO> blogs = blogService.getBlogs(pageable);
         return ResponseEntity.ok(ApiResponse.success(blogs, "Danh sách Blog"));
     }
 
     @GetMapping("/slug/{slug}")
-    public ResponseEntity<ApiResponse<Blog>> getBlogBySlug(@PathVariable String slug) {
-        Blog blog = blogService.getBlogBySlug(slug);
+    public ResponseEntity<ApiResponse<BlogDTO>> getBlogBySlug(@PathVariable String slug) {
+        BlogDTO blog = blogService.getBlogBySlug(slug);
         return ResponseEntity.ok(ApiResponse.success(blog, "Chi tiết Blog"));
     }
 }

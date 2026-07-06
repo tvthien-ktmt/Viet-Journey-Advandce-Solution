@@ -10,8 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.vietjourney.backend.repository.BookingRepository;
-import com.vietjourney.backend.repository.PaymentRepository;
+import com.vietjourney.backend.service.AdminService;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -19,18 +18,12 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AdminController {
 
-    private final BookingRepository bookingRepository;
-    private final PaymentRepository paymentRepository;
+    private final AdminService adminService;
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/stats")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getAdminStats() {
-        Map<String, Object> stats = new HashMap<>();
-        stats.put("totalBookings", bookingRepository.count());
-        
-        java.math.BigDecimal revenue = paymentRepository.sumRevenue();
-        // Format to string like "12M VND" or just return raw amount
-        stats.put("revenue", revenue.longValue() + " VND");
+        Map<String, Object> stats = adminService.getAdminStats();
         return ResponseEntity.ok(ApiResponse.success(stats, "Admin stats fetched"));
     }
 }

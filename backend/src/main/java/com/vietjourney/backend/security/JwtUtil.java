@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
+import jakarta.annotation.PostConstruct;
 import java.security.Key;
 import java.util.Date;
 
@@ -19,6 +20,13 @@ public class JwtUtil {
 
     @Value("${app.jwt.expiration-ms}")
     private int jwtExpirationMs;
+
+    @PostConstruct
+    public void init() {
+        if (jwtSecret == null || jwtSecret.getBytes().length < 32) {
+            throw new IllegalArgumentException("JWT Secret must be at least 32 bytes for HS256!");
+        }
+    }
 
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(jwtSecret.getBytes());

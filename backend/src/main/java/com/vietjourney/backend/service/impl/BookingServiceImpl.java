@@ -1,12 +1,12 @@
 package com.vietjourney.backend.service.impl;
 
 import com.vietjourney.backend.dto.request.BookingRequest;
+import com.vietjourney.backend.dto.response.BookingDTO;
 import com.vietjourney.backend.entity.Booking;
+import com.vietjourney.backend.entity.enums.BookingStatus;
 import com.vietjourney.backend.entity.BookingPassenger;
-import com.vietjourney.backend.entity.Flight;
 import com.vietjourney.backend.entity.User;
 import com.vietjourney.backend.repository.BookingRepository;
-import com.vietjourney.backend.repository.FlightRepository;
 import com.vietjourney.backend.repository.UserRepository;
 import com.vietjourney.backend.service.BookingService;
 import com.vietjourney.backend.service.strategy.booking.BookingStrategyFactory;
@@ -28,12 +28,11 @@ public class BookingServiceImpl implements BookingService {
 
     private final BookingRepository bookingRepository;
     private final UserRepository userRepository;
-    private final FlightRepository flightRepository;
     private final BookingStrategyFactory bookingStrategyFactory;
 
     @Override
     @Transactional
-    public Booking createReservation(BookingRequest request, String userEmail) {
+    public BookingDTO createReservation(BookingRequest request, String userEmail) {
         User user = null;
         if (userEmail != null) {
             user = userRepository.findByEmail(userEmail)
@@ -47,19 +46,7 @@ public class BookingServiceImpl implements BookingService {
                 ? request.getPassengers().size() 
                 : 1;
 
-        if ("flight".equals(request.getBookingType())) {
-            Flight flight = flightRepository.findById(request.getReferenceId())
-                .orElseThrow(() -> new com.vietjourney.backend.exception.ResourceNotFoundException("Không tìm thấy chuyến bay"));
-
-            if (flight.getAvailableSeats() != null && flight.getAvailableSeats() < quantity) {
-                throw new com.vietjourney.backend.exception.BusinessException("Không đủ ghế trống. Vui lòng chọn chuyến bay khác.", 409);
-            }
-
-            if (flight.getAvailableSeats() != null) {
-                flight.setAvailableSeats(flight.getAvailableSeats() - quantity);
-                flightRepository.save(flight);
-            }
-        }
+        strategy.validateAndReserve(request.getReferenceId(), quantity);
 
         BigDecimal calculatedTotalPrice = unitPrice.multiply(new BigDecimal(quantity));
 
@@ -67,7 +54,7 @@ public class BookingServiceImpl implements BookingService {
                 .user(user)
                 .bookingType(request.getBookingType())
                 .referenceId(request.getReferenceId())
-                .status("reserved")
+                .status(BookingStatus.RESERVED)
                 .totalPrice(calculatedTotalPrice)
                 .reservedUntil(LocalDateTime.now().plusMinutes(10)) // Giữ chỗ 10 phút
                 .build();
@@ -85,48 +72,50 @@ public class BookingServiceImpl implements BookingService {
             booking.setPassengers(passengers);
         }
 
-        return bookingRepository.save(booking);
+        Booking savedBooking = bookingRepository.save(booking);
+        return BookingDTO.fromEntity(savedBooking);
     }
 
-    @Override
-    @org.springframework.transaction.annotation.Transactional(readOnly = true)
-    public Booking getBookingById(Long id) {
+    private Booking getBookingEntityById(Long id) {
         return bookingRepository.findById(id)
                 .orElseThrow(() -> new com.vietjourney.backend.exception.ResourceNotFoundException("Booking not found"));
     }
 
     @Override
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
-    public Booking getBookingByIdAndUser(Long id, String userEmail) {
-        Booking booking = getBookingById(id);
+    public BookingDTO getBookingById(Long id) {
+        return BookingDTO.fromEntity(getBookingEntityById(id));
+    }
+
+    @Override
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public BookingDTO getBookingByIdAndUser(Long id, String userEmail) {
+        Booking booking = getBookingEntityById(id);
         if (booking.getUser() != null && !booking.getUser().getEmail().equals(userEmail)) {
             throw new org.springframework.security.access.AccessDeniedException("Bạn không có quyền truy cập booking này");
         }
-        return booking;
+        return BookingDTO.fromEntity(booking);
     }
 
     @Override
     @Transactional
-    public Booking confirmBooking(Long id) {
-        Booking booking = getBookingById(id);
-        if ("expired".equals(booking.getStatus())) {
-            throw new com.vietjourney.backend.exception.BusinessException("Booking has expired");
-        }
-        booking.setStatus("confirmed");
-        return bookingRepository.save(booking);
+    public BookingDTO confirmBooking(Long id) {
+        Booking booking = getBookingEntityById(id);
+        booking.transitionTo(BookingStatus.CONFIRMED);
+        return BookingDTO.fromEntity(bookingRepository.save(booking));
     }
 
     @Override
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
-    public Page<Booking> getUserBookings(String userEmail, Pageable pageable) {
+    public Page<BookingDTO> getUserBookings(String userEmail, Pageable pageable) {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new com.vietjourney.backend.exception.ResourceNotFoundException("User not found"));
-        return bookingRepository.findByUserId(user.getId(), pageable);
+        return bookingRepository.findByUserId(user.getId(), pageable).map(BookingDTO::fromEntity);
     }
 
     @Override
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
-    public Booking searchByCodeAndLastName(String bookingCode, String lastName) {
+    public BookingDTO searchByCodeAndLastName(String bookingCode, String lastName) {
         try {
             String idStr = bookingCode.toUpperCase().replace("BK", "");
             Long id = Long.parseLong(idStr);
@@ -134,7 +123,7 @@ public class BookingServiceImpl implements BookingService {
             if (bookings.isEmpty()) {
                 throw new com.vietjourney.backend.exception.ResourceNotFoundException("Không tìm thấy đặt chỗ phù hợp");
             }
-            return bookings.get(0);
+            return BookingDTO.fromEntity(bookings.get(0));
         } catch (NumberFormatException e) {
             throw new com.vietjourney.backend.exception.ResourceNotFoundException("Mã đặt chỗ không hợp lệ");
         }

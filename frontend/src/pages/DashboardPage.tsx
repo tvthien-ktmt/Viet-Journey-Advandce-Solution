@@ -1,13 +1,13 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import SidebarLayout from '../layouts/SidebarLayout';
+
 
 export default function DashboardPage() {
   const [activeTab, setActiveTab] = useState('dashboard');
 
   return (
-    <SidebarLayout>
+    <>
       <div className="flex flex-col flex-grow py-8 md:py-12">
         
         {/* Header */}
@@ -237,6 +237,6 @@ export default function DashboardPage() {
 
         </div>
       </div>
-    </SidebarLayout>
+    </>
   );
 }

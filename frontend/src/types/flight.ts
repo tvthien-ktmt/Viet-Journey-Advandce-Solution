@@ -47,7 +47,7 @@ export interface Passenger {
 
 export type BookingStatus = 'HOLD' | 'PENDING_PAYMENT' | 'CONFIRMED' | 'CANCELLED' | 'EXPIRED';
 
-export interface Booking {
+export interface FlightBooking {
   id: string;
   status: BookingStatus;
   bookingCode: string;

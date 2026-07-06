@@ -59,11 +59,42 @@ public class BookingDTO {
                 .user(userDto)
                 .bookingType(booking.getBookingType())
                 .referenceId(booking.getReferenceId())
-                .status(booking.getStatus())
+                .status(booking.getStatus() != null ? booking.getStatus().name() : null)
                 .totalPrice(booking.getTotalPrice())
                 .reservedUntil(booking.getReservedUntil())
                 .createdAt(booking.getCreatedAt())
                 .passengers(passengerDTOs)
                 .build();
+    }
+
+    public void maskPII() {
+        if (this.user != null) {
+            this.user.setEmail(maskEmail(this.user.getEmail()));
+        }
+        if (this.passengers != null) {
+            for (BookingPassengerDTO p : this.passengers) {
+                p.setEmail(maskEmail(p.getEmail()));
+                p.setPhone(maskPhone(p.getPhone()));
+                p.setDocumentNumber(maskDocument(p.getDocumentNumber()));
+            }
+        }
+    }
+
+    private String maskEmail(String email) {
+        if (email == null || !email.contains("@")) return email;
+        String[] parts = email.split("@");
+        String name = parts[0];
+        if (name.length() <= 2) return "***@" + parts[1];
+        return name.substring(0, 2) + "***@" + parts[1];
+    }
+    
+    private String maskPhone(String phone) {
+        if (phone == null || phone.length() < 4) return phone;
+        return "***" + phone.substring(phone.length() - 4);
+    }
+    
+    private String maskDocument(String doc) {
+        if (doc == null || doc.length() < 4) return doc;
+        return "***" + doc.substring(doc.length() - 4);
     }
 }

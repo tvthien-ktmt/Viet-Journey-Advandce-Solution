@@ -36,6 +36,6 @@ export const useAuth = create<AuthState>()(
     hasRole: (role) => !!get().user?.roles.includes(role),
   }), { 
     name: 'vna-auth',
-    partialize: (state) => ({ user: state.user }) 
+    partialize: (state) => ({ user: state.user, refreshToken: state.refreshToken, token: state.token }) 
   })
 );

@@ -7,11 +7,13 @@ import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import com.vietjourney.backend.dto.response.BookingDTO;
+
 public interface BookingService {
-    Booking createReservation(BookingRequest request, String userEmail);
-    Booking getBookingById(Long id);
-    Booking getBookingByIdAndUser(Long id, String userEmail);
-    Booking confirmBooking(Long id);
-    Page<Booking> getUserBookings(String userEmail, Pageable pageable);
-    Booking searchByCodeAndLastName(String bookingCode, String lastName);
+    BookingDTO createReservation(BookingRequest request, String userEmail);
+    BookingDTO getBookingById(Long id);
+    BookingDTO getBookingByIdAndUser(Long id, String userEmail);
+    BookingDTO confirmBooking(Long id);
+    Page<BookingDTO> getUserBookings(String userEmail, Pageable pageable);
+    BookingDTO searchByCodeAndLastName(String bookingCode, String lastName);
 }

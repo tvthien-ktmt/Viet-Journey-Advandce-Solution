@@ -23,12 +23,8 @@ public class PaymentController {
     }
 
     @GetMapping("/callback")
-    public ResponseEntity<ApiResponse<PaymentResponse>> paymentCallback(
-            @RequestParam("vnp_TxnRef") String transactionRef,
-            @RequestParam("vnp_ResponseCode") String responseCode,
-            @RequestParam("vnp_SecureHash") String secureHash) {
-        
-        PaymentResponse response = paymentService.handleCallback(transactionRef, responseCode, secureHash);
+    public ResponseEntity<ApiResponse<PaymentResponse>> paymentCallback(@RequestParam java.util.Map<String, String> params) {
+        PaymentResponse response = paymentService.handleCallback(params);
         return ResponseEntity.ok(ApiResponse.success(response, "Xử lý callback thanh toán thành công"));
     }
 }

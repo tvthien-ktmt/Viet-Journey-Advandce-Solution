@@ -4,12 +4,14 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import com.vietjourney.backend.entity.enums.BookingStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -31,8 +33,9 @@ public class Booking {
     private Long referenceId;
 
     @Builder.Default
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String status = "pending"; // pending, reserved, confirmed, cancelled, expired
+    private BookingStatus status = BookingStatus.PENDING;
 
     @Column(name = "total_price", nullable = false)
     private BigDecimal totalPrice;
@@ -53,4 +56,26 @@ public class Booking {
 
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<BookingPassenger> passengers;
+
+    public void transitionTo(BookingStatus nextStatus) {
+        if (this.status == BookingStatus.CANCELLED || this.status == BookingStatus.EXPIRED) {
+            throw new IllegalStateException("Cannot transition from terminal state: " + this.status);
+        }
+        if (this.status == BookingStatus.CONFIRMED && nextStatus != BookingStatus.CONFIRMED) {
+            throw new IllegalStateException("Cannot change status of a confirmed booking");
+        }
+        this.status = nextStatus;
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Booking)) return false;
+        Booking other = (Booking) o;
+        return id != null && id.equals(other.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }

@@ -8,6 +8,9 @@ import java.math.BigDecimal;
 
 public interface TourService {
     Page<Tour> searchTours(String query, BigDecimal minPrice, BigDecimal maxPrice, String location, Pageable pageable);
+    Tour createTour(Tour tour);
     Tour getTourBySlug(String slug);
     Tour getTourById(Long id);
+    Tour updateTour(Long id, Tour updatedTour);
+    void deleteTour(Long id);
 }

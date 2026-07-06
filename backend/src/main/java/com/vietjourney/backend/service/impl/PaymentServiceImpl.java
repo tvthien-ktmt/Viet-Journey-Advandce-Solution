@@ -3,10 +3,12 @@ package com.vietjourney.backend.service.impl;
 import com.vietjourney.backend.dto.request.PaymentRequest;
 import com.vietjourney.backend.dto.response.PaymentResponse;
 import com.vietjourney.backend.entity.Booking;
+import com.vietjourney.backend.entity.enums.BookingStatus;
 import com.vietjourney.backend.entity.Payment;
 import com.vietjourney.backend.repository.BookingRepository;
 import com.vietjourney.backend.repository.PaymentRepository;
 import com.vietjourney.backend.service.PaymentService;
+import com.vietjourney.backend.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +25,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final PaymentRepository paymentRepository;
     private final BookingRepository bookingRepository;
     private final PaymentGatewayFactory paymentGatewayFactory;
+    private final NotificationService notificationService;
 
     @Override
     @Transactional
@@ -30,7 +33,7 @@ public class PaymentServiceImpl implements PaymentService {
         Booking booking = bookingRepository.findById(request.getBookingId())
                 .orElseThrow(() -> new com.vietjourney.backend.exception.ResourceNotFoundException("Booking not found"));
 
-        if (!"reserved".equals(booking.getStatus())) {
+        if (booking.getStatus() != BookingStatus.RESERVED) {
             throw new com.vietjourney.backend.exception.BusinessException("Chỉ có thể thanh toán booking đang trong trạng thái reserved", 409);
         }
 
@@ -51,12 +54,15 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     @Transactional
-    public PaymentResponse handleCallback(String transactionRef, String status, String secureHash) {
+    public PaymentResponse handleCallback(java.util.Map<String, String> params) {
+        String transactionRef = params.get("vnp_TxnRef");
+        String status = params.get("vnp_ResponseCode");
+        
         Payment payment = paymentRepository.findByTransactionRef(transactionRef)
                 .orElseThrow(() -> new com.vietjourney.backend.exception.ResourceNotFoundException("Payment not found"));
 
         PaymentGatewayStrategy strategy = paymentGatewayFactory.getStrategy(payment.getPaymentMethod());
-        if (!strategy.verifyCallback(transactionRef, status, secureHash)) {
+        if (!strategy.verifyCallback(params)) {
             throw new com.vietjourney.backend.exception.BusinessException("Chữ ký thanh toán không hợp lệ.", 400);
         }
 
@@ -67,18 +73,26 @@ public class PaymentServiceImpl implements PaymentService {
                     .build();
         }
 
-        if ("completed".equals(status) || "success".equalsIgnoreCase(status) || "00".equals(status)) { // 00 là mã VNPay success
+        if (strategy.isSuccessStatus(status)) {
             payment.setStatus("completed");
             payment.setPaidAt(LocalDateTime.now());
             
             Booking booking = payment.getBooking();
-            booking.setStatus("confirmed");
+            booking.transitionTo(BookingStatus.CONFIRMED);
             bookingRepository.save(booking);
+
+            if (booking.getUser() != null) {
+                notificationService.createNotification(
+                    booking.getUser().getEmail(), 
+                    "Thanh toán thành công", 
+                    "Đơn hàng " + transactionRef + " đã được thanh toán và xác nhận thành công."
+                );
+            }
         } else {
             payment.setStatus("failed");
             
             Booking booking = payment.getBooking();
-            booking.setStatus("cancelled");
+            booking.transitionTo(BookingStatus.CANCELLED);
             bookingRepository.save(booking);
         }
 

@@ -156,8 +156,8 @@ export default function SeatHoldPage() {
                   <div>
                     <label className="text-xs font-medium">{t('hold.gender')}</label>
                     <select {...register(`passengers.${index}.gender`)} className="w-full border rounded p-2 text-sm rounded-lg">
-                      <option value="M">{t('hold.gender.male')}</option>
-                      <option value="F">{t('hold.gender.female')}</option>
+                      <option value="M">{t('hold.genderMale')}</option>
+                      <option value="F">{t('hold.genderFemale')}</option>
                     </select>
                   </div>
                 </div>

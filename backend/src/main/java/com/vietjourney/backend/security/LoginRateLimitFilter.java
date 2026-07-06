@@ -8,17 +8,20 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.time.Duration;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 
 public class LoginRateLimitFilter extends OncePerRequestFilter {
 
-    private final Map<String, Bucket> cache = new ConcurrentHashMap<>();
+    private final Cache<String, Bucket> cache = Caffeine.newBuilder()
+            .expireAfterAccess(Duration.ofMinutes(15))
+            .maximumSize(10000)
+            .build();
 
     private Bucket createNewBucket() {
         // 5 requests per 5 minutes
@@ -31,7 +34,7 @@ public class LoginRateLimitFilter extends OncePerRequestFilter {
         if (xfHeader == null) {
             return request.getRemoteAddr();
         }
-        return xfHeader.split(",")[0];
+        return xfHeader.split(",")[0].trim();
     }
 
     @Override
@@ -40,9 +43,9 @@ public class LoginRateLimitFilter extends OncePerRequestFilter {
         
         if (request.getRequestURI().equals("/api/auth/login") && request.getMethod().equalsIgnoreCase("POST")) {
             String ip = getClientIP(request);
-            Bucket bucket = cache.computeIfAbsent(ip, k -> createNewBucket());
+            Bucket bucket = cache.get(ip, k -> createNewBucket());
             
-            if (bucket.tryConsume(1)) {
+            if (bucket != null && bucket.tryConsume(1)) {
                 filterChain.doFilter(request, response);
             } else {
                 response.setStatus(429);

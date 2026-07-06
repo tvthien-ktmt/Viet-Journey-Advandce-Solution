@@ -15,8 +15,6 @@ public class BookingRequest {
     @NotNull
     private Long referenceId;
 
-    @NotNull
-    private BigDecimal totalPrice;
 
     private List<PassengerRequest> passengers;
 }

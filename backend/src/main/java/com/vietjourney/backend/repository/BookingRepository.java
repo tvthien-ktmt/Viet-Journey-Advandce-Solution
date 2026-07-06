@@ -16,7 +16,7 @@ import org.springframework.data.jpa.repository.EntityGraph;
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     @Modifying
-    @Query("UPDATE Booking b SET b.status = 'expired' WHERE b.status = 'reserved' AND b.reservedUntil < :now")
+    @Query("UPDATE Booking b SET b.status = com.vietjourney.backend.entity.enums.BookingStatus.EXPIRED WHERE b.status = com.vietjourney.backend.entity.enums.BookingStatus.RESERVED AND b.reservedUntil < :now")
     int expireReservations(LocalDateTime now);
 
     @EntityGraph(attributePaths = {"user", "passengers"})

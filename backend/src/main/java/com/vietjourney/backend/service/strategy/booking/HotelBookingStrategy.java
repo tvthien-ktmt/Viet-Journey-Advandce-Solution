@@ -18,4 +18,11 @@ public class HotelBookingStrategy implements BookingItemStrategy {
                 .orElseThrow(() -> new com.vietjourney.backend.exception.ResourceNotFoundException("Hotel not found"));
         return hotel.getPrice();
     }
+
+    @Override
+    public void validateAndReserve(Long referenceId, int quantity) {
+        if (!hotelRepository.existsById(referenceId)) {
+            throw new com.vietjourney.backend.exception.ResourceNotFoundException("Hotel not found");
+        }
+    }
 }

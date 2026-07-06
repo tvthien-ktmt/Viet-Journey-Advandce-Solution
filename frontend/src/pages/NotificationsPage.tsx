@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import MainLayout from '../layouts/MainLayout';
+
 
 export default function NotificationsPage() {
   const [notifications, setNotifications] = useState([
@@ -14,7 +14,7 @@ export default function NotificationsPage() {
   };
 
   return (
-    <MainLayout>
+    <>
       <main className="flex-grow max-w-[800px] w-full mx-auto px-4 py-12 md:py-16">
         <div className="flex justify-between items-center mb-8 border-b border-outline-variant/30 pb-4">
           <h1 className="text-[32px] md:text-[40px] font-bold text-onSurface">Tất cả thông báo</h1>
@@ -52,6 +52,6 @@ export default function NotificationsPage() {
           )}
         </div>
       </main>
-    </MainLayout>
+    </>
   );
 }

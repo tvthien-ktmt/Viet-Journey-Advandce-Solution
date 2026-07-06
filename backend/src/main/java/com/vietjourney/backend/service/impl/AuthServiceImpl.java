@@ -113,6 +113,18 @@ public class AuthServiceImpl implements AuthService {
         return mapToUserDTO(user);
     }
 
+    @Override
+    @org.springframework.transaction.annotation.Transactional
+    public void logoutCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.isAuthenticated() && !"anonymousUser".equals(authentication.getPrincipal())) {
+            String email = authentication.getName();
+            userRepository.findByEmail(email).ifPresent(user -> {
+                refreshTokenRepository.deleteByUserId(user.getId());
+            });
+        }
+    }
+
     private AuthResponse authenticate(String email, String password, User user) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(email, password)

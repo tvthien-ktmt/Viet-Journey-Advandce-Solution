@@ -14,10 +14,10 @@ public class VNPayStrategyImpl implements PaymentGatewayStrategy {
 
     private String calculateChecksum(String data) {
         try {
-            javax.crypto.Mac hmacSHA256 = javax.crypto.Mac.getInstance("HmacSHA256");
-            javax.crypto.spec.SecretKeySpec secretKey = new javax.crypto.spec.SecretKeySpec(vnpHashSecret.getBytes(java.nio.charset.StandardCharsets.UTF_8), "HmacSHA256");
-            hmacSHA256.init(secretKey);
-            byte[] hashBytes = hmacSHA256.doFinal(data.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+            javax.crypto.Mac hmacSHA512 = javax.crypto.Mac.getInstance("HmacSHA512");
+            javax.crypto.spec.SecretKeySpec secretKey = new javax.crypto.spec.SecretKeySpec(vnpHashSecret.getBytes(java.nio.charset.StandardCharsets.UTF_8), "HmacSHA512");
+            hmacSHA512.init(secretKey);
+            byte[] hashBytes = hmacSHA512.doFinal(data.getBytes(java.nio.charset.StandardCharsets.UTF_8));
             StringBuilder hexString = new StringBuilder();
             for (byte b : hashBytes) {
                 String hex = Integer.toHexString(0xff & b);
@@ -44,9 +44,32 @@ public class VNPayStrategyImpl implements PaymentGatewayStrategy {
     }
 
     @Override
-    public boolean verifyCallback(String transactionRef, String status, String secureHash) {
-        String hashPayload = "vnp_TxnRef=" + transactionRef + "&vnp_ResponseCode=" + status;
-        String expectedHash = calculateChecksum(hashPayload);
+    public boolean verifyCallback(java.util.Map<String, String> params) {
+        String secureHash = params.get("vnp_SecureHash");
+        if (secureHash == null) return false;
+        
+        java.util.List<String> fieldNames = new java.util.ArrayList<>(params.keySet());
+        java.util.Collections.sort(fieldNames);
+        StringBuilder hashData = new StringBuilder();
+        try {
+            for (String fieldName : fieldNames) {
+                String fieldValue = params.get(fieldName);
+                if ((fieldValue != null) && (fieldValue.length() > 0) && !fieldName.equals("vnp_SecureHash") && !fieldName.equals("vnp_SecureHashType")) {
+                    hashData.append(fieldName).append("=").append(java.net.URLEncoder.encode(fieldValue, "UTF-8")).append("&");
+                }
+            }
+            if (hashData.length() > 0) {
+                hashData.setLength(hashData.length() - 1);
+            }
+        } catch (Exception e) {
+            return false;
+        }
+        String expectedHash = calculateChecksum(hashData.toString());
         return expectedHash.equalsIgnoreCase(secureHash);
+    }
+    
+    @Override
+    public boolean isSuccessStatus(String status) {
+        return "00".equals(status);
     }
 }

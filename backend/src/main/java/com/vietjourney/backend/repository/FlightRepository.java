@@ -21,4 +21,8 @@ public interface FlightRepository extends JpaRepository<Flight, Long> {
                                @Param("arrivalAirport") String arrivalAirport, 
                                @Param("departureTime") LocalDateTime departureTime, 
                                Pageable pageable);
+
+    @org.springframework.data.jpa.repository.Modifying
+    @Query("UPDATE Flight f SET f.availableSeats = f.availableSeats - :qty WHERE f.id = :id AND f.availableSeats >= :qty")
+    int decrementAvailableSeats(@Param("id") Long id, @Param("qty") int qty);
 }

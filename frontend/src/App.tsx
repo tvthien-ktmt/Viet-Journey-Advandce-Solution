@@ -12,10 +12,8 @@ const BlogPage = lazy(() => import('@/pages/BlogPage'));
 const BookingDetailPage = lazy(() => import('@/pages/BookingDetailPage'));
 const BookingExpiredPage = lazy(() => import('@/pages/BookingExpiredPage'));
 const BookingHistoryPage = lazy(() => import('@/pages/BookingHistoryPage'));
-const BookingPage = lazy(() => import('@/pages/BookingPage'));
 const ChangeFlightPage = lazy(() => import('@/pages/ChangeFlightPage'));
 const CheckinPage = lazy(() => import('@/pages/CheckinPage'));
-const CheckoutPage = lazy(() => import('@/pages/CheckoutPage'));
 const ComparePage = lazy(() => import('@/pages/ComparePage'));
 const ConfirmationPage = lazy(() => import('@/pages/ConfirmationPage'));
 const ContactPage = lazy(() => import('@/pages/ContactPage'));
@@ -99,8 +97,6 @@ export default function App() {
               <Route path="/addons" element={<AddonsPage />} />
               <Route path="/booking/:id" element={<BookingDetailPage />} />
               <Route path="/booking-history" element={<BookingHistoryPage />} />
-              <Route path="/booking" element={<BookingPage />} />
-              <Route path="/checkout" element={<CheckoutPage />} />
               <Route path="/confirmation/:bookingId" element={<ConfirmationPage />} />
               <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/payment" element={<PaymentPage />} />

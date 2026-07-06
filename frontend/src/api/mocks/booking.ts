@@ -1,4 +1,4 @@
-import type { Booking, Flight, Passenger, FlightSearchRequest } from '@/types/flight';
+import type { FlightBooking, Flight, Passenger, FlightSearchRequest } from '@/types/flight';
 
 const STORAGE_KEY = 'vna_mock_bookings';
 const HOLD_MS = 10 * 60 * 1000;
@@ -22,7 +22,7 @@ export async function mockCreateHold(payload: {
   await new Promise(r => setTimeout(r, 400));
   const id = 'BK' + Date.now();
   const paxCount = payload.request.adults + payload.request.children + payload.request.infants;
-  const booking: Booking = {
+  const booking: FlightBooking = {
     id,
     status: 'HOLD',
     bookingCode: genCode(),
@@ -40,7 +40,7 @@ export async function mockCreateHold(payload: {
   return booking;
 }
 
-export async function mockGetBooking(id: string): Promise<Booking> {
+export async function mockGetBooking(id: string): Promise<FlightBooking> {
   await new Promise(r => setTimeout(r, 200));
   const data = load();
   const b = data[id];
@@ -53,7 +53,7 @@ export async function mockGetBooking(id: string): Promise<Booking> {
   return b;
 }
 
-export async function mockUpdatePassengers(id: string, passengers: Passenger[]): Promise<Booking> {
+export async function mockUpdatePassengers(id: string, passengers: Passenger[]): Promise<FlightBooking> {
   await new Promise(r => setTimeout(r, 400));
   const data = load();
   const b = data[id];

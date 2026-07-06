@@ -31,13 +31,16 @@ public class AuthController {
     @Value("${app.jwt.expiration-ms:900000}")
     private long jwtExpirationMs;
 
+    @Value("${app.cookie.secure:true}")
+    private boolean cookieSecure;
+
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<AuthResponse>> login(@Valid @RequestBody LoginRequest request, HttpServletResponse response) {
         AuthResponse authResponse = authService.login(request);
         
         ResponseCookie cookie = ResponseCookie.from("jwt", authResponse.getToken())
                 .httpOnly(true)
-                .secure(false) // For local dev
+                .secure(cookieSecure)
                 .path("/")
                 .maxAge(jwtExpirationMs / 1000)
                 .sameSite("Lax")
@@ -49,9 +52,10 @@ public class AuthController {
 
     @PostMapping("/logout")
     public ResponseEntity<ApiResponse<Void>> logout(HttpServletResponse response) {
+        authService.logoutCurrentUser();
         ResponseCookie cookie = ResponseCookie.from("jwt", "")
                 .httpOnly(true)
-                .secure(false)
+                .secure(cookieSecure)
                 .path("/")
                 .maxAge(0)
                 .sameSite("Lax")

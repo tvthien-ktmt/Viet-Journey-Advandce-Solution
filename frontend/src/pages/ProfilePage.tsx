@@ -25,7 +25,7 @@ export default function ProfilePage() {
     setIsUpdating(true);
     try {
       const res: any = await profileApi.updateProfile({ fullName, phone });
-      setAuth(res.data.data, useAuth.getState().token || '');
+      setAuth(res, useAuth.getState().token || '');
       toast.success('Cập nhật thông tin thành công');
     } catch (error: any) {
       toast.error('Cập nhật thất bại');

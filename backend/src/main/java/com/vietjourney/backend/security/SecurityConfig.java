@@ -33,7 +33,7 @@ public class SecurityConfig {
 
     private final CustomUserDetailsService userDetailsService;
     private final JwtAuthenticationFilter jwtAuthFilter;
-    private final LoginRateLimitFilter loginRateLimitFilter;
+    private final LoginRateLimitFilter loginRateLimitFilter = new LoginRateLimitFilter();
 
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {

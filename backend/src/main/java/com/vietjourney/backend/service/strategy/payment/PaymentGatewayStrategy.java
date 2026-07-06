@@ -4,5 +4,6 @@ import com.vietjourney.backend.dto.response.PaymentResponse;
 
 public interface PaymentGatewayStrategy {
     PaymentResponse generatePaymentUrl(String transactionRef);
-    boolean verifyCallback(String transactionRef, String status, String secureHash);
+    boolean verifyCallback(java.util.Map<String, String> params);
+    boolean isSuccessStatus(String status);
 }

@@ -11,6 +11,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.vietjourney.backend.dto.response.NotificationDTO;
+
 @Service
 @RequiredArgsConstructor
 public class NotificationServiceImpl implements NotificationService {
@@ -19,10 +21,21 @@ public class NotificationServiceImpl implements NotificationService {
     private final UserRepository userRepository;
 
     @Override
-    public Page<Notification> getUserNotifications(String userEmail, Pageable pageable) {
+    public Page<NotificationDTO> getUserNotifications(String userEmail, Pageable pageable) {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new com.vietjourney.backend.exception.ResourceNotFoundException("User not found"));
-        return notificationRepository.findByUserIdOrderByCreatedAtDesc(user.getId(), pageable);
+        return notificationRepository.findByUserIdOrderByCreatedAtDesc(user.getId(), pageable)
+                .map(this::mapToDTO);
+    }
+    
+    private NotificationDTO mapToDTO(Notification notif) {
+        return NotificationDTO.builder()
+                .id(notif.getId())
+                .title(notif.getTitle())
+                .message(notif.getMessage())
+                .isRead(notif.getIsRead())
+                .createdAt(notif.getCreatedAt())
+                .build();
     }
 
     @Override

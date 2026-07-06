@@ -4,7 +4,9 @@ import com.vietjourney.backend.entity.Blog;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import com.vietjourney.backend.dto.response.BlogDTO;
+
 public interface BlogService {
-    Page<Blog> getBlogs(Pageable pageable);
-    Blog getBlogBySlug(String slug);
+    Page<BlogDTO> getBlogs(Pageable pageable);
+    BlogDTO getBlogBySlug(String slug);
 }
