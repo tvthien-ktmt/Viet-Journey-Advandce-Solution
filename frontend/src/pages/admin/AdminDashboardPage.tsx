@@ -23,10 +23,10 @@ export default function AdminDashboardPage() {
     trends: stats.trends ?? { revenue: 12.5, bookings: 8.2, flights: 5.0, loadFactor: 2.1 }
   } : ADMIN_STATS.kpi;
 
-  const revenue = ADMIN_STATS.revenueByMonth;
-  const routeStats = ADMIN_STATS.bookingsByRoute;
-  const cabinStats = ADMIN_STATS.cabinDistribution;
-  const loadFactor = ADMIN_STATS.loadFactorByMonth;
+  const revenue = stats?.revenueByMonth || ADMIN_STATS.revenueByMonth;
+  const routeStats = stats?.bookingsByRoute || ADMIN_STATS.bookingsByRoute;
+  const cabinStats = stats?.cabinDistribution || ADMIN_STATS.cabinDistribution;
+  const loadFactor = stats?.loadFactorByMonth || ADMIN_STATS.loadFactorByMonth;
 
   const kpis = [
     { label: 'Tổng doanh thu', value: kpi ? formatVND(kpi.totalRevenue) : '...', icon: Wallet, trend: kpi?.trends.revenue, trendUp: true },

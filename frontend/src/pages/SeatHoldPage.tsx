@@ -46,10 +46,9 @@ export default function SeatHoldPage() {
   const holdState = holdStateStr ? JSON.parse(holdStateStr) : null;
 
   const createBookingMutation = useMutation({
-    mutationFn: (req: unknown) => bookingApi.createBooking(req as any),
-    onSuccess: (data: unknown) => {
-      const b = data as { id: string | number };
-      navigate(`/booking/${b.id}/payment`);
+    mutationFn: (req: import('@/api/booking').CreateBookingRequest) => bookingApi.createBooking(req),
+    onSuccess: (data: import('@/types/flight').FlightBooking) => {
+      navigate(`/booking/${data.id}/payment`);
     }
   });
 

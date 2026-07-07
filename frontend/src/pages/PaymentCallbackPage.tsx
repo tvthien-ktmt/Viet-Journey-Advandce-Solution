@@ -12,7 +12,7 @@ export default function PaymentCallbackPage() {
     const processCallback = async () => {
       try {
         const params = Object.fromEntries(searchParams.entries());
-        const response: any = await api.get('/payments/callback', params);
+        const response = await api.get<{ status: string }>('/payments/callback', { params });
         
         if (response?.status === 'completed') {
           toast.success('Thanh toán thành công!');

@@ -98,7 +98,7 @@ export default function BookingDetailPage() {
               </h4>
               
               <div className="flex flex-col gap-4">
-                {booking?.passengers ? booking.passengers.map((pax: any, i: number) => (
+                {booking?.passengers && booking.passengers.length > 0 ? booking.passengers.map((pax: any, i: number) => (
                   <div key={i} className="flex items-center justify-between p-4 bg-surface-container-low rounded-lg border border-outline-variant/10">
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center">
@@ -111,16 +111,8 @@ export default function BookingDetailPage() {
                     </div>
                   </div>
                 )) : (
-                  <div className="flex items-center justify-between p-4 bg-surface-container-low rounded-lg border border-outline-variant/10">
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center">
-                        <span className="material-symbols-outlined">person</span>
-                      </div>
-                      <div>
-                        <p className="text-[16px] font-semibold text-onSurface">Alex Tran</p>
-                        <p className="text-[14px] text-onSurface-variant">Lead Guest • Adult</p>
-                      </div>
-                    </div>
+                  <div className="flex items-center justify-between p-4 bg-surface-container-low rounded-lg border border-outline-variant/10 text-onSurface-variant">
+                    Không có thông tin hành khách.
                   </div>
                 )}
               </div>

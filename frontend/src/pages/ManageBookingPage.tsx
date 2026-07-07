@@ -45,19 +45,23 @@ export default function ManageBookingPage() {
     
     try {
       const res: any = await bookingApi.search(code, lastName);
-      // Backend trả về ApiResponse<BookingDTO>, interceptor hoặc client đã extract data
-      const b = res.content || res.data || res;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const b = (res as any).content || (res as any).data || res;
+      let snap: any = {};
+      try { snap = JSON.parse(b.itemSnapshot || '{}'); } catch(e) {}
+      
       setBooking({
         id: b.id ? `${b.id}` : b.bookingCode || code,
         bookingCode: b.bookingCode || code,
-        route: b.flight?.route ? `${b.flight.route.origin.city} - ${b.flight.route.destination.city}` : 'HAN - SGN',
+        route: snap.from && snap.to ? `${snap.from} - ${snap.to}` : 'HAN - SGN',
         status: b.status,
-        flightNo: b.flight?.flightNumber || 'VN201',
-        date: b.createdAt || '15/10/2025',
-        from: b.flight?.route?.origin?.code || 'HAN',
-        to: b.flight?.route?.destination?.code || 'SGN',
-        departTime: b.flight?.departureTime ? new Date(b.flight.departureTime).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) : '00:00',
-        arriveTime: b.flight?.arrivalTime ? new Date(b.flight.arrivalTime).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) : '00:00',
+        flightNo: snap.flightNo || 'VN201',
+        date: b.createdAt ? new Date(b.createdAt).toLocaleDateString('vi-VN') : '15/10/2025',
+        from: snap.from || 'HAN',
+        to: snap.to || 'SGN',
+        departTime: snap.departTime || '00:00',
+        arriveTime: snap.arriveTime || '00:00',
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         passengers: b.passengers?.map((p: any) => p.fullName || `${p.firstName || ''} ${p.lastName || ''}`.trim()) || [],
         amount: b.totalPrice,
       });

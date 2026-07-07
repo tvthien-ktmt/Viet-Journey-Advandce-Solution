@@ -20,8 +20,7 @@ export interface CreateBookingRequest {
 
 export const bookingApi = {
   createReservation: async (req: CreateBookingRequest): Promise<FlightBooking> => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const data: any = await api.post('/bookings', req);
+    const data = await api.post<FlightBooking>('/bookings', req);
     return data;
   },
   createBooking: async (req: CreateBookingRequest): Promise<FlightBooking> => {
@@ -29,12 +28,9 @@ export const bookingApi = {
     return data;
   },
   get: async (id: string): Promise<FlightBooking> => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const data: any = await api.get(`/bookings/${id}`);
+    const data = await api.get<FlightBooking>(`/bookings/${id}`);
     return data;
   },
-  updatePassengers: (id: string, pax: Passenger[]): Promise<FlightBooking> =>
-    api.post(`/bookings/${id}/passengers`, pax),
   payVnpay: (bookingId: string) =>
     api.post('/payments/create', { bookingId, paymentMethod: 'VNPAY' }),
   search: (code: string, lastName: string) => 

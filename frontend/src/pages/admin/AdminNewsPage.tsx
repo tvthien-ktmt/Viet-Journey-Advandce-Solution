@@ -23,7 +23,7 @@ export default function AdminNewsPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-vna-text">Quản lý tin tức</h1>
-        <Button className="bg-vna-blue hover:bg-vna-blue-700 rounded-lg transition-all duration-300">Thêm bài viết</Button>
+        <Button disabled title="Backend chưa hỗ trợ" className="bg-vna-blue hover:bg-vna-blue-700 rounded-lg transition-all duration-300">Thêm bài viết</Button>
       </div>
       
       <div className="flex gap-4">
@@ -62,10 +62,10 @@ export default function AdminNewsPage() {
                         <Button className="flex items-center gap-2 rounded-lg" variant="ghost" size="icon" title="Xem trước" onClick={() => window.open(`/blog/${n.slug}`, '_blank')}>
                           <ExternalLink size={16} />
                         </Button>
-                        <Button variant="ghost" size="icon" className="flex items-center gap-2 text-vna-blue rounded-lg">
+                        <Button disabled title="Backend chưa hỗ trợ" variant="ghost" size="icon" className="flex items-center gap-2 text-vna-blue rounded-lg">
                           <Edit size={16} />
                         </Button>
-                        <Button variant="ghost" size="icon" className="text-vna-red rounded-lg">
+                        <Button disabled title="Backend chưa hỗ trợ" variant="ghost" size="icon" className="text-vna-red rounded-lg">
                           <Trash2 size={16} />
                         </Button>
                       </div>

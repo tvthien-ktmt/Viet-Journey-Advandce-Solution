@@ -2,7 +2,7 @@ import { api } from './client';
 import type { AuthUser } from '@/store/authStore';
 
 interface LoginResponse { 
-  accessToken: string; 
+  token: string; 
   user: AuthUser; 
 }
 

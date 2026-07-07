@@ -21,7 +21,7 @@ export default function PaymentPage() {
 
   const payMutation = useMutation({
     mutationFn: () => bookingApi.payVnpay(bookingId!),
-    onSuccess: (data: any) => {
+    onSuccess: (data: { paymentUrl?: string }) => {
       if (data?.paymentUrl) {
         window.location.href = data.paymentUrl;
       } else {

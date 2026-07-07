@@ -70,8 +70,8 @@ public class Booking {
         if (this.status == BookingStatus.CANCELLED) {
             throw new IllegalStateException("Cannot transition from terminal state: " + this.status);
         }
-        if (this.status == BookingStatus.EXPIRED && nextStatus != BookingStatus.CONFIRMED) {
-            throw new IllegalStateException("Cannot transition from EXPIRED to anything other than CONFIRMED");
+        if (this.status == BookingStatus.EXPIRED) {
+            throw new IllegalStateException("Cannot transition from terminal state: EXPIRED");
         }
         if (this.status == BookingStatus.CONFIRMED && nextStatus != BookingStatus.CONFIRMED) {
             throw new IllegalStateException("Cannot change status of a confirmed booking");

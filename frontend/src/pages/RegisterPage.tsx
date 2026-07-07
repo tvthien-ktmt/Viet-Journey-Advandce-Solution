@@ -36,9 +36,9 @@ export default function RegisterPage() {
       });
       // FE-MED-02: Auto-login after successful registration
       try {
-        const loginRes: any = await authApi.login(email, password);
+        const loginRes = await authApi.login(email, password);
         if (loginRes?.user) {
-          setAuth(loginRes.user, loginRes.token || loginRes.accessToken || '', loginRes.refreshToken);
+          setAuth(loginRes.user, loginRes.token || '', '');
           toast.success('Đăng ký và đăng nhập thành công!');
           navigate('/');
           return;

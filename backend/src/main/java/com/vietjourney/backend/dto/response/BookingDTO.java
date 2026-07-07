@@ -85,7 +85,7 @@ public class BookingDTO {
         }
         if (this.passengers != null) {
             for (BookingPassengerDTO p : this.passengers) {
-                // mask documentNumber if needed
+                p.setDocumentNumber(maskDocument(p.getDocumentNumber()));
             }
         }
     }

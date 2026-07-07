@@ -26,7 +26,7 @@ export default function AdminFlightsPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h1 className="text-2xl font-bold text-vna-text">Quản lý chuyến bay</h1>
-        <Button className="bg-vna-blue hover:bg-vna-blue-700 rounded-lg transition-all duration-300">Thêm chuyến</Button>
+        <Button disabled title="Backend chưa hỗ trợ" className="bg-vna-blue hover:bg-vna-blue-700 rounded-lg transition-all duration-300">Thêm chuyến</Button>
       </div>
       
       <div className="flex gap-4">

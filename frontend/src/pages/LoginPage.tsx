@@ -28,8 +28,8 @@ export default function LoginPage() {
     
     setIsLoading(true);
     try {
-      const res = await authApi.login(email, password) as unknown as { user: any, token: string, refreshToken: string, accessToken?: string };
-      setAuth(res.user, res.accessToken || res.token, res.refreshToken);
+      const res = await authApi.login(email, password);
+      setAuth(res.user, res.token, '');
       toast.success(t('login.success'));
       
       const redirectPath = location.state?.from?.pathname 
