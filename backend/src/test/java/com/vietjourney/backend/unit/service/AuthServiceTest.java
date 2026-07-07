@@ -57,13 +57,12 @@ public class AuthServiceTest {
 
     @BeforeEach
     void setUp() {
-        testUser = User.builder()
-                .id(1L)
-                .email("test@example.com")
-                .password("encodedPassword")
-                .fullName("Test User")
-                .role("USER")
-                .build();
+        testUser = new User();
+        testUser.setId(1L);
+        testUser.setEmail("test@example.com");
+        testUser.setPassword("encodedPassword");
+        testUser.setFullName("Test User");
+        testUser.setRole("USER");
 
         registerRequest = new RegisterRequest();
         registerRequest.setEmail("test@example.com");

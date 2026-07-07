@@ -62,28 +62,29 @@ public class BookingServiceImpl implements BookingService {
         BigDecimal calculatedTotalPrice = unitPrice.multiply(new BigDecimal(quantity));
         String itemSnapshot = strategy.getItemSnapshot(request.getReferenceId());
 
-        Booking booking = Booking.builder()
-                .user(user)
-                .bookingType(request.getBookingType())
-                .referenceId(request.getReferenceId())
-                .status(BookingStatus.RESERVED)
-                .totalPrice(calculatedTotalPrice)
-                .reservedUntil(LocalDateTime.now().plusMinutes(10)) // Giữ chỗ 10 phút
-                .itemSnapshot(itemSnapshot)
-                .contactEmail(request.getContactEmail())
-                .contactPhone(request.getContactPhone())
-                .build();
+        Booking booking = new Booking();
+        booking.setUser(user);
+        booking.setBookingType(request.getBookingType());
+        booking.setReferenceId(request.getReferenceId());
+        booking.setStatus(BookingStatus.RESERVED);
+        booking.setTotalPrice(calculatedTotalPrice);
+        booking.setReservedUntil(LocalDateTime.now().plusMinutes(10));
+        booking.setItemSnapshot(itemSnapshot);
+        booking.setContactEmail(request.getContactEmail());
+        booking.setContactPhone(request.getContactPhone());
 
         if (request.getPassengers() != null) {
             List<BookingPassenger> passengers = request.getPassengers().stream()
-                    .map(p -> BookingPassenger.builder()
-                            .booking(booking)
-                            .fullName(com.vietjourney.backend.utils.HtmlSanitizer.sanitize(p.getFullName()))
-                            .type(p.getType())
-                            .birthDate(p.getBirthDate())
-                            .gender(p.getGender())
-                            .documentNumber(p.getIdNumber())
-                            .build())
+                    .map(p -> {
+                        BookingPassenger bp = new BookingPassenger();
+                        bp.setBooking(booking);
+                        bp.setFullName(com.vietjourney.backend.utils.HtmlSanitizer.sanitize(p.getFullName()));
+                        bp.setType(p.getType());
+                        bp.setBirthDate(p.getBirthDate());
+                        bp.setGender(p.getGender());
+                        bp.setDocumentNumber(p.getIdNumber());
+                        return bp;
+                    })
                     .collect(Collectors.toList());
             booking.setPassengers(passengers);
         }

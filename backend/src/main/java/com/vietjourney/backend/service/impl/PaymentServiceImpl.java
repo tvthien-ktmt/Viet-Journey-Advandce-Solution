@@ -43,12 +43,11 @@ public class PaymentServiceImpl implements PaymentService {
 
         String transactionRef = "TXN-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
 
-        Payment payment = Payment.builder()
-                .booking(booking)
-                .paymentMethod(request.getPaymentMethod())
-                .status("pending")
-                .transactionRef(transactionRef)
-                .build();
+        Payment payment = new Payment();
+        payment.setBooking(booking);
+        payment.setPaymentMethod(request.getPaymentMethod());
+        payment.setStatus("pending");
+        payment.setTransactionRef(transactionRef);
 
         paymentRepository.save(payment);
 

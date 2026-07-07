@@ -3,7 +3,6 @@ package com.vietjourney.backend.entity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,7 +13,6 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -36,20 +34,12 @@ public class User {
 
     @Column(length = 20)
     private String phone;
-
-    @Builder.Default
     @Column(length = 50)
     private String role = "USER";
-
-    @Builder.Default
     @Column(name = "lotusmiles_tier", length = 20)
     private String lotusmilesTier = "MEMBER";
-
-    @Builder.Default
     @Column(name = "lotusmiles_miles")
     private Integer lotusmilesMiles = 0;
-
-    @Builder.Default
     @Column(name = "failed_login_count")
     private Integer failedLoginCount = 0;
 
@@ -65,14 +55,11 @@ public class User {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
     private java.util.List<Booking> bookings = new java.util.ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
     private java.util.List<Wishlist> wishlists = new java.util.ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    @Builder.Default
     private java.util.List<Notification> notifications = new java.util.ArrayList<>();
 }

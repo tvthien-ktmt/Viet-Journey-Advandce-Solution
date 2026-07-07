@@ -46,7 +46,10 @@ public class TourControllerTest {
 
     @Test
     void getAllTours_ReturnsPageResponse() throws Exception {
-        Tour tour = Tour.builder().id(1L).name("Test Tour").price(new BigDecimal("100.0")).build();
+        Tour tour = new Tour();
+        tour.setId(1L);
+        tour.setName("Test Tour");
+        tour.setPrice(new BigDecimal("100.0"));
         Page<Tour> pageResponse = new PageImpl<>(List.of(tour), PageRequest.of(0, 10), 1);
 
         when(tourService.searchTours(any(), any(), any(), any(), any())).thenReturn(pageResponse);
@@ -61,7 +64,10 @@ public class TourControllerTest {
 
     @Test
     void getTourById_ValidId_ReturnsTour() throws Exception {
-        Tour tour = Tour.builder().id(1L).name("Test Tour").price(new BigDecimal("100.0")).build();
+        Tour tour = new Tour();
+        tour.setId(1L);
+        tour.setName("Test Tour");
+        tour.setPrice(new BigDecimal("100.0"));
 
         when(tourService.getTourById(anyLong())).thenReturn(tour);
 

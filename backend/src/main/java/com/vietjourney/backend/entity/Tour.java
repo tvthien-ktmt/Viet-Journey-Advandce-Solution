@@ -11,7 +11,6 @@ import java.util.List;
 
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -37,8 +36,6 @@ public class Tour {
     private BigDecimal oldPrice;
 
     private Double rating;
-
-    @Builder.Default
     @Column(name = "review_count")
     private Integer reviewCount = 0;
 
@@ -46,8 +43,6 @@ public class Tour {
 
     @Column(columnDefinition = "TEXT")
     private String overview;
-
-    @Builder.Default
     @Column(name = "is_featured")
     private Boolean isFeatured = false;
 

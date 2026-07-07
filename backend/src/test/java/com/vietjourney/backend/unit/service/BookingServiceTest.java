@@ -55,8 +55,13 @@ public class BookingServiceTest {
 
     @BeforeEach
     void setUp() {
-        testUser = User.builder().id(1L).email("user@test.com").build();
-        testTour = Tour.builder().id(1L).price(new BigDecimal("100.0")).build();
+        testUser = new User();
+        testUser.setId(1L);
+        testUser.setEmail("user@test.com");
+        
+        testTour = new Tour();
+        testTour.setId(1L);
+        testTour.setPrice(new BigDecimal("100.0"));
 
         PassengerRequest passenger = new PassengerRequest();
         passenger.setFullName("Passenger 1");
@@ -67,15 +72,14 @@ public class BookingServiceTest {
         bookingRequest.setReferenceId(1L);
         bookingRequest.setPassengers(List.of(passenger));
 
-        testBooking = Booking.builder()
-                .id(1L)
-                .user(testUser)
-                .bookingType("tour")
-                .referenceId(1L)
-                .status(BookingStatus.RESERVED)
-                .reservedUntil(LocalDateTime.now().plusMinutes(10))
-                .totalPrice(new BigDecimal("100.0"))
-                .build();
+        testBooking = new Booking();
+        testBooking.setId(1L);
+        testBooking.setUser(testUser);
+        testBooking.setBookingType("tour");
+        testBooking.setReferenceId(1L);
+        testBooking.setStatus(BookingStatus.RESERVED);
+        testBooking.setReservedUntil(LocalDateTime.now().plusMinutes(10));
+        testBooking.setTotalPrice(new BigDecimal("100.0"));
     }
 
     @Test

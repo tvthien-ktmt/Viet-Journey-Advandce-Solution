@@ -26,13 +26,12 @@ public class ReviewServiceImpl implements ReviewService {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new com.vietjourney.backend.exception.ResourceNotFoundException("User not found"));
 
-        Review review = Review.builder()
-                .user(user)
-                .itemType(itemType)
-                .itemId(itemId)
-                .rating(rating)
-                .comment(com.vietjourney.backend.utils.HtmlSanitizer.sanitize(comment))
-                .build();
+        Review review = new Review();
+        review.setUser(user);
+        review.setItemType(itemType);
+        review.setItemId(itemId);
+        review.setRating(rating);
+        review.setComment(com.vietjourney.backend.utils.HtmlSanitizer.sanitize(comment));
 
         Review saved = reviewRepository.save(review);
 

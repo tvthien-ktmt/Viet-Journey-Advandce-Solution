@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { bookingApi } from '@/api/booking';
 import { useCountdown } from '@/hooks/useCountdown';
-import { useLang, useT } from '../store/langStore';
+import { useLang, useT } from '@/store/langStore';
 import { useAuth } from '@/store/authStore';
 import { formatVND } from '@/lib/formatters';
 import { Clock } from 'lucide-react';

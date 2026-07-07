@@ -46,13 +46,12 @@ public class AuthServiceImpl implements AuthService {
             throw new com.vietjourney.backend.exception.DuplicateResourceException("Email đã được sử dụng");
         }
 
-        User user = User.builder()
-                .fullName(com.vietjourney.backend.utils.HtmlSanitizer.sanitize(request.getFullName()))
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .phone(request.getPhone())
-                .role("USER")
-                .build();
+        User user = new User();
+        user.setFullName(com.vietjourney.backend.utils.HtmlSanitizer.sanitize(request.getFullName()));
+        user.setEmail(request.getEmail());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setPhone(request.getPhone());
+        user.setRole("USER");
 
         userRepository.save(user);
 

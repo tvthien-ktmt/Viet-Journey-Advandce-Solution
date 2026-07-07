@@ -58,11 +58,10 @@ const AdminNewsPage = lazy(() => import('@/pages/admin/AdminNewsPage'));
 const AdminLayout = lazy(() => import('@/layouts/AdminLayout'));
 
 function RouteBoundary() {
-  const location = useLocation();
   return (
     <QueryErrorResetBoundary>
       {({ reset }) => (
-        <ErrorBoundary key={location.pathname} onReset={reset}>
+        <ErrorBoundary onReset={reset}>
           <Outlet />
         </ErrorBoundary>
       )}

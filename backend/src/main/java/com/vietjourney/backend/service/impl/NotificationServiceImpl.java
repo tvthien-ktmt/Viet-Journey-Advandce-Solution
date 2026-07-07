@@ -55,12 +55,11 @@ public class NotificationServiceImpl implements NotificationService {
     public void createNotification(String userEmail, String title, String message) {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new com.vietjourney.backend.exception.ResourceNotFoundException("User not found"));
-        Notification notification = Notification.builder()
-                .user(user)
-                .title(title)
-                .message(message)
-                .isRead(false)
-                .build();
+        Notification notification = new Notification();
+        notification.setUser(user);
+        notification.setTitle(title);
+        notification.setMessage(message);
+        notification.setIsRead(false);
         notificationRepository.save(notification);
     }
 }

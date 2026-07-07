@@ -38,8 +38,14 @@ public class WishlistServiceTest {
 
     @BeforeEach
     void setUp() {
-        testUser = User.builder().id(1L).email("user@test.com").build();
-        testWishlist = Wishlist.builder().id(1L).user(testUser).itemType("tour").itemId(1L).build();
+        testUser = new User();
+        testUser.setId(1L);
+        testUser.setEmail("user@test.com");
+        testWishlist = new Wishlist();
+        testWishlist.setId(1L);
+        testWishlist.setUser(testUser);
+        testWishlist.setItemType("tour");
+        testWishlist.setItemId(1L);
     }
 
     @Test

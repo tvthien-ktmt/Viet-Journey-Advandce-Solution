@@ -11,7 +11,6 @@ import java.util.List;
 
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -34,8 +33,6 @@ public class Hotel {
     private BigDecimal price;
 
     private Double rating;
-
-    @Builder.Default
     @Column(name = "review_count")
     private Integer reviewCount = 0;
 

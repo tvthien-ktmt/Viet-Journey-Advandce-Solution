@@ -22,6 +22,7 @@ public class SearchServiceImpl implements SearchService {
         SearchResponse response = new SearchResponse();
 
         if (type == null || type.isEmpty() || type.equals("all")) {
+            // Document BE-MED-03: Fetch full page size for both categories, combining them up to 2 * pageSize
             response.setTours(tourService.searchTours(query, null, null, null, pageable).getContent().stream().map(com.vietjourney.backend.dto.response.TourDTO::fromEntity).collect(java.util.stream.Collectors.toList()));
             response.setHotels(hotelService.searchHotels(query, null, null, null, pageable).getContent());
         } else if (type.equals("tour")) {

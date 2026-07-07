@@ -5,9 +5,29 @@ import { api } from './client';
 
 const USE_MOCK = import.meta.env.VITE_USE_MOCK_API === 'true' || false; // TODO: set false khi BE /flights/search ready
 
+export interface FlightDTO {
+  id: number;
+  flightNumber: string;
+  airlineCode?: string;
+  departureAirport: string;
+  arrivalAirport: string;
+  departureTime: string;
+  arrivalTime: string;
+  seatClass: string;
+  price: number;
+  availableSeats: number;
+}
+
+export interface FlightResponse {
+  content: FlightDTO[];
+  pageable: any;
+  totalElements: number;
+  totalPages: number;
+}
+
 export async function searchFlights(req: FlightSearchRequest): Promise<FlightSearchResponse> {
   if (USE_MOCK) return mockSearchFlights(req);
-  const data = await api.get<any>('/flights', { 
+  const data = await api.get<FlightResponse>('/flights', { 
     params: {
       departureAirport: req.from,
       arrivalAirport: req.to,

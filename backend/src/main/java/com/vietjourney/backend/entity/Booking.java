@@ -12,7 +12,6 @@ import java.util.List;
 
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -31,8 +30,6 @@ public class Booking {
 
     @Column(name = "reference_id", nullable = false)
     private Long referenceId;
-
-    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private BookingStatus status = BookingStatus.PENDING;

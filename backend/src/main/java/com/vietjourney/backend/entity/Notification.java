@@ -2,7 +2,6 @@ package com.vietjourney.backend.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
@@ -12,7 +11,6 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
@@ -31,8 +29,6 @@ public class Notification {
 
     @Column(columnDefinition = "TEXT", nullable = false)
     private String message;
-
-    @Builder.Default
     @Column(name = "is_read")
     private Boolean isRead = false;
 

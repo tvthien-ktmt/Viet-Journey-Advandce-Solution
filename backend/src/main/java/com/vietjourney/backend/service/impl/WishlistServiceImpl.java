@@ -31,11 +31,10 @@ public class WishlistServiceImpl implements WishlistService {
             throw new com.vietjourney.backend.exception.DuplicateResourceException("Mục này đã có trong danh sách yêu thích của bạn.");
         }
 
-        Wishlist newWishlist = Wishlist.builder()
-                .user(user)
-                .itemType(itemType)
-                .itemId(itemId)
-                .build();
+        Wishlist newWishlist = new Wishlist();
+        newWishlist.setUser(user);
+        newWishlist.setItemType(itemType);
+        newWishlist.setItemId(itemId);
         return wishlistRepository.save(newWishlist);
     }
 
