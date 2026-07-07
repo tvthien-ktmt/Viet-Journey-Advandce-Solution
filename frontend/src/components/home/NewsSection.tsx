@@ -1,6 +1,6 @@
 
 import { ArrowRight, CalendarDays, Newspaper } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui';
 import { news } from '@/data/vna-data';
 import { useT } from '@/store/langStore';
 import { toast } from 'sonner';
@@ -53,3 +53,4 @@ export function NewsSection() {
     </section>
   );
 }
+

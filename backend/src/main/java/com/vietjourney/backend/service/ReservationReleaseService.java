@@ -33,13 +33,13 @@ public class ReservationReleaseService {
                 strategy.release(booking.getReferenceId(), quantity);
                 log.info("Released expired reservation: {}", booking.getId());
                 break; // success
-            } catch (org.springframework.orm.ObjectOptimisticLockingFailureException e) {
+            } catch (org.springframework.dao.TransientDataAccessException e) {
                 attempt++;
                 if (attempt >= maxRetries) {
-                    log.error("Failed to release reservation {} after {} retries due to optimistic locking", booking.getId(), maxRetries, e);
+                    log.error("Failed to release reservation {} after {} retries", booking.getId(), maxRetries, e);
                     throw e;
                 }
-                log.warn("Optimistic locking failure for reservation {}, retrying... ({}/{})", booking.getId(), attempt, maxRetries);
+                log.warn("Concurrency failure for reservation {}, retrying... ({}/{})", booking.getId(), attempt, maxRetries);
             } catch (Exception e) {
                 log.error("Persistent error releasing reservation {}: {}", booking.getId(), e.getMessage());
                 // If it's a non-transient error, just log and throw to rollback

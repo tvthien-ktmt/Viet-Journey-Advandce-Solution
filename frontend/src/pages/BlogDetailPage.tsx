@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui';
+import { Badge } from '@/components/ui';
 import { ChevronLeft, Calendar, Share2, Link as LinkIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import DOMPurify from 'dompurify';
@@ -25,7 +25,7 @@ export default function BlogDetailPage() {
     title: 'Vietnam Airlines chính thức mở đường bay thẳng đến Munich (Đức)',
     category: 'Tin tức VNA',
     date: '04/10/2025',
-    image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=2074&auto=format&fit=crop',
+    image: '/placeholder.svg',
     content: `
       <p class="lead font-medium text-lg text-slate-700 mb-6">Từ tháng 10 năm 2025, Vietnam Airlines chính thức khai trương đường bay thẳng giữa Hà Nội / TP. Hồ Chí Minh và Munich – thủ phủ của bang Bavaria, Đức. Đây là bước tiến quan trọng trong chiến lược mở rộng mạng bay quốc tế của Hãng hàng không Quốc gia Việt Nam.</p>
       
@@ -33,7 +33,7 @@ export default function BlogDetailPage() {
       <p class="mb-4">Đường bay mới sẽ được khai thác bằng siêu máy bay Boeing 787-9 Dreamliner với tần suất 4 chuyến/tuần. Munich là điểm đến thứ hai tại Đức và điểm đến thứ 6 tại Châu Âu mà Vietnam Airlines khai thác đường bay thẳng.</p>
       <p class="mb-4">Phát biểu tại buổi lễ công bố, đại diện Vietnam Airlines nhấn mạnh: "Việc mở đường bay thẳng đến Munich không chỉ đáp ứng nhu cầu đi lại ngày càng tăng giữa Việt Nam và Đức, mà còn mở ra những cơ hội mới về hợp tác kinh tế, thương mại, du lịch và giao lưu văn hóa giữa hai nước."</p>
 
-      <img src="https://images.unsplash.com/photo-1540339832862-474599807856?q=80&w=2070&auto=format&fit=crop" alt="Cabin" class="w-full rounded-2xl my-8 object-cover h-[400px]" />
+      <img src="/placeholder.svg" alt="Cabin" class="w-full rounded-2xl my-8 object-cover h-[400px]" />
 
       <h3 class="text-2xl font-bold text-slate-800 mt-10 mb-4">Lịch bay chi tiết</h3>
       <ul class="list-disc pl-6 mb-8 space-y-2 text-slate-700">
@@ -100,7 +100,7 @@ export default function BlogDetailPage() {
             
             <div className="flex gap-4 cursor-pointer group" onClick={() => navigate('/blog/2')}>
               <div className="w-24 h-24 rounded-xl overflow-hidden shrink-0">
-                <img src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=2070&auto=format&fit=crop" className="w-full h-full object-cover group-hover:scale-110 transition-transform" alt="Thumnail"/>
+                <img src="/placeholder.svg" className="w-full h-full object-cover group-hover:scale-110 transition-transform" alt="Thumnail"/>
               </div>
               <div>
                 <h4 className="font-bold text-slate-800 group-hover:text-vna-blue line-clamp-2 mb-2 transition-all duration-300">Top 5 điểm đến không thể bỏ lỡ tại Nhật Bản mùa thu</h4>
@@ -110,7 +110,7 @@ export default function BlogDetailPage() {
 
             <div className="flex gap-4 cursor-pointer group" onClick={() => navigate('/blog/3')}>
               <div className="w-24 h-24 rounded-xl overflow-hidden shrink-0">
-                <img src="https://images.unsplash.com/photo-1540339832862-474599807856?q=80&w=2070&auto=format&fit=crop" className="w-full h-full object-cover group-hover:scale-110 transition-transform" alt="Thumnail"/>
+                <img src="/placeholder.svg" className="w-full h-full object-cover group-hover:scale-110 transition-transform" alt="Thumnail"/>
               </div>
               <div>
                 <h4 className="font-bold text-slate-800 group-hover:text-vna-blue line-clamp-2 mb-2 transition-all duration-300">Ưu đãi hạng Thương gia: Trải nghiệm đẳng cấp với giá hấp dẫn</h4>
@@ -126,3 +126,6 @@ export default function BlogDetailPage() {
     </div>
   );
 }
+
+
+

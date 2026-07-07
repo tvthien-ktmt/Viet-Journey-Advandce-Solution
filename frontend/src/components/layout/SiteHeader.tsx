@@ -1,8 +1,8 @@
 
 import * as React from 'react';
 import { Menu, Ticket, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Button } from '@/components/ui';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui';
 import { LotusLogo } from '@/components/common/LotusLogo';
 import { LotusLoginButton } from '@/components/layout/TopBar';
 import { useT } from '@/store/langStore';
@@ -93,3 +93,4 @@ export function SiteHeader() {
     </header>
   );
 }
+

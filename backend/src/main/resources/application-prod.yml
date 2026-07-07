@@ -13,3 +13,9 @@ logging:
   level:
     com.vietjourney: INFO
     org.hibernate.SQL: WARN
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics

@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { adminApi } from '@/api/admin';
 import type { AdminFlight } from '@/types/admin';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui';
+import { Input } from '@/components/ui';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui';
+import { Badge } from '@/components/ui';
 import { formatVND } from '@/lib/formatters';
 
 export default function AdminFlightsPage() {
@@ -83,3 +83,4 @@ export default function AdminFlightsPage() {
     </div>
   );
 }
+

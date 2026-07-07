@@ -60,7 +60,7 @@ public class BookingServiceTest {
 
         PassengerRequest passenger = new PassengerRequest();
         passenger.setFullName("Passenger 1");
-        passenger.setDocumentNumber("123456789");
+        passenger.setIdNumber("123456789");
 
         bookingRequest = new BookingRequest();
         bookingRequest.setBookingType("tour");

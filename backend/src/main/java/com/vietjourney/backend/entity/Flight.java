@@ -47,6 +47,9 @@ public class Flight {
     @Column(name = "available_seats")
     private Integer availableSeats;
 
+    @Column(name = "total_seats", nullable = false)
+    private Integer totalSeats = 180;
+
     @Version
     private Long version;
 

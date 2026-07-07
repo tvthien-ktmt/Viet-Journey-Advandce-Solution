@@ -4,9 +4,9 @@ import { searchFlights } from '@/api/flights';
 import { useFlightSelection } from '@/store/flightSelectionStore';
 import { useLang } from '@/store/langStore';
 import { formatDate, formatVND } from '@/lib/formatters';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui';
+import { Button } from '@/components/ui';
+import { Badge } from '@/components/ui';
 import { Plane, Search } from 'lucide-react';
 import type { Flight, FlightSearchRequest } from '@/types/flight';
 import React, { useEffect, useCallback } from 'react';
@@ -168,3 +168,4 @@ const FlightCard = React.memo(function FlightCard({ flight, selected, onSelect }
     </div>
   );
 });
+

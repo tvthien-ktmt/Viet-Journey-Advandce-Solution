@@ -10,9 +10,9 @@ import { useLang, useT } from '../store/langStore';
 import { useAuth } from '@/store/authStore';
 import { formatVND } from '@/lib/formatters';
 import { Clock } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui';
+import { Button } from '@/components/ui';
+import { Card } from '@/components/ui';
 import { toast } from 'sonner';
 import type { HoldRequest } from '@/api/booking';
 import type { Passenger } from '@/types/flight';
@@ -179,3 +179,4 @@ export default function SeatHoldPage() {
     </div>
   );
 }
+

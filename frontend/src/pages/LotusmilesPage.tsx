@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui';
+import { Card, CardContent } from '@/components/ui';
 import { ArrowRight, Plane, Star, Gift, Shield, ChevronRight } from 'lucide-react';
 import { useAuth } from '@/store/authStore';
 
@@ -29,7 +29,7 @@ export default function LotusmilesPage() {
       {/* Hero Section */}
       <div className="relative h-[80vh] flex items-center">
         <img 
-          src="https://images.unsplash.com/photo-1542296332-2e4473faf563?q=80&w=2070&auto=format&fit=crop" 
+          src="/placeholder.svg" 
           alt="Lotusmiles" 
           className="absolute inset-0 w-full h-full object-cover"
         />
@@ -186,3 +186,6 @@ export default function LotusmilesPage() {
     </div>
   );
 }
+
+
+

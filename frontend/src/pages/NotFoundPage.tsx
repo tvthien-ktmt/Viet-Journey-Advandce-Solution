@@ -1,7 +1,7 @@
 import { LotusLogo } from '@/components/common/LotusLogo';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui';
 import { Search } from 'lucide-react';
-import { Input } from '@/components/ui/input';
+import { Input } from '@/components/ui';
 
 export default function NotFoundPage() {
   return (
@@ -36,3 +36,4 @@ export default function NotFoundPage() {
     </div>
   );
 }
+

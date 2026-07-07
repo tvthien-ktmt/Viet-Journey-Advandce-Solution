@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { Plane, Clock, Users, ArrowRight, Loader2, CheckCircle2, Luggage } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Button } from '@/components/ui';
+import { Badge } from '@/components/ui';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui';
+import { Skeleton } from '@/components/ui';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui';
 import { useT } from '@/store/langStore';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -158,7 +158,7 @@ export function FlightResults({
     }
 
     toast.success(t.results.bookingToast, {
-      description: `${request?.from} → ${request?.to}${isRound ? ` (${t.results.return.toLowerCase()})` : ''} · ${cabinLabel}`,
+      description: `${request?.from} → ${request?.to}${isRound && t.results.return ? ` (${t.results.return.toLowerCase()})` : ''} · ${cabinLabel}`,
     });
     onOpenChange(false);
     navigate('/booking/hold', {
@@ -276,3 +276,4 @@ export function FlightResults({
     </Dialog>
   );
 }
+

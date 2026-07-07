@@ -2,10 +2,10 @@
 import { useParams, useNavigate, Navigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { bookingApi } from '@/api/booking';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
+import { Card } from '@/components/ui';
+import { Button } from '@/components/ui';
+import { Badge } from '@/components/ui';
+import { Separator } from '@/components/ui';
 import { CheckCircle2 } from 'lucide-react';
 import { LotusLogo } from '@/components/common/LotusLogo';
 import { formatVND } from '@/lib/formatters';
@@ -129,3 +129,4 @@ function FlightDetail({ flight, label }: { flight: Flight, label: string }) {
     </div>
   );
 }
+

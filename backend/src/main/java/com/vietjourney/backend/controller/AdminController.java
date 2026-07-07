@@ -63,7 +63,7 @@ public class AdminController {
                 .id(b.getId().toString())
                 .bookingCode("BK" + b.getId())
                 .contactEmail(b.getContactEmail())
-                .route(b.getBookingType().name())
+                .route(b.getBookingType() != null ? b.getBookingType() : "FLIGHT")
                 .date(b.getCreatedAt() != null ? b.getCreatedAt().toString() : "")
                 .amount(b.getTotalPrice())
                 .status(b.getStatus().name())

@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminApi } from '@/api/admin';
 import type { AdminUser } from '@/types/admin';
-import { Input } from '@/components/ui/input';
-import { Card } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
-import { Avatar } from '@/components/ui/avatar';
-import { Switch } from '@/components/ui/switch';
+import { Input } from '@/components/ui';
+import { Card } from '@/components/ui';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui';
+import { Badge } from '@/components/ui';
+import { Avatar } from '@/components/ui';
+import { Switch } from '@/components/ui';
 import { toast } from 'sonner';
 
 export default function AdminUsersPage() {
@@ -111,3 +111,4 @@ export default function AdminUsersPage() {
     </div>
   );
 }
+

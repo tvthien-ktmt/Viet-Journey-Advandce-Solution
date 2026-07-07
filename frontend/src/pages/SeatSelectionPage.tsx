@@ -2,9 +2,9 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { bookingApi } from '@/api/booking';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui';
+import { Button } from '@/components/ui';
+import { Badge } from '@/components/ui';
 import { useT } from '@/store/langStore';
 import { Armchair, CheckCircle2, ChevronLeft, ChevronRight, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -51,7 +51,9 @@ export default function SeatSelectionPage() {
     enabled: !!id
   });
 
-  const requiredSeats = booking?.passengers?.length || 1; 
+  const requiredSeats = booking?.passengers 
+    ? booking.passengers.filter((p: import('@/types/flight').BookingPassengerDTO) => p.type !== 'INFANT' && p.type !== 'Infant').length 
+    : 1;
 
   useEffect(() => {
     // Generate Airbus A321 Layout
@@ -368,3 +370,4 @@ export default function SeatSelectionPage() {
     </div>
   );
 }
+

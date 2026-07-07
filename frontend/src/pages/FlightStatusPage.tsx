@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Card, CardContent } from '@/components/ui';
+import { Button } from '@/components/ui';
+import { Input } from '@/components/ui';
+import { Label } from '@/components/ui';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui';
 import { useT } from '@/store/langStore';
 import { Search, Plane, Clock, MapPin, RefreshCw, AlertCircle } from 'lucide-react';
 import { format } from 'date-fns';
@@ -65,7 +65,7 @@ export default function FlightStatusPage() {
       let filtered = [...mockStatuses];
       if (type === 'flight') {
         filtered = mockStatuses.filter(f => f.flightNo.toLowerCase() === flightNo.toLowerCase());
-      } else {
+      } else if (from && to) {
         filtered = mockStatuses.filter(f => 
           f.from.toLowerCase() === from.toLowerCase() && 
           f.to.toLowerCase() === to.toLowerCase()
@@ -80,7 +80,7 @@ export default function FlightStatusPage() {
     switch(status) {
       case 'onTime': return <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold uppercase">{t('flightstatus.statuses.onTime')}</span>;
       case 'delayed': return <span className="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-bold uppercase">{t('flightstatus.statuses.delayed')}</span>;
-      case 'cancelled': return <span className="px-3 py-1 bg-red-100 text-red-700 rounded-full text-xs font-bold uppercase">{t('flightstatus.statuses.cancelled')}</span>;
+      case 'cancelled': return <span className="px-3 py-1 bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 rounded-full text-xs font-bold uppercase">{t('flightstatus.statuses.cancelled')}</span>;
       case 'boarding': return <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold uppercase animate-pulse">{t('flightstatus.statuses.boarding')}</span>;
       case 'departed': return <span className="px-3 py-1 bg-sky-100 text-sky-700 rounded-full text-xs font-bold uppercase">{t('flightstatus.statuses.departed')}</span>;
       case 'landed': return <span className="px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full text-xs font-bold uppercase">{t('flightstatus.statuses.landed')}</span>;
@@ -282,3 +282,4 @@ export default function FlightStatusPage() {
     </div>
   );
 }
+

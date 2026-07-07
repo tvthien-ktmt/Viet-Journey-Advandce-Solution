@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { adminApi } from '@/api/admin';
 import type { AdminNews } from '@/types/admin';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Button } from '@/components/ui';
+import { Input } from '@/components/ui';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui';
 import { ExternalLink, Edit, Trash2 } from 'lucide-react';
 
 export default function AdminNewsPage() {
@@ -80,3 +80,4 @@ export default function AdminNewsPage() {
     </div>
   );
 }
+

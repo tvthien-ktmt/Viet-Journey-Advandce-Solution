@@ -3,9 +3,9 @@ import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Plane, Ticket, Users, Newspaper, Menu, LogOut } from 'lucide-react';
 import { LotusLogo } from '@/components/common/LotusLogo';
 import { useAuth } from '@/store/authStore';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Avatar } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui';
+import { Avatar } from '@/components/ui';
+import { Button } from '@/components/ui';
 
 export default function AdminLayout() {
   const user = useAuth((s) => s.user);
@@ -93,3 +93,4 @@ export default function AdminLayout() {
     </div>
   );
 }
+

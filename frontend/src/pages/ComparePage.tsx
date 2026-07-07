@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader } from '@/components/ui';
+import { Button } from '@/components/ui';
 import { CheckCircle2, XCircle, ArrowRight, Plane, Coffee, Briefcase, Sofa } from 'lucide-react';
 
 export default function ComparePage() {
@@ -104,3 +104,4 @@ export default function ComparePage() {
     </div>
   );
 }
+

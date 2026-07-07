@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useT } from '@/store/langStore';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui';
+import { Input } from '@/components/ui';
+import { Label } from '@/components/ui';
+import { Card, CardContent } from '@/components/ui';
 import { Eye, EyeOff, ChevronLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/store/authStore';
@@ -50,7 +50,7 @@ export default function LoginPage() {
       {/* Left side - Image */}
       <div className="hidden lg:flex lg:w-1/2 relative bg-vna-blue overflow-hidden">
         <img 
-          src="https://images.unsplash.com/photo-1542296332-2e4473faf563?q=80&w=2070&auto=format&fit=crop" 
+          src="/placeholder.svg" 
           alt="Vietnam Airlines" 
           className="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-overlay"
         />
@@ -138,3 +138,6 @@ export default function LoginPage() {
     </div>
   );
 }
+
+
+

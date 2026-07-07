@@ -1,5 +1,5 @@
 import { AlertCircle } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui';
 import { useNavigate, useParams } from 'react-router-dom';
 
 export default function PaymentFailedPage() {
@@ -30,3 +30,4 @@ export default function PaymentFailedPage() {
     </div>
   );
 }
+

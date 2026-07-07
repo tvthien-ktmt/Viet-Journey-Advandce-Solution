@@ -35,6 +35,6 @@ export const bookingApi = {
     api.post('/payments/create', { bookingId, paymentMethod: 'VNPAY' }),
   search: (code: string, lastName: string): Promise<FlightBooking> => 
     api.get(`/bookings/search`, { params: { code, lastName } }),
-  getMyBookings: (page = 0, size = 10) => 
-    api.get(`/bookings/my-bookings`, { params: { page, size } }),
+  getMyBookings: (page = 0, size = 10): Promise<{ content: FlightBooking[] }> => 
+    api.get<{ content: FlightBooking[] }>(`/bookings/my-bookings`, { params: { page, size } }),
 };

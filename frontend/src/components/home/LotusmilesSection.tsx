@@ -1,6 +1,6 @@
 
 import { Star, Award, Gem, Crown, ArrowRight, Check } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui';
 import { lotusTiers } from '@/data/vna-data';
 import { useT } from '@/store/langStore';
 import { toast } from 'sonner';
@@ -73,3 +73,4 @@ export function LotusmilesSection() {
     </section>
   );
 }
+

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui';
+import { Button } from '@/components/ui';
 import { ChevronLeft, MapPin, Star, Wifi, Coffee, Wind, Tv, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/store/authStore';
@@ -60,19 +60,19 @@ export default function HotelDetailPage() {
         {/* Image Gallery */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-12 h-[400px]">
           <div className="col-span-2 row-span-2 rounded-2xl overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1542314831-c6a4d27ce66f?q=80&w=800&auto=format&fit=crop" loading="lazy" width="800" height="600" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" alt="Hotel" />
+            <img src="/placeholder.svg" loading="lazy" width="800" height="600" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" alt="Hotel" />
           </div>
           <div className="rounded-2xl overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=800&auto=format&fit=crop" loading="lazy" width="800" height="600" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" alt="Room" />
+            <img src="/placeholder.svg" loading="lazy" width="800" height="600" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" alt="Room" />
           </div>
           <div className="rounded-2xl overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?q=80&w=800&auto=format&fit=crop" loading="lazy" width="800" height="600" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" alt="Bathroom" />
+            <img src="/placeholder.svg" loading="lazy" width="800" height="600" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" alt="Bathroom" />
           </div>
           <div className="rounded-2xl overflow-hidden">
-            <img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?q=80&w=800&auto=format&fit=crop" loading="lazy" width="800" height="600" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" alt="Pool" />
+            <img src="/placeholder.svg" loading="lazy" width="800" height="600" className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" alt="Pool" />
           </div>
           <div className="rounded-2xl overflow-hidden relative">
-            <img src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?q=80&w=800&auto=format&fit=crop" loading="lazy" width="800" height="600" className="w-full h-full object-cover" alt="Restaurant" />
+            <img src="/placeholder.svg" loading="lazy" width="800" height="600" className="w-full h-full object-cover" alt="Restaurant" />
             <div className="absolute inset-0 bg-black/40 flex items-center justify-center cursor-pointer hover:bg-black/50 transition-colors">
               <span className="text-white font-bold text-lg">+12 Ảnh</span>
             </div>
@@ -120,7 +120,7 @@ export default function HotelDetailPage() {
                   <Card key={room.id} className="border border-slate-200 rounded-xl">
                     <CardContent className="p-6 flex flex-col md:flex-row gap-6 rounded-xl">
                       <div className="w-full md:w-1/3 h-48 rounded-xl overflow-hidden shrink-0">
-                        <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=800&auto=format&fit=crop" loading="lazy" width="800" height="600" className="w-full h-full object-cover" alt="Room" />
+                        <img src="/placeholder.svg" loading="lazy" width="800" height="600" className="w-full h-full object-cover" alt="Room" />
                       </div>
                       <div className="flex-1 flex flex-col justify-between">
                         <div>
@@ -146,7 +146,7 @@ export default function HotelDetailPage() {
                   <Card className="border border-slate-200 rounded-xl">
                     <CardContent className="p-6 flex flex-col md:flex-row gap-6 rounded-xl">
                       <div className="w-full md:w-1/3 h-48 rounded-xl overflow-hidden shrink-0">
-                        <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=800&auto=format&fit=crop" loading="lazy" width="800" height="600" className="w-full h-full object-cover" alt="Room" />
+                        <img src="/placeholder.svg" loading="lazy" width="800" height="600" className="w-full h-full object-cover" alt="Room" />
                       </div>
                       <div className="flex-1 flex flex-col justify-between">
                         <div>
@@ -220,3 +220,6 @@ export default function HotelDetailPage() {
     </div>
   );
 }
+
+
+

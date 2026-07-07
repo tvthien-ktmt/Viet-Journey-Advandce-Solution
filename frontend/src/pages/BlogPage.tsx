@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui';
+import { Badge } from '@/components/ui';
 import { Calendar, ArrowRight, BookOpen } from 'lucide-react';
 import { BlogCard } from '@/components/blog/BlogCard';
 
@@ -9,11 +9,11 @@ import { useQuery } from '@tanstack/react-query';
 import { blogApi } from '@/api/blog';
 
 const mockBlogs = [
-  { id: '1', title: 'Vietnam Airlines chính thức mở đường bay thẳng đến Munich (Đức)', category: 'Tin tức VNA', date: '04/10/2025', image: 'https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=2074&auto=format&fit=crop' },
-  { id: '2', title: 'Top 5 điểm đến không thể bỏ lỡ tại Nhật Bản mùa thu', category: 'Cẩm nang du lịch', date: '12/09/2025', image: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=2070&auto=format&fit=crop' },
-  { id: '3', title: 'Ưu đãi hạng Thương gia: Trải nghiệm đẳng cấp với giá hấp dẫn', category: 'Khuyến mãi', date: '01/09/2025', image: 'https://images.unsplash.com/photo-1540339832862-474599807856?q=80&w=2070&auto=format&fit=crop' },
-  { id: '4', title: 'Khám phá ẩm thực đường phố Bangkok cùng VNA', category: 'Cẩm nang du lịch', date: '15/08/2025', image: 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?q=80&w=2105&auto=format&fit=crop' },
-  { id: '5', title: 'Triển khai dịch vụ làm thủ tục tự động (Auto Check-in)', category: 'Tin tức VNA', date: '02/08/2025', image: 'https://images.unsplash.com/photo-1583417311756-11e0e8e91404?q=80&w=2070&auto=format&fit=crop' },
+  { id: '1', title: 'Vietnam Airlines chính thức mở đường bay thẳng đến Munich (Đức)', category: 'Tin tức VNA', date: '04/10/2025', image: '/placeholder.svg' },
+  { id: '2', title: 'Top 5 điểm đến không thể bỏ lỡ tại Nhật Bản mùa thu', category: 'Cẩm nang du lịch', date: '12/09/2025', image: '/placeholder.svg' },
+  { id: '3', title: 'Ưu đãi hạng Thương gia: Trải nghiệm đẳng cấp với giá hấp dẫn', category: 'Khuyến mãi', date: '01/09/2025', image: '/placeholder.svg' },
+  { id: '4', title: 'Khám phá ẩm thực đường phố Bangkok cùng VNA', category: 'Cẩm nang du lịch', date: '15/08/2025', image: '/placeholder.svg' },
+  { id: '5', title: 'Triển khai dịch vụ làm thủ tục tự động (Auto Check-in)', category: 'Tin tức VNA', date: '02/08/2025', image: '/placeholder.svg' },
 ];
 
 export default function BlogPage() {
@@ -134,3 +134,6 @@ export default function BlogPage() {
     </div>
   );
 }
+
+
+

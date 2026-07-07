@@ -29,7 +29,7 @@ CREATE INDEX idx_blogs_published_at ON blogs(published_at DESC);
 CREATE INDEX idx_tours_featured ON tours(is_featured);
 
 -- Fix DB-LOW-03: payments.updated_at (payments table does NOT have updated_at in V1, safe to add)
-ALTER TABLE payments ADD COLUMN IF NOT EXISTS updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
+ALTER TABLE payments ADD COLUMN updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP;
 -- bookings already has updated_at from V1 (do NOT add again — would fail on fresh install)
 
 -- Fix DB-MED-04

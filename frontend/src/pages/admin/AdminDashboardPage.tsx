@@ -3,7 +3,7 @@ import { adminApi } from '@/api/admin';
 import { Wallet, Ticket, Plane, Percent } from 'lucide-react';
 import type { ChartDataPoint } from '@/types/admin';
 import { formatVND } from '@/lib/formatters';
-import { Card } from '@/components/ui/card';
+import { Card } from '@/components/ui';
 import {
   ResponsiveContainer, LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, AreaChart, Area,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend
@@ -137,3 +137,4 @@ export default function AdminDashboardPage() {
     </div>
   );
 }
+

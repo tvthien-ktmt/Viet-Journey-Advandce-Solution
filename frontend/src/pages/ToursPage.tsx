@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui';
+import { Button } from '@/components/ui';
+import { Badge } from '@/components/ui';
 import { MapPin, Clock, Calendar, Star, Users, Heart } from 'lucide-react';
 
 const mockTours = [
-  { id: '1', name: 'Khám phá Mùa Thu Nhật Bản', duration: '6 Ngày 5 Đêm', location: 'Tokyo - Kyoto - Osaka', price: 25900000, rating: 4.8, image: 'https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=2070&auto=format&fit=crop' },
-  { id: '2', name: 'Trải nghiệm Châu Âu Cổ Kính', duration: '10 Ngày 9 Đêm', location: 'Pháp - Thụy Sĩ - Ý', price: 68000000, rating: 4.9, image: 'https://images.unsplash.com/photo-1502602898657-3e907614d101?q=80&w=2069&auto=format&fit=crop' },
-  { id: '3', name: 'Thiên đường Đảo ngọc Phú Quốc', duration: '3 Ngày 2 Đêm', location: 'Phú Quốc, Việt Nam', price: 4500000, rating: 4.7, image: 'https://images.unsplash.com/photo-1629801831826-6d60ed37286f?q=80&w=2070&auto=format&fit=crop' },
-  { id: '4', name: 'Sắc xuân Hàn Quốc', duration: '5 Ngày 4 Đêm', location: 'Seoul - Nami - Jeju', price: 15500000, rating: 4.6, image: 'https://images.unsplash.com/photo-1538485399081-7191377e8241?q=80&w=2074&auto=format&fit=crop' },
-  { id: '5', name: 'Nét đẹp Cổ kính Châu Á', duration: '4 Ngày 3 Đêm', location: 'Bắc Kinh - Thượng Hải', price: 18900000, rating: 4.5, image: 'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?q=80&w=2070&auto=format&fit=crop' },
-  { id: '6', name: 'Đảo rồng Komodo huyền bí', duration: '5 Ngày 4 Đêm', location: 'Bali - Komodo', price: 19500000, rating: 4.8, image: 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?q=80&w=2038&auto=format&fit=crop' },
+  { id: '1', name: 'Khám phá Mùa Thu Nhật Bản', duration: '6 Ngày 5 Đêm', location: 'Tokyo - Kyoto - Osaka', price: 25900000, rating: 4.8, image: '/placeholder.svg' },
+  { id: '2', name: 'Trải nghiệm Châu Âu Cổ Kính', duration: '10 Ngày 9 Đêm', location: 'Pháp - Thụy Sĩ - Ý', price: 68000000, rating: 4.9, image: '/placeholder.svg' },
+  { id: '3', name: 'Thiên đường Đảo ngọc Phú Quốc', duration: '3 Ngày 2 Đêm', location: 'Phú Quốc, Việt Nam', price: 4500000, rating: 4.7, image: '/placeholder.svg' },
+  { id: '4', name: 'Sắc xuân Hàn Quốc', duration: '5 Ngày 4 Đêm', location: 'Seoul - Nami - Jeju', price: 15500000, rating: 4.6, image: '/placeholder.svg' },
+  { id: '5', name: 'Nét đẹp Cổ kính Châu Á', duration: '4 Ngày 3 Đêm', location: 'Bắc Kinh - Thượng Hải', price: 18900000, rating: 4.5, image: '/placeholder.svg' },
+  { id: '6', name: 'Đảo rồng Komodo huyền bí', duration: '5 Ngày 4 Đêm', location: 'Bali - Komodo', price: 19500000, rating: 4.8, image: '/placeholder.svg' },
 ];
 
 // Removed local Tour interface in favor of imported type
@@ -82,7 +82,7 @@ export default function ToursPage() {
       {/* Hero Section */}
       <div className="relative h-[300px] mb-12 flex items-center justify-center">
         <img 
-          src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?q=80&w=2021&auto=format&fit=crop" 
+          src="/placeholder.svg" 
           alt="Tours" 
           className="absolute inset-0 w-full h-full object-cover opacity-90"
         />
@@ -128,3 +128,6 @@ export default function ToursPage() {
     </div>
   );
 }
+
+
+

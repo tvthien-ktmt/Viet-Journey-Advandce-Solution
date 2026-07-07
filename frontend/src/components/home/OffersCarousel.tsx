@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
-import { Button, buttonVariants } from '@/components/ui/button';
-import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from '@/components/ui/carousel';
+import { Button, buttonVariants } from '@/components/ui';
+import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from '@/components/ui';
 import { slides } from '@/data/vna-data';
 import { cn } from '@/lib/utils';
 
@@ -94,3 +94,4 @@ export function OffersCarousel() {
     </section>
   );
 }
+

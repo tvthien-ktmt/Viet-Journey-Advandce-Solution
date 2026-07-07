@@ -1,5 +1,5 @@
 import { ArrowRight, MapPin } from 'lucide-react';
-import { buttonVariants } from '@/components/ui/button';
+import { buttonVariants } from '@/components/ui';
 import { cn } from '@/lib/utils';
 import { destinations } from '@/data/vna-data';
 import { useLang, useT } from '@/store/langStore';
@@ -56,3 +56,4 @@ export function Destinations() {
     </section>
   );
 }
+

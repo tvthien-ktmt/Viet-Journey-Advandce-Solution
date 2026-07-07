@@ -27,10 +27,10 @@ public interface FlightRepository extends JpaRepository<Flight, Long> {
     List<Flight> findByDepartureAirportAndArrivalAirportAndDepartureTimeBetween(
             String departureAirport, String arrivalAirport, LocalDateTime start, LocalDateTime end);
 
-    @Query("SELECT new map(FUNCTION('MONTH', f.departureTime) as month, (180.0 - AVG(f.availableSeats)) / 180.0 * 100 as factor) FROM Flight f GROUP BY FUNCTION('MONTH', f.departureTime) ORDER BY month")
+    @Query("SELECT new map(FUNCTION('MONTH', f.departureTime) as month, AVG((f.totalSeats - f.availableSeats) * 1.0 / f.totalSeats) * 100 as factor) FROM Flight f GROUP BY FUNCTION('MONTH', f.departureTime) ORDER BY month")
     List<Map<String, Object>> getLoadFactorByMonth();
 
-    @Query("SELECT (180.0 - AVG(f.availableSeats)) / 180.0 * 100 FROM Flight f")
+    @Query("SELECT AVG((f.totalSeats - f.availableSeats) * 1.0 / f.totalSeats) * 100 FROM Flight f")
     Double getOverallLoadFactor();
 
     @org.springframework.data.jpa.repository.Modifying(clearAutomatically = true, flushAutomatically = true)

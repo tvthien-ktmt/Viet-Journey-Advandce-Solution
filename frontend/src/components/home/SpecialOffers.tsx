@@ -1,7 +1,7 @@
 
 import { ArrowRight, Clock } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui';
+import { Badge } from '@/components/ui';
 import { offers } from '@/data/vna-data';
 import { useT } from '@/store/langStore';
 import { toast } from 'sonner';
@@ -48,3 +48,4 @@ export function SpecialOffers() {
     </section>
   );
 }
+

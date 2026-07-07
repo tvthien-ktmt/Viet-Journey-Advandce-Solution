@@ -1,5 +1,5 @@
 import { ShieldAlert } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/store/authStore';
 
@@ -41,3 +41,4 @@ export default function ForbiddenPage() {
     </div>
   );
 }
+

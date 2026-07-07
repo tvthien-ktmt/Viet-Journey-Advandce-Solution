@@ -1,20 +1,20 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Card, CardContent } from '@/components/ui';
+import { Button } from '@/components/ui';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui';
 import { MapPin, Plane, ArrowRight } from 'lucide-react';
 
 const destinations = [
-  { id: 'han', name: 'Hà Nội', type: 'domestic', country: 'Việt Nam', image: 'https://images.unsplash.com/photo-1599708153386-62bf3f035ca5?q=80&w=2070&auto=format&fit=crop' },
-  { id: 'sgn', name: 'TP. Hồ Chí Minh', type: 'domestic', country: 'Việt Nam', image: 'https://images.unsplash.com/photo-1583417311756-11e0e8e91404?q=80&w=2070&auto=format&fit=crop' },
-  { id: 'dad', name: 'Đà Nẵng', type: 'domestic', country: 'Việt Nam', image: 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?q=80&w=2105&auto=format&fit=crop' },
-  { id: 'pqc', name: 'Phú Quốc', type: 'domestic', country: 'Việt Nam', image: 'https://images.unsplash.com/photo-1629801831826-6d60ed37286f?q=80&w=2070&auto=format&fit=crop' },
-  { id: 'hnd', name: 'Tokyo', type: 'international', country: 'Nhật Bản', image: 'https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=2094&auto=format&fit=crop' },
-  { id: 'icn', name: 'Seoul', type: 'international', country: 'Hàn Quốc', image: 'https://images.unsplash.com/photo-1538485399081-7191377e8241?q=80&w=2074&auto=format&fit=crop' },
-  { id: 'cdg', name: 'Paris', type: 'international', country: 'Pháp', image: 'https://images.unsplash.com/photo-1502602898657-3e907614d101?q=80&w=2069&auto=format&fit=crop' },
-  { id: 'lhr', name: 'London', type: 'international', country: 'Vương quốc Anh', image: 'https://images.unsplash.com/photo-1513635269975-59693e0cd156?q=80&w=2070&auto=format&fit=crop' },
-  { id: 'sin', name: 'Singapore', type: 'international', country: 'Singapore', image: 'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?q=80&w=1952&auto=format&fit=crop' },
+  { id: 'han', name: 'Hà Nội', type: 'domestic', country: 'Việt Nam', image: '/placeholder.svg' },
+  { id: 'sgn', name: 'TP. Hồ Chí Minh', type: 'domestic', country: 'Việt Nam', image: '/placeholder.svg' },
+  { id: 'dad', name: 'Đà Nẵng', type: 'domestic', country: 'Việt Nam', image: '/placeholder.svg' },
+  { id: 'pqc', name: 'Phú Quốc', type: 'domestic', country: 'Việt Nam', image: '/placeholder.svg' },
+  { id: 'hnd', name: 'Tokyo', type: 'international', country: 'Nhật Bản', image: '/placeholder.svg' },
+  { id: 'icn', name: 'Seoul', type: 'international', country: 'Hàn Quốc', image: '/placeholder.svg' },
+  { id: 'cdg', name: 'Paris', type: 'international', country: 'Pháp', image: '/placeholder.svg' },
+  { id: 'lhr', name: 'London', type: 'international', country: 'Vương quốc Anh', image: '/placeholder.svg' },
+  { id: 'sin', name: 'Singapore', type: 'international', country: 'Singapore', image: '/placeholder.svg' },
 ];
 
 export default function DestinationsPage() {
@@ -29,7 +29,7 @@ export default function DestinationsPage() {
       {/* Hero Section */}
       <div className="relative h-[400px] mb-12 flex items-center justify-center">
         <img 
-          src="https://images.unsplash.com/photo-1436491865332-7a61a109cc05?q=80&w=2074&auto=format&fit=crop" 
+          src="/placeholder.svg" 
           alt="Destinations" 
           className="absolute inset-0 w-full h-full object-cover opacity-80"
         />
@@ -108,3 +108,6 @@ export default function DestinationsPage() {
     </div>
   );
 }
+
+
+

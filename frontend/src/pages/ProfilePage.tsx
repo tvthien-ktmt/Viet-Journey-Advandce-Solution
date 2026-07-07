@@ -4,10 +4,10 @@ import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/store/authStore';
 import { profileApi } from '@/api/profile';
 import { toast } from 'sonner';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
+import { Button } from '@/components/ui';
+import { Input } from '@/components/ui';
+import { Label } from '@/components/ui';
 import { User, Plane, CreditCard, Shield, LogOut, Award, ChevronRight } from 'lucide-react';
 
 export default function ProfilePage() {
@@ -84,7 +84,7 @@ export default function ProfilePage() {
                 <div className="flex justify-between items-end">
                   <div>
                     <p className="text-xs uppercase opacity-80 mb-1">Số thẻ</p>
-                    <p className="font-mono text-lg font-semibold tracking-widest">VN{String(user.id).padStart(8, '0')}</p>
+                    <p className="font-mono text-lg font-semibold tracking-widest">VN{String(user?.id || '').padStart(8, '0')}</p>
                   </div>
                   <div className="text-right">
                     <p className="text-xs uppercase opacity-80 mb-1">Dặm thưởng</p>
@@ -260,3 +260,4 @@ export default function ProfilePage() {
     </div>
   );
 }
+

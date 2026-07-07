@@ -1,9 +1,9 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from '@/components/ui';
+import { Button } from '@/components/ui';
+import { Switch } from '@/components/ui';
+import { Label } from '@/components/ui';
 import { ChevronLeft, Luggage, Utensils, Coffee, ShieldCheck, Plus, Minus } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -301,3 +301,4 @@ export default function AddonsPage() {
     </div>
   );
 }
+

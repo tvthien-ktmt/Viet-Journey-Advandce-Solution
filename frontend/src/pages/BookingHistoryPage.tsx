@@ -10,8 +10,8 @@ export default function BookingHistoryPage() {
   const { data: bookings = [], isLoading } = useQuery({
     queryKey: ['bookings'],
     queryFn: async () => {
-      const res = await bookingApi.getMyBookings() as unknown as { content?: FlightBooking[], data?: { content?: FlightBooking[] } };
-      return res.content || res.data?.content || [];
+      const res = await bookingApi.getMyBookings();
+      return res?.content || [];
     },
     enabled: isAuthenticated
   });

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui';
+import { Button } from '@/components/ui';
 import { ChevronLeft, MapPin, Plane, Info, Calendar, Camera } from 'lucide-react';
 
 const db: Record<string, {
@@ -18,7 +18,7 @@ const db: Record<string, {
   han: {
     name: 'Hà Nội',
     country: 'Việt Nam',
-    hero: 'https://images.unsplash.com/photo-1599708153386-62bf3f035ca5?q=80&w=2070&auto=format&fit=crop',
+    hero: '/placeholder.svg',
     description: 'Thủ đô ngàn năm văn hiến với những con phố cổ kính, hồ Hoàn Kiếm thơ mộng và nền ẩm thực phong phú đặc sắc.',
     weather: 'Thích hợp du lịch vào mùa thu (Tháng 9 - 11)',
     attractions: ['Hồ Hoàn Kiếm', 'Phố cổ Hà Nội', 'Văn Miếu Quốc Tử Giám', 'Lăng Bác'],
@@ -27,7 +27,7 @@ const db: Record<string, {
   sgn: {
     name: 'TP. Hồ Chí Minh',
     country: 'Việt Nam',
-    hero: 'https://images.unsplash.com/photo-1583417311756-11e0e8e91404?q=80&w=2070&auto=format&fit=crop',
+    hero: '/placeholder.svg',
     description: 'Thành phố mang tên Bác năng động, sầm uất, nơi giao thoa giữa văn hóa truyền thống và nhịp sống hiện đại.',
     weather: 'Nắng ấm quanh năm (Tháng 12 - 4 là mùa khô)',
     attractions: ['Chợ Bến Thành', 'Nhà thờ Đức Bà', 'Dinh Độc Lập', 'Phố đi bộ Nguyễn Huệ'],
@@ -36,7 +36,7 @@ const db: Record<string, {
   cdg: {
     name: 'Paris',
     country: 'Pháp',
-    hero: 'https://images.unsplash.com/photo-1502602898657-3e907614d101?q=80&w=2069&auto=format&fit=crop',
+    hero: '/placeholder.svg',
     description: 'Kinh đô ánh sáng của châu Âu, nổi tiếng với Tháp Eiffel, bảo tàng Louvre và bầu không khí lãng mạn vô song.',
     weather: 'Mùa xuân (Tháng 4 - 6) là thời điểm đẹp nhất',
     attractions: ['Tháp Eiffel', 'Bảo tàng Louvre', 'Nhà thờ Đức Bà Paris', 'Khải Hoàn Môn'],
@@ -137,3 +137,6 @@ export default function DestinationDetailPage() {
     </div>
   );
 }
+
+
+

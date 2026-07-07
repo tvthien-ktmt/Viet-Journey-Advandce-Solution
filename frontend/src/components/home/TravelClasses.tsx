@@ -1,6 +1,6 @@
 
 import { Check, Plane } from 'lucide-react';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui';
 import { travelClasses, IMAGES } from '@/data/vna-data';
 import { useLang, useT } from '@/store/langStore';
 
@@ -59,3 +59,4 @@ export function TravelClasses() {
     </section>
   );
 }
+

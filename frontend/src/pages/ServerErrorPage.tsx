@@ -1,5 +1,5 @@
 import { ServerCrash } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui';
 
 export default function ServerErrorPage() {
   const errorId = `ERR-${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
@@ -29,3 +29,4 @@ export default function ServerErrorPage() {
     </div>
   );
 }
+

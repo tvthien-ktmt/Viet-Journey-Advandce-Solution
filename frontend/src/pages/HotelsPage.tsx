@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Card, CardContent } from '@/components/ui';
+import { Button } from '@/components/ui';
+import { Input } from '@/components/ui';
 import { MapPin, Search, Star, Heart } from 'lucide-react';
 
 const HOTELS = [
-  { id: 1, name: 'Vinpearl Resort Nha Trang', location: 'Nha Trang', stars: 5, price: 2500000, image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=2070&auto=format&fit=crop' },
-  { id: 2, name: 'InterContinental Danang', location: 'Đà Nẵng', stars: 5, price: 5500000, image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=2070&auto=format&fit=crop' },
-  { id: 3, name: 'JW Marriott Phu Quoc', location: 'Phú Quốc', stars: 5, price: 6200000, image: 'https://images.unsplash.com/photo-1542314831-c6a4d2759827?q=80&w=2070&auto=format&fit=crop' },
-  { id: 4, name: 'Melia Hanoi', location: 'Hà Nội', stars: 4, price: 1800000, image: 'https://images.unsplash.com/photo-1551882547-ff40c0d129df?q=80&w=2070&auto=format&fit=crop' },
+  { id: 1, name: 'Vinpearl Resort Nha Trang', location: 'Nha Trang', stars: 5, price: 2500000, image: '/placeholder.svg' },
+  { id: 2, name: 'InterContinental Danang', location: 'Đà Nẵng', stars: 5, price: 5500000, image: '/placeholder.svg' },
+  { id: 3, name: 'JW Marriott Phu Quoc', location: 'Phú Quốc', stars: 5, price: 6200000, image: '/placeholder.svg' },
+  { id: 4, name: 'Melia Hanoi', location: 'Hà Nội', stars: 4, price: 1800000, image: '/placeholder.svg' },
 ];
 
 interface Hotel {
@@ -76,7 +76,7 @@ export default function HotelsPage() {
     <div className="min-h-screen bg-slate-50 pb-20 pt-24">
       {/* Hero */}
       <div className="relative h-[300px] mb-12 flex items-center justify-center">
-        <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=2070&auto=format&fit=crop" alt="Hotels" className="absolute inset-0 w-full h-full object-cover opacity-80" />
+        <img src="/placeholder.svg" alt="Hotels" className="absolute inset-0 w-full h-full object-cover opacity-80" />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/40 to-transparent" />
         <div className="relative z-10 text-center text-white px-4">
           <h1 className="text-4xl font-bold mb-4">Khách sạn & Khu nghỉ dưỡng</h1>
@@ -116,3 +116,6 @@ export default function HotelsPage() {
     </div>
   );
 }
+
+
+

@@ -1,12 +1,12 @@
 import * as React from 'react';
 import { ArrowLeftRight, Plane, Search, Users, Minus, Plus, CalendarDays, MapPin, Tag, Loader2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui';
+import { Input } from '@/components/ui';
+import { Label } from '@/components/ui';
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from '@/components/ui';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui';
+import { Badge } from '@/components/ui';
 import { useT } from '@/store/langStore';
 import { toast } from 'sonner';
 import { airports, IMAGES } from '@/data/vna-data';
@@ -310,3 +310,4 @@ export function HeroSearch() {
     </section>
   );
 }
+

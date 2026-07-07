@@ -1,6 +1,6 @@
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui';
+import { Badge } from '@/components/ui';
 import { Calendar, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -29,3 +29,4 @@ export const BlogCard = React.memo(({ blog }: { blog: any }) => {
     </Card>
   );
 });
+

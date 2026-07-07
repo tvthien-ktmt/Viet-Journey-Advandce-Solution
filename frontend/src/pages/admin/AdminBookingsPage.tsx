@@ -2,10 +2,10 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { adminApi } from '@/api/admin';
 import type { AdminBooking } from '@/types/admin';
-import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
+import { Card } from '@/components/ui';
+import { Input } from '@/components/ui';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui';
+import { Badge } from '@/components/ui';
 import { formatVND } from '@/lib/formatters';
 
 export default function AdminBookingsPage() {
@@ -80,3 +80,4 @@ export default function AdminBookingsPage() {
     </div>
   );
 }
+

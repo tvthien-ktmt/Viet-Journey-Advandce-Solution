@@ -51,7 +51,7 @@ export default function BookingDetailPage() {
         </div>
 
         {isLoading && <p className="text-center py-10">Đang tải thông tin booking...</p>}
-        {isError && <p className="text-center py-10 text-red-500">Lỗi tải dữ liệu. Bạn đang xem dữ liệu mẫu.</p>}
+        {isError && <p className="text-center py-10 text-red-500">Lỗi tải dữ liệu. Vui lòng thử lại sau.</p>}
 
         {/* Bento Grid Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
@@ -62,7 +62,7 @@ export default function BookingDetailPage() {
             {/* Service Detail Card */}
             <div className="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/20 overflow-hidden flex flex-col sm:flex-row">
               <div className="relative h-48 w-full sm:w-2/5 sm:h-auto shrink-0">
-                <img src={snapshot?.image || "/images/placeholder.jpg"} alt="Booking Image" className="absolute inset-0 w-full h-full object-cover" />
+                <img src={snapshot?.image || "/placeholder.svg"} alt="Booking Image" className="absolute inset-0 w-full h-full object-cover" />
               </div>
               <div className="p-6 flex-grow flex flex-col justify-between">
                 <div>
@@ -137,10 +137,11 @@ export default function BookingDetailPage() {
                 Payment Summary
               </h4>
               
-              {/* QR Code Container (Mock) */}
-              <div className="flex justify-center items-center p-4 bg-white rounded-lg mb-6 border border-outline-variant/30">
-                <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=VJ-88392-TL&color=005454`} alt="QR Code" width={150} height={150} />
-              </div>
+              {booking?.id && (
+                <div className="flex justify-center items-center p-4 bg-white rounded-lg mb-6 border border-outline-variant/30">
+                  <img src={`https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=VJ-${booking.id}&color=005454`} alt="QR Code" width={150} height={150} />
+                </div>
+              )}
               
               <div className="flex flex-col gap-2 text-[14px] text-onSurface-variant mb-6">
                 <div className="flex justify-between items-center">
@@ -158,7 +159,6 @@ export default function BookingDetailPage() {
                   <span className="text-[16px] font-semibold text-onSurface">Total Amount</span>
                   <span className="text-[32px] font-bold text-primary tracking-tight leading-none">{(booking?.totalPrice || 0)?.toLocaleString('vi-VN')} ₫</span>
                 </div>
-                <p className="text-[12px] text-onSurface-variant text-right">Paid via Visa ending in •••• 4242</p>
               </div>
               
               {/* Actions */}
@@ -184,3 +184,4 @@ export default function BookingDetailPage() {
     </>
   );
 }
+

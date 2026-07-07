@@ -1,8 +1,8 @@
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+import { Card, CardContent } from '@/components/ui';
+import { Button } from '@/components/ui';
+import { Input } from '@/components/ui';
+import { Label } from '@/components/ui';
 import { Phone, Mail, MapPin, MessageSquare, Clock } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -150,3 +150,4 @@ export default function ContactPage() {
     </div>
   );
 }
+

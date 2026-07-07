@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui';
 import { ChevronDown, Search } from 'lucide-react';
 
 const faqs = [
@@ -87,3 +87,4 @@ export default function FaqPage() {
     </div>
   );
 }
+

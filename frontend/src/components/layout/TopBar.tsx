@@ -1,12 +1,12 @@
 
 import * as React from 'react';
 import { Phone, Plane, UserRound, Globe } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Button } from '@/components/ui';
 import {
   Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+} from '@/components/ui';
+import { Input } from '@/components/ui';
+import { Label } from '@/components/ui';
 import { useLang, useT, type Lang } from '@/store/langStore';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
@@ -100,3 +100,4 @@ export function TopBar() {
     </div>
   );
 }
+

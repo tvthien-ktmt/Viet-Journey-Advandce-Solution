@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useT } from '@/store/langStore';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui';
+import { Input } from '@/components/ui';
+import { Label } from '@/components/ui';
+import { Card, CardContent } from '@/components/ui';
 import { Eye, EyeOff, ChevronLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { authApi } from '@/api/auth';
@@ -156,3 +156,4 @@ export default function RegisterPage() {
     </div>
   );
 }
+

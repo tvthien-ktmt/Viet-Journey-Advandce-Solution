@@ -62,7 +62,7 @@ public class JwtUtil {
             Jwts.parser().verifyWith(getSigningKey()).build().parseSignedClaims(authToken);
             return true;
         } catch (SecurityException | MalformedJwtException | ExpiredJwtException | UnsupportedJwtException | IllegalArgumentException e) {
-            log.warn("JWT validation failed: {}", e.getMessage());
+            log.trace("JWT validation failed: {}", e.getMessage());
         }
         return false;
     }

@@ -20,7 +20,7 @@ export default function DashboardPage() {
     queryFn: () => profileApi.wishlist.list()
   });
 
-  const bookings: import('@/types/flight').FlightBooking[] = (bookingsData as any)?.content || (bookingsData as any)?.data?.content || [];
+  const bookings: import('@/types/flight').FlightBooking[] = (bookingsData as { content?: import('@/types/flight').FlightBooking[], data?: { content?: import('@/types/flight').FlightBooking[] } })?.content || (bookingsData as { data?: { content?: import('@/types/flight').FlightBooking[] } })?.data?.content || [];
 
   return (
     <>
@@ -44,7 +44,7 @@ export default function DashboardPage() {
         <div className="flex flex-col gap-8">
           
           {/* Stats Row */}
-          <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+          <section className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div className="bg-surface-container-lowest p-4 rounded-xl shadow-sm border border-surface-variant flex flex-col justify-between hover:shadow-md transition-shadow group">
               <div className="flex justify-between items-start mb-6">
                 <div className="w-10 h-10 rounded-lg bg-primary-light text-primary flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -68,30 +68,6 @@ export default function DashboardPage() {
                 <p className="text-[12px] uppercase tracking-wider text-onSurface-variant">Điểm thưởng</p>
               </div>
             </div>
-            
-            <div className="bg-surface-container-lowest p-4 rounded-xl shadow-sm border border-surface-variant flex flex-col justify-between hover:shadow-md transition-shadow group">
-              <div className="flex justify-between items-start mb-6">
-                <div className="w-10 h-10 rounded-lg bg-info/10 text-info flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <span className="material-symbols-outlined">reviews</span>
-                </div>
-              </div>
-              <div>
-                <h3 className="text-[48px] md:text-[56px] font-bold text-onSurface leading-tight">8</h3>
-                <p className="text-[12px] uppercase tracking-wider text-onSurface-variant">Đánh giá</p>
-              </div>
-            </div>
-            
-            <div className="bg-surface-container-lowest p-4 rounded-xl shadow-sm border border-surface-variant flex flex-col justify-between hover:shadow-md transition-shadow group">
-              <div className="flex justify-between items-start mb-6">
-                <div className="w-10 h-10 rounded-lg bg-success/10 text-success flex items-center justify-center group-hover:scale-110 transition-transform">
-                  <span className="material-symbols-outlined">savings</span>
-                </div>
-              </div>
-              <div>
-                <h3 className="text-[48px] md:text-[56px] font-bold text-onSurface leading-tight">15%</h3>
-                <p className="text-[12px] uppercase tracking-wider text-onSurface-variant">Tiết kiệm</p>
-              </div>
-            </div>
           </section>
 
           {/* Main Dashboard Content Grid */}
@@ -99,7 +75,7 @@ export default function DashboardPage() {
             
             {/* Upcoming Trip (Col Span 1) */}
             <section className="lg:col-span-1 flex flex-col gap-4">
-              <h2 className="text-[24px] md:text-[28px] font-bold text-onSurface">Upcoming Trip</h2>
+              <h2 className="text-[24px] md:text-[28px] font-bold text-onSurface">Chuyến đi sắp tới</h2>
               
               {(() => {
                 const upcomingBooking = bookings.find((b: import('@/types/flight').FlightBooking) => b.status === 'CONFIRMED' || b.status === 'RESERVED');
@@ -148,15 +124,15 @@ export default function DashboardPage() {
                 );
               })()}
               
-              <h2 className="text-[20px] font-bold text-onSurface mt-4">Quick Actions</h2>
+              <h2 className="text-[20px] font-bold text-onSurface mt-4">Tiện ích nhanh</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                 <button className="bg-surface-container-low border border-outline-variant p-2 rounded-lg flex flex-col items-center justify-center gap-1 hover:bg-surface-variant transition-colors h-24 cursor-pointer">
                   <span className="material-symbols-outlined text-primary">rate_review</span>
-                  <span className="text-[14px] text-onSurface text-center">Write a Review</span>
+                  <span className="text-[14px] text-onSurface text-center">Viết đánh giá</span>
                 </button>
                 <button className="bg-surface-container-low border border-outline-variant p-2 rounded-lg flex flex-col items-center justify-center gap-1 hover:bg-surface-variant transition-colors h-24 cursor-pointer">
                   <span className="material-symbols-outlined text-primary">confirmation_number</span>
-                  <span className="text-[14px] text-onSurface text-center">My Vouchers</span>
+                  <span className="text-[14px] text-onSurface text-center">Voucher của tôi</span>
                 </button>
               </div>
             </section>
@@ -177,9 +153,9 @@ export default function DashboardPage() {
               {/* Recent Bookings */}
               <div>
                 <div className="flex justify-between items-end mb-6">
-                  <h2 className="text-[24px] md:text-[28px] font-bold text-onSurface">Recent Bookings</h2>
+                  <h2 className="text-[24px] md:text-[28px] font-bold text-onSurface">Đặt chỗ gần đây</h2>
                   <Link to="/booking-history" className="text-[14px] text-primary flex items-center gap-1 font-medium hover:underline transition-all duration-300">
-                    View All <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
+                    Xem tất cả <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
                   </Link>
                 </div>
                 
