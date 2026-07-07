@@ -20,7 +20,7 @@ export interface FlightDTO {
 
 export interface FlightResponse {
   content: FlightDTO[];
-  pageable: any;
+  pageable: Record<string, unknown>;
   totalElements: number;
   totalPages: number;
 }
@@ -35,18 +35,7 @@ export async function searchFlights(req: FlightSearchRequest): Promise<FlightSea
     } 
   });
   
-  const flights = (data.content || []).map((f: {
-    id: number;
-    flightNumber: string;
-    airlineCode?: string;
-    departureAirport: string;
-    arrivalAirport: string;
-    departureTime: string;
-    arrivalTime: string;
-    seatClass: string;
-    price: number;
-    availableSeats: number;
-  }) => ({
+  const flights = (data.content || []).map((f: FlightDTO) => ({
     id: f.id.toString(),
     flightNo: f.flightNumber,
     airline: f.airlineCode || 'VN',

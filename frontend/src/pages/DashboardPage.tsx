@@ -6,7 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { bookingApi } from '@/api/booking';
 import { profileApi } from '@/api/profile';
 import { format } from 'date-fns';
-import { useT } from '@/hooks/useT';
+import { useT } from '@/store/langStore';
 
 export default function DashboardPage() {
   const { user } = useAuth();

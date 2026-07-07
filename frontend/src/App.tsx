@@ -1,5 +1,5 @@
 import React, { Suspense, lazy } from 'react';
-import { BrowserRouter, Routes, Route, Outlet, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom';
 import { RootLayout } from '@/layouts/RootLayout';
 import { PageLoader } from '@/components/common/PageLoader';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
