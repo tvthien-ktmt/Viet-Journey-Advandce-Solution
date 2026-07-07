@@ -31,12 +31,20 @@ export class ErrorBoundary extends Component<Props, State> {
             <p className="text-slate-600 mb-6">
               Xin lỗi, đã có lỗi không mong muốn xảy ra. Vui lòng thử lại sau.
             </p>
-            <button
-              onClick={() => window.location.href = '/'}
-              className="px-6 py-2 bg-vna-blue text-white rounded-lg hover:bg-blue-800 transition-colors"
-            >
-              Về Trang Chủ
-            </button>
+            <div className="flex gap-4 justify-center">
+              <button
+                onClick={() => this.setState({ hasError: false, error: undefined })}
+                className="px-6 py-2 bg-vna-blue text-white rounded-lg hover:bg-blue-800 transition-colors"
+              >
+                Thử Lại
+              </button>
+              <button
+                onClick={() => window.location.href = '/'}
+                className="px-6 py-2 border border-vna-blue text-vna-blue rounded-lg hover:bg-slate-50 transition-colors"
+              >
+                Về Trang Chủ
+              </button>
+            </div>
           </div>
         </div>
       );

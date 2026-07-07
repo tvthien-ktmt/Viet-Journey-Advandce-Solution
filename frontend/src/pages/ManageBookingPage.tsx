@@ -58,12 +58,12 @@ export default function ManageBookingPage() {
         to: b.flight?.route?.destination?.code || 'SGN',
         departTime: b.flight?.departureTime ? new Date(b.flight.departureTime).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) : '00:00',
         arriveTime: b.flight?.arrivalTime ? new Date(b.flight.arrivalTime).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) : '00:00',
-        passengers: b.passengers?.map((p: any) => `${p.firstName} ${p.lastName}`) || [],
+        passengers: b.passengers?.map((p: any) => p.fullName || `${p.firstName || ''} ${p.lastName || ''}`.trim()) || [],
         amount: b.totalPrice,
       });
       setHasSearched(true);
     } catch (e) {
-      const error = e as any;
+      const error = e as Error & { response?: { data?: { message?: string } } };
       setBooking(null);
       setHasSearched(true);
       toast.error(error.response?.data?.message || 'Không tìm thấy đặt chỗ');

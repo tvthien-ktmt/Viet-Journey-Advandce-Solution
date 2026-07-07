@@ -8,11 +8,12 @@ import jakarta.validation.constraints.Email;
 public class PassengerRequest {
     @NotBlank(message = "Full name is required")
     private String fullName;
+    @NotBlank(message = "Type is required")
+    private String type; // adult, child, infant
     
-    @NotBlank(message = "Email is required")
-    @Email(message = "Email should be valid")
-    private String email;
+    private String idNumber;
     
-    private String phone;
-    private String documentNumber;
+    private String birthDate;
+    
+    private String gender;
 }

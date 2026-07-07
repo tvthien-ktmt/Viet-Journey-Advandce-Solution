@@ -28,7 +28,7 @@ export default function LoginPage() {
     
     setIsLoading(true);
     try {
-      const res = await authApi.login(email, password) as any;
+      const res = await authApi.login(email, password) as unknown as { user: any, token: string, refreshToken: string, accessToken?: string };
       setAuth(res.user, res.accessToken || res.token, res.refreshToken);
       toast.success(t('login.success'));
       
@@ -38,7 +38,7 @@ export default function LoginPage() {
         
       navigate(redirectPath, { replace: true });
     } catch (e) {
-      const error = e as any;
+      const error = e as Error & { response?: { data?: { message?: string } } };
       toast.error(error.response?.data?.message || t('login.failed'));
     } finally {
       setIsLoading(false);

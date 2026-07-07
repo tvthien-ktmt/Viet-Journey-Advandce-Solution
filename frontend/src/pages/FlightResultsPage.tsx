@@ -104,7 +104,10 @@ export default function FlightResultsPage() {
               </div>
               <Button 
                 className="bg-vna-gold hover:bg-vna-gold-dark text-white px-6 md:px-8 shadow-lg font-bold rounded-lg transition-all duration-300"
-                onClick={() => navigate('/booking/temp-id/hold', { state: { outbound, return: ret, request: form } })}
+                onClick={() => {
+                  sessionStorage.setItem('holdState', JSON.stringify({ outbound, return: ret, request: form }));
+                  navigate('/booking/hold');
+                }}
               >
                 {t('flight.continue')} →
               </Button>

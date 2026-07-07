@@ -32,6 +32,12 @@ public class LoginRateLimitFilter extends OncePerRequestFilter {
         return Bucket.builder().addLimit(limit).build();
     }
 
+    private Bucket createBookingBucket() {
+        // 5 requests per 10 minutes for booking
+        Bandwidth limit = Bandwidth.classic(5, Refill.intervally(5, Duration.ofMinutes(10)));
+        return Bucket.builder().addLimit(limit).build();
+    }
+
     private String getClientIP(HttpServletRequest request) {
         // To prevent X-Forwarded-For spoofing, we use the direct connection IP.
         // If we are behind a reverse proxy (e.g., Nginx, Cloudflare), we should configure Tomcat 
@@ -44,9 +50,11 @@ public class LoginRateLimitFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         
         String uri = request.getRequestURI();
-        if ((uri.equals("/api/auth/login") || uri.equals("/api/auth/register")) && request.getMethod().equalsIgnoreCase("POST")) {
+        String method = request.getMethod();
+        
+        if ((uri.equals("/api/auth/login") || uri.equals("/api/auth/register")) && method.equalsIgnoreCase("POST")) {
             String ip = getClientIP(request);
-            Bucket bucket = cache.get(ip, k -> createNewBucket());
+            Bucket bucket = cache.get("auth_" + ip, k -> createNewBucket());
             
             if (bucket != null && bucket.tryConsume(1)) {
                 filterChain.doFilter(request, response);
@@ -54,6 +62,17 @@ public class LoginRateLimitFilter extends OncePerRequestFilter {
                 response.setStatus(429);
                 response.setContentType("application/json;charset=UTF-8");
                 response.getWriter().write("{\"success\":false,\"message\":\"Too many attempts. Please try again later.\"}");
+            }
+        } else if (uri.equals("/api/bookings") && method.equalsIgnoreCase("POST")) {
+            String ip = getClientIP(request);
+            Bucket bucket = cache.get("booking_" + ip, k -> createBookingBucket());
+            
+            if (bucket != null && bucket.tryConsume(1)) {
+                filterChain.doFilter(request, response);
+            } else {
+                response.setStatus(429);
+                response.setContentType("application/json;charset=UTF-8");
+                response.getWriter().write("{\"success\":false,\"message\":\"Too many booking attempts. Please try again later.\"}");
             }
         } else {
             filterChain.doFilter(request, response);

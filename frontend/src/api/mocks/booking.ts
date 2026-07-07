@@ -25,12 +25,13 @@ export async function mockCreateHold(payload: {
   const booking: FlightBooking = {
     id,
     status: 'HOLD',
-    bookingCode: genCode(),
-    expiresAt: new Date(Date.now() + HOLD_MS).toISOString(),
-    outboundFlight: payload.outbound,
-    returnFlight: payload.return,
+    referenceId: 102345,
+    bookingType: 'FLIGHT',
+    reservedUntil: new Date(Date.now() + HOLD_MS).toISOString(),
+    createdAt: new Date().toISOString(),
+    itemSnapshot: JSON.stringify(payload.outbound),
     passengers: [],
-    totalAmount: (payload.outbound.priceVND + (payload.return?.priceVND ?? 0)) * paxCount,
+    totalPrice: (payload.outbound.priceVND + (payload.return?.priceVND ?? 0)) * paxCount,
     contactEmail: payload.contactEmail,
     contactPhone: payload.contactPhone,
   };
@@ -45,7 +46,7 @@ export async function mockGetBooking(id: string): Promise<FlightBooking> {
   const data = load();
   const b = data[id];
   if (!b) throw new Error('Booking not found');
-  if (b.status === 'HOLD' && b.expiresAt && new Date(b.expiresAt).getTime() < Date.now()) {
+  if (b.status === 'HOLD' && b.reservedUntil && new Date(b.reservedUntil).getTime() < Date.now()) {
     b.status = 'EXPIRED';
     data[id] = b;
     save(data);
@@ -53,7 +54,7 @@ export async function mockGetBooking(id: string): Promise<FlightBooking> {
   return b;
 }
 
-export async function mockUpdatePassengers(id: string, passengers: Passenger[]): Promise<FlightBooking> {
+export async function mockUpdatePassengers(id: string, passengers: any[]): Promise<FlightBooking> {
   await new Promise(r => setTimeout(r, 400));
   const data = load();
   const b = data[id];

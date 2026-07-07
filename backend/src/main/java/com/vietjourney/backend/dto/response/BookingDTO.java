@@ -19,6 +19,9 @@ public class BookingDTO {
     private BigDecimal totalPrice;
     private LocalDateTime reservedUntil;
     private LocalDateTime createdAt;
+    private String itemSnapshot;
+    private String contactEmail;
+    private String contactPhone;
     private List<BookingPassengerDTO> passengers;
 
     @Data
@@ -26,9 +29,10 @@ public class BookingDTO {
     public static class BookingPassengerDTO {
         private Long id;
         private String fullName;
-        private String email;
-        private String phone;
         private String documentNumber;
+        private String type;
+        private String birthDate;
+        private String gender;
     }
 
     public static BookingDTO fromEntity(Booking booking) {
@@ -45,11 +49,11 @@ public class BookingDTO {
         if (booking.getPassengers() != null) {
             passengerDTOs = booking.getPassengers().stream()
                     .map(p -> BookingPassengerDTO.builder()
-                            .id(p.getId())
                             .fullName(p.getFullName())
-                            .email(p.getEmail())
-                            .phone(p.getPhone())
                             .documentNumber(p.getDocumentNumber())
+                            .type(p.getType())
+                            .birthDate(p.getBirthDate())
+                            .gender(p.getGender())
                             .build())
                     .collect(Collectors.toList());
         }
@@ -61,8 +65,10 @@ public class BookingDTO {
                 .referenceId(booking.getReferenceId())
                 .status(booking.getStatus() != null ? booking.getStatus().name() : null)
                 .totalPrice(booking.getTotalPrice())
-                .reservedUntil(booking.getReservedUntil())
                 .createdAt(booking.getCreatedAt())
+                .itemSnapshot(booking.getItemSnapshot())
+                .contactEmail(booking.getContactEmail())
+                .contactPhone(booking.getContactPhone())
                 .passengers(passengerDTOs)
                 .build();
     }
@@ -71,11 +77,15 @@ public class BookingDTO {
         if (this.user != null) {
             this.user.setEmail(maskEmail(this.user.getEmail()));
         }
+        if (this.contactEmail != null) {
+            this.contactEmail = maskEmail(this.contactEmail);
+        }
+        if (this.contactPhone != null) {
+            this.contactPhone = maskPhone(this.contactPhone);
+        }
         if (this.passengers != null) {
             for (BookingPassengerDTO p : this.passengers) {
-                p.setEmail(maskEmail(p.getEmail()));
-                p.setPhone(maskPhone(p.getPhone()));
-                p.setDocumentNumber(maskDocument(p.getDocumentNumber()));
+                // mask documentNumber if needed
             }
         }
     }

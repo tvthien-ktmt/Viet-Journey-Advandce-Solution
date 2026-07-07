@@ -19,23 +19,24 @@ export interface CreateBookingRequest {
 }
 
 export const bookingApi = {
-  createHold: async (req: HoldRequest): Promise<FlightBooking> => {
-    if (USE_MOCK) return mockCreateHold(req);
+  createReservation: async (req: CreateBookingRequest): Promise<FlightBooking> => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data: any = await api.post('/bookings', req);
-    return { ...data, bookingCode: 'BK' + data.id, totalAmount: data.totalPrice, expiresAt: data.reservedUntil };
+    return data;
   },
-  createBooking: async (req: CreateBookingRequest): Promise<any> => {
-    return api.post('/bookings', req);
+  createBooking: async (req: CreateBookingRequest): Promise<FlightBooking> => {
+    const data = await api.post<FlightBooking>('/bookings', req);
+    return data;
   },
   get: async (id: string): Promise<FlightBooking> => {
-    if (USE_MOCK) return mockGetBooking(id);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const data: any = await api.get(`/bookings/${id}`);
-    return { ...data, bookingCode: 'BK' + data.id, totalAmount: data.totalPrice, expiresAt: data.reservedUntil };
+    return data;
   },
   updatePassengers: (id: string, pax: Passenger[]): Promise<FlightBooking> =>
-    USE_MOCK ? mockUpdatePassengers(id, pax) : api.post(`/bookings/${id}/passengers`, pax),
+    api.post(`/bookings/${id}/passengers`, pax),
   payVnpay: (bookingId: string) =>
-    USE_MOCK ? mockPayVnpay(bookingId) : api.post('/payments/create', { bookingId, paymentMethod: 'VNPAY' }),
+    api.post('/payments/create', { bookingId, paymentMethod: 'VNPAY' }),
   search: (code: string, lastName: string) => 
     api.get(`/bookings/search`, { params: { code, lastName } }),
   getMyBookings: (page = 0, size = 10) => 

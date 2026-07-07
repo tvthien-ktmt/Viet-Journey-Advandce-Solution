@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 public class TourBookingStrategy implements BookingItemStrategy {
 
     private final TourRepository tourRepository;
+    private final com.fasterxml.jackson.databind.ObjectMapper objectMapper;
 
     @Override
     public BigDecimal getUnitPrice(Long referenceId) {
@@ -29,5 +30,19 @@ public class TourBookingStrategy implements BookingItemStrategy {
     @Override
     public void release(Long referenceId, int quantity) {
         // Tour reservation release logic here if applicable
+    }
+
+    @Override
+    public String getItemSnapshot(Long referenceId) {
+        Tour tour = tourRepository.findById(referenceId)
+                .orElseThrow(() -> new com.vietjourney.backend.exception.ResourceNotFoundException("Tour not found"));
+        try {
+            java.util.Map<String, Object> map = new java.util.HashMap<>();
+            map.put("name", tour.getName());
+            map.put("duration", tour.getDuration());
+            return objectMapper.writeValueAsString(map);
+        } catch (Exception e) {
+            return "{}";
+        }
     }
 }

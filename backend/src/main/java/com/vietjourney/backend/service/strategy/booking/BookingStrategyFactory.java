@@ -19,7 +19,7 @@ public class BookingStrategyFactory {
     }
 
     public BookingItemStrategy getStrategy(String bookingType) {
-        BookingItemStrategy strategy = strategies.get(bookingType.toLowerCase());
+        BookingItemStrategy strategy = strategies.get(bookingType.trim().toLowerCase());
         if (strategy == null) {
             throw new com.vietjourney.backend.exception.BusinessException("Invalid booking type: " + bookingType);
         }

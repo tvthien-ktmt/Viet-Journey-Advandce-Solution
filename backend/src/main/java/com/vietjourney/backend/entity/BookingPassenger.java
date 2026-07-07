@@ -34,6 +34,16 @@ public class BookingPassenger {
 
     @Column(name = "document_number", length = 50)
     private String documentNumber;
+
+    @Column(name = "passenger_type", length = 20)
+    private String type;
+
+    @Column(name = "birth_date", length = 20)
+    private String birthDate;
+
+    @Column(length = 10)
+    private String gender;
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

@@ -2,7 +2,6 @@ package com.vietjourney.backend.repository;
 
 import com.vietjourney.backend.entity.Booking;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
@@ -15,10 +14,8 @@ import org.springframework.data.jpa.repository.EntityGraph;
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
-    @Modifying
-    @Query("UPDATE Booking b SET b.status = com.vietjourney.backend.entity.enums.BookingStatus.EXPIRED WHERE b.status = com.vietjourney.backend.entity.enums.BookingStatus.RESERVED AND b.reservedUntil < :now")
-    int expireReservations(LocalDateTime now);
-
+    // NOTE: expireReservations(@Modifying bulk-update) was removed — use ReservationReleaseService instead
+    //       which processes each booking individually in REQUIRES_NEW transactions.
     List<Booking> findByStatusAndReservedUntilBefore(com.vietjourney.backend.entity.enums.BookingStatus status, LocalDateTime now);
 
     @EntityGraph(attributePaths = {"user", "passengers"})

@@ -43,6 +43,15 @@ public class Booking {
     @Column(name = "reserved_until")
     private LocalDateTime reservedUntil;
 
+    @Column(name = "item_snapshot", columnDefinition = "json")
+    private String itemSnapshot;
+
+    @Column(name = "contact_email", length = 100)
+    private String contactEmail;
+
+    @Column(name = "contact_phone", length = 20)
+    private String contactPhone;
+
     @Version
     private Long version;
 

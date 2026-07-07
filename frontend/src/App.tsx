@@ -114,7 +114,7 @@ export default function App() {
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/payment/:bookingId" element={<PaymentPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
-                <Route path="/booking/:bookingId/hold" element={<SeatHoldPage />} />
+                <Route path="/booking/hold" element={<SeatHoldPage />} />
                 <Route path="/booking/:id/seats" element={<SeatSelectionPage />} />
               </Route>
               

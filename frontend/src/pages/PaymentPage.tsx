@@ -40,6 +40,8 @@ export default function PaymentPage() {
     return <Navigate to="/" replace />; // Redirect if wrong status
   }
 
+  const snapshot = booking.itemSnapshot ? JSON.parse(booking.itemSnapshot) : null;
+
   return (
     <div className="bg-vna-tint min-h-screen pt-24 pb-16">
       <div className="container mx-auto px-4 max-w-5xl">
@@ -74,38 +76,31 @@ export default function PaymentPage() {
               <h3 className="font-bold text-vna-text mb-4 text-lg">Tóm tắt đơn hàng</h3>
               <div className="mb-4">
                 <p className="text-xs text-vna-muted">Mã đặt chỗ</p>
-                <p className="text-xl font-bold text-vna-gold font-mono">{booking.bookingCode}</p>
+                <p className="text-xl font-bold text-vna-gold font-mono">BK{booking.id}</p>
               </div>
               
-              {booking.outboundFlight && (
+              {snapshot && (
               <div className="bg-slate-50 p-3 rounded-lg border border-vna-border mb-4">
-                <p className="font-semibold text-sm">{booking.outboundFlight.from} → {booking.outboundFlight.to}</p>
-                <p className="text-xs text-vna-muted">{booking.outboundFlight.departTime} - {booking.outboundFlight.airline}</p>
-                {booking.returnFlight && (
-                  <>
-                    <Separator className="my-2" />
-                    <p className="font-semibold text-sm">{booking.returnFlight.from} → {booking.returnFlight.to}</p>
-                    <p className="text-xs text-vna-muted">{booking.returnFlight.departTime} - {booking.returnFlight.airline}</p>
-                  </>
-                )}
+                <p className="font-semibold text-sm">{snapshot.from || snapshot.name} {snapshot.to ? `→ ${snapshot.to}` : ''}</p>
+                <p className="text-xs text-vna-muted">{snapshot.departTime || snapshot.duration} - {snapshot.airline || booking.bookingType}</p>
               </div>
               )}
 
               <Separator className="my-4" />
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-vna-muted">Hành khách ({booking.passengers.length})</span>
-                  <span>{formatVND(booking.totalAmount || 0)}</span>
+                  <span className="text-vna-muted">Hành khách ({booking.passengers?.length ?? 0})</span>
+                  <span>{formatVND(booking.totalPrice || 0)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-vna-muted">Phí dịch vụ</span>
                   <span>0 ₫</span>
                 </div>
-              </div>
-              <Separator className="my-4" />
-              <div className="flex justify-between items-center font-bold text-vna-blue text-lg">
-                <span>Tổng cộng</span>
-                  <span className="text-xl text-vna-blue">{formatVND(booking.totalAmount || 0)}</span>
+                <Separator className="my-2" />
+                <div className="flex justify-between font-bold text-lg">
+                  <span className="text-vna-text">Tổng cộng</span>
+                  <span className="text-vna-red">{formatVND(booking.totalPrice || 0)}</span>
+                </div>
               </div>
               
               <Button 

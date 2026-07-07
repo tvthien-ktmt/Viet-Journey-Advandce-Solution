@@ -36,6 +36,13 @@ public class VnpayIpnFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         
         if (request.getRequestURI().equals("/api/payments/ipn")) {
+            if (!"GET".equalsIgnoreCase(request.getMethod())) {
+                response.setStatus(405);
+                response.setContentType("application/json;charset=UTF-8");
+                response.getWriter().write("{\"success\":false,\"message\":\"Method not allowed.\"}");
+                return;
+            }
+            
             String ip = request.getHeader("X-Forwarded-For");
             if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
                 ip = request.getRemoteAddr();

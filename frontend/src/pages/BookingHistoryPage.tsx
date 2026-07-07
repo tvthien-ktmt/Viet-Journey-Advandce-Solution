@@ -1,29 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-
 import { bookingApi } from '@/api/booking';
+import type { FlightBooking } from '@/types/flight';
 import { useAuth } from '@/store/authStore';
-import { toast } from 'sonner';
+import { useQuery } from '@tanstack/react-query';
 
 export default function BookingHistoryPage() {
-  const [bookings, setBookings] = useState<any[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const isAuthenticated = useAuth(s => s.isAuthenticated());
-
-  useEffect(() => {
-    if (!isAuthenticated) return;
-    const fetchBookings = async () => {
-      try {
-        const res: any = await bookingApi.getMyBookings();
-        setBookings(res.content || res.data?.content || []);
-      } catch (error) {
-        toast.error('Lỗi khi tải lịch sử đặt chỗ');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchBookings();
-  }, [isAuthenticated]);
+  const { data: bookings = [], isLoading } = useQuery({
+    queryKey: ['bookings'],
+    queryFn: async () => {
+      const res: any = await bookingApi.getMyBookings();
+      return res.content || res.data?.content || [];
+    },
+    enabled: isAuthenticated
+  });
 
   return (
     <>
@@ -47,7 +38,7 @@ export default function BookingHistoryPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {bookings.map((b) => (
+            {bookings.map((b: FlightBooking) => (
               <article key={b.id} className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden transition-shadow hover:shadow-md flex flex-col sm:flex-row group">
                 <div className="w-full sm:w-48 h-48 shrink-0 relative bg-slate-100 flex items-center justify-center">
                   <span className="material-symbols-outlined text-[64px] text-vna-gold">
@@ -66,17 +57,25 @@ export default function BookingHistoryPage() {
                       </span>
                     </div>
                     <h3 className="text-[20px] font-bold text-slate-800 leading-tight mb-2">
-                      {b.bookingType === 'FLIGHT' ? 'Vé máy bay' : b.bookingType === 'TOUR' ? 'Tour du lịch' : 'Khách sạn'}
+                      {(() => {
+                        try {
+                          const snap = JSON.parse(b.itemSnapshot || '{}');
+                          if (b.bookingType === 'FLIGHT') return `${snap.from || ''} → ${snap.to || ''}`;
+                          return snap.name || b.bookingType;
+                        } catch(e) {
+                          return b.bookingType === 'FLIGHT' ? 'Vé máy bay' : b.bookingType === 'TOUR' ? 'Tour du lịch' : 'Khách sạn';
+                        }
+                      })()}
                     </h3>
                     <p className="flex items-center gap-2 text-[14px] text-slate-500 mt-2">
-                      <span className="material-symbols-outlined text-[18px]">calendar_month</span> {new Date(b.createdAt).toLocaleDateString('vi-VN')}
+                      <span className="material-symbols-outlined text-[18px]">calendar_month</span> {b.createdAt ? new Date(b.createdAt).toLocaleDateString('vi-VN') : ''}
                     </p>
                   </div>
                   <div className="flex justify-between items-end pt-4 border-t border-slate-100 mt-auto">
                     <div>
                       <p className="text-[12px] text-slate-400 uppercase tracking-wider mb-1">Tổng tiền</p>
                       <p className="text-[20px] font-bold text-vna-gold">
-                        {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(b.totalPrice)}
+                        {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(b.totalPrice || 0)}
                       </p>
                     </div>
                     <Link to={`/booking/${b.id}`} className="text-[14px] text-vna-blue flex items-center gap-1 font-medium hover:opacity-80 transition-opacity">

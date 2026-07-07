@@ -59,6 +59,7 @@ public class BookingServiceImpl implements BookingService {
         strategy.validateAndReserve(request.getReferenceId(), quantity);
 
         BigDecimal calculatedTotalPrice = unitPrice.multiply(new BigDecimal(quantity));
+        String itemSnapshot = strategy.getItemSnapshot(request.getReferenceId());
 
         Booking booking = Booking.builder()
                 .user(user)
@@ -67,6 +68,9 @@ public class BookingServiceImpl implements BookingService {
                 .status(BookingStatus.RESERVED)
                 .totalPrice(calculatedTotalPrice)
                 .reservedUntil(LocalDateTime.now().plusMinutes(10)) // Giữ chỗ 10 phút
+                .itemSnapshot(itemSnapshot)
+                .contactEmail(request.getContactEmail())
+                .contactPhone(request.getContactPhone())
                 .build();
 
         if (request.getPassengers() != null) {
@@ -74,9 +78,10 @@ public class BookingServiceImpl implements BookingService {
                     .map(p -> BookingPassenger.builder()
                             .booking(booking)
                             .fullName(com.vietjourney.backend.utils.HtmlSanitizer.sanitize(p.getFullName()))
-                            .email(p.getEmail())
-                            .phone(p.getPhone())
-                            .documentNumber(p.getDocumentNumber())
+                            .type(p.getType())
+                            .birthDate(p.getBirthDate())
+                            .gender(p.getGender())
+                            .documentNumber(p.getIdNumber())
                             .build())
                     .collect(Collectors.toList());
             booking.setPassengers(passengers);
@@ -130,7 +135,12 @@ public class BookingServiceImpl implements BookingService {
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public BookingDTO searchByCodeAndLastName(String bookingCode, String lastName) {
         try {
-            String idStr = bookingCode.toUpperCase().replace("BK", "");
+            String normalised = bookingCode != null ? bookingCode.trim().toUpperCase() : "";
+            // Strip optional "BK" prefix safely — only once, at the start
+            String idStr = normalised.startsWith("BK") ? normalised.substring(2) : normalised;
+            if (idStr.isEmpty() || !idStr.matches("\\d+")) {
+                throw new com.vietjourney.backend.exception.ResourceNotFoundException("Mã đặt chỗ không hợp lệ");
+            }
             Long id = Long.parseLong(idStr);
             List<Booking> bookings = bookingRepository.findByIdAndPassengerLastName(id, lastName);
             if (bookings.isEmpty()) {

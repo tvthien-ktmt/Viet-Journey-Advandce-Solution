@@ -7,6 +7,7 @@ import * as z from 'zod';
 import { bookingApi } from '@/api/booking';
 import { useCountdown } from '@/hooks/useCountdown';
 import { useLang, useT } from '../store/langStore';
+import { useAuth } from '@/store/authStore';
 import { formatVND } from '@/lib/formatters';
 import { Clock } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -33,27 +34,30 @@ const holdFormSchema = z.object({
 type HoldFormValues = z.infer<typeof holdFormSchema>;
 
 export default function SeatHoldPage() {
-  const { bookingId } = useParams<{ bookingId: string }>();
   const navigate = useNavigate();
   const location = useLocation();
   const { lang } = useLang();
   const t = useT();
-  
+  const { user } = useAuth();
+
   const [createdBookingId, setCreatedBookingId] = useState<string | null>(null);
-  const activeId = createdBookingId || (bookingId !== 'temp-id' ? bookingId : null);
+  
+  const holdStateStr = sessionStorage.getItem('holdState');
+  const holdState = holdStateStr ? JSON.parse(holdStateStr) : null;
 
   const createBookingMutation = useMutation({
-    mutationFn: (req: any) => bookingApi.createBooking(req),
-    onSuccess: (data: any) => {
-      navigate(`/booking/${data.id}/payment`);
+    mutationFn: (req: unknown) => bookingApi.createBooking(req as any),
+    onSuccess: (data: unknown) => {
+      const b = data as { id: string | number };
+      navigate(`/booking/${b.id}/payment`);
     }
   });
 
   useEffect(() => {
-    if (bookingId !== 'temp-id' && !bookingId) {
+    if (!holdState) {
       navigate('/');
     }
-  }, [bookingId, navigate]);
+  }, [holdState, navigate]);
 
   const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
   const remaining = useCountdown(expiresAt);
@@ -68,31 +72,27 @@ export default function SeatHoldPage() {
   const { register, handleSubmit, formState: { errors }, control } = useForm<HoldFormValues>({
     resolver: zodResolver(holdFormSchema),
     defaultValues: {
-      passengers: location.state ? Array.from({ length: (location.state as HoldRequest).request.adults }).map(() => ({
+      passengers: holdState ? Array.from({ length: holdState.request.adults }).map(() => ({
         type: 'adult', fullName: '', idNumber: '', birthDate: '', gender: 'M'
       })) : [],
-      contactEmail: 'guest@example.com',
-      contactPhone: '0901234567',
+      // Pre-populate from auth user if available (FE-MED-07)
+      contactEmail: user?.email || '',
+      contactPhone: user?.phone || '',
     }
   });
   
   const { fields } = useFieldArray({ control, name: 'passengers' });
 
   const onSubmit = (data: HoldFormValues) => {
-    if (!location.state) return;
-    const state = location.state as HoldRequest;
-    
-    const mappedPax = data.passengers.map(p => ({
-      ...p,
-      email: data.contactEmail,
-      phone: data.contactPhone,
-      documentNumber: p.idNumber
-    }));
+    if (!holdState) return;
+    const state = holdState as HoldRequest;
     
     const req = {
        bookingType: 'FLIGHT',
        referenceId: state.outbound.id,
-       passengers: mappedPax
+       contactEmail: data.contactEmail,
+       contactPhone: data.contactPhone,
+       passengers: data.passengers
     };
     
     createBookingMutation.mutate(req);

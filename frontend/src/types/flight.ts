@@ -47,16 +47,25 @@ export interface Passenger {
 
 export type BookingStatus = 'HOLD' | 'PENDING_PAYMENT' | 'CONFIRMED' | 'CANCELLED' | 'EXPIRED';
 
+export interface BookingPassengerDTO {
+  id?: number;
+  fullName: string;
+  email?: string;
+  documentNumber?: string;
+  type?: string;
+  birthDate?: string;
+  gender?: string;
+}
+
 export interface FlightBooking {
-  id: string;
+  id: string; // Wait, id is number in BE, we will use number or string depending on BE response, axios often parses numbers. Let's use string | number for safety.
   status: BookingStatus | string;
-  bookingCode?: string;
-  expiresAt?: string;
+  bookingType?: string;
+  referenceId?: number;
   reservedUntil?: string;
-  outboundFlight?: Flight;
-  returnFlight?: Flight;
-  passengers: Passenger[];
-  totalAmount?: number;
+  createdAt?: string;
+  itemSnapshot?: string; // JSON string
+  passengers: BookingPassengerDTO[];
   totalPrice?: number;
   contactEmail?: string;
   contactPhone?: string;

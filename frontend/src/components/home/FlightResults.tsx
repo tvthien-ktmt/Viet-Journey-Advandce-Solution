@@ -161,7 +161,7 @@ export function FlightResults({
       description: `${request?.from} → ${request?.to}${isRound ? ` (${t.results.return.toLowerCase()})` : ''} · ${cabinLabel}`,
     });
     onOpenChange(false);
-    navigate('/seat-hold/temp-id', {
+    navigate('/booking/hold', {
       state: {
         request,
         outbound,

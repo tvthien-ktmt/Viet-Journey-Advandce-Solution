@@ -12,6 +12,9 @@ export default function BookingDetailPage() {
     queryFn: () => bookingApi.get(id as string),
     enabled: !!id
   });
+
+  const snapshot = booking?.itemSnapshot ? JSON.parse(booking.itemSnapshot) : null;
+
   return (
     <>
       <div className="flex flex-col flex-grow py-8 md:py-12">
@@ -27,10 +30,10 @@ export default function BookingDetailPage() {
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <span className="text-[12px] uppercase tracking-wider text-onSurface-variant">Booking ID</span>
-                <span className="text-[16px] font-mono">#{booking?.bookingCode || id}</span>
+                <span className="text-[16px] font-mono">#{id}</span>
               </div>
               <h1 className="text-[32px] md:text-[40px] font-bold text-onSurface">
-                {booking?.outboundFlight?.from} - {booking?.outboundFlight?.to}
+                {snapshot?.from || snapshot?.name} {snapshot?.to ? `- ${snapshot.to}` : ''}
               </h1>
             </div>
             
@@ -64,26 +67,24 @@ export default function BookingDetailPage() {
               <div className="p-6 flex-grow flex flex-col justify-between">
                 <div>
                   <div className="flex items-center gap-1 text-primary mb-2 text-[12px]">
-                    <span className="material-symbols-outlined text-[18px]">flight</span>
-                    <span>Flight Booking</span>
+                    <span className="material-symbols-outlined text-[18px]">{booking?.bookingType === 'HOTEL' ? 'hotel' : (booking?.bookingType === 'TOUR' ? 'tour' : 'flight')}</span>
+                    <span>{booking?.bookingType} Booking</span>
                   </div>
-                  <h3 className="text-[24px] font-bold text-onSurface mb-2">{booking?.outboundFlight?.flightNo || 'VN-123'}</h3>
+                  <h3 className="text-[24px] font-bold text-onSurface mb-2">{snapshot?.flightNo || snapshot?.name || 'Booking'}</h3>
                   <div className="flex items-center text-onSurface-variant text-[14px] mb-4 gap-1">
-                    <span className="material-symbols-outlined text-[18px]">airlines</span>
-                    <span>{booking?.outboundFlight?.airline || 'Vietnam Airlines'}</span>
+                    <span className="material-symbols-outlined text-[18px]">info</span>
+                    <span>{snapshot?.airline || snapshot?.location || 'Viet Journey'}</span>
                   </div>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t border-outline-variant/30">
                   <div>
-                    <span className="block text-[12px] text-onSurface-variant mb-1">Khởi hành</span>
-                    <span className="block text-[16px] font-semibold text-onSurface">{booking?.outboundFlight?.departTime ? 'Oct 15, 2024' : 'Oct 15, 2024'}</span>
-                    <span className="block text-[14px] text-onSurface-variant">{booking?.outboundFlight?.departTime || '11:30 AM'}</span>
+                    <span className="block text-[12px] text-onSurface-variant mb-1">Thời gian khởi hành / nhận phòng</span>
+                    <span className="block text-[14px] text-onSurface-variant">{snapshot?.departTime || snapshot?.checkIn || 'N/A'}</span>
                   </div>
                   <div>
-                    <span className="block text-[12px] text-onSurface-variant mb-1">Đến nơi</span>
-                    <span className="block text-[16px] font-semibold text-onSurface">{booking?.outboundFlight?.arriveTime ? 'Oct 16, 2024' : 'Oct 16, 2024'}</span>
-                    <span className="block text-[14px] text-onSurface-variant">{booking?.outboundFlight?.arriveTime || '10:30 AM'}</span>
+                    <span className="block text-[12px] text-onSurface-variant mb-1">Thời gian đến / trả phòng</span>
+                    <span className="block text-[14px] text-onSurface-variant">{snapshot?.arriveTime || snapshot?.checkOut || 'N/A'}</span>
                   </div>
                 </div>
               </div>
@@ -104,7 +105,7 @@ export default function BookingDetailPage() {
                         <span className="material-symbols-outlined">person</span>
                       </div>
                       <div>
-                        <p className="text-[16px] font-semibold text-onSurface">{pax.firstName} {pax.lastName}</p>
+                        <p className="text-[16px] font-semibold text-onSurface">{pax.fullName}</p>
                         <p className="text-[14px] text-onSurface-variant">{pax.type || 'Adult'} {i === 0 ? '• Lead Guest' : ''}</p>
                       </div>
                     </div>
@@ -149,19 +150,19 @@ export default function BookingDetailPage() {
               
               <div className="flex flex-col gap-2 text-[14px] text-onSurface-variant mb-6">
                 <div className="flex justify-between items-center">
-                  <span>Vé Máy Bay x {booking?.passengers?.length || 1}</span>
-                  <span>{(booking?.totalAmount || 380)?.toLocaleString('vi-VN')} ₫</span>
+                  <span>Dịch vụ x {booking?.passengers?.length || 1}</span>
+                  <span>{(booking?.totalPrice || 0)?.toLocaleString('vi-VN')} ₫</span>
                 </div>
                 <div className="flex justify-between font-bold text-lg text-vna-red pt-4 border-t border-vna-border">
                 <span>Tổng cộng</span>
-                <span>{(booking?.totalAmount || 0).toLocaleString('vi-VN')} ₫</span>
+                <span>{(booking?.totalPrice || 0).toLocaleString('vi-VN')} ₫</span>
               </div>
               </div>
               
               <div className="border-t border-outline-variant/30 pt-4 mb-6">
                 <div className="flex justify-between items-end mb-1">
                   <span className="text-[16px] font-semibold text-onSurface">Total Amount</span>
-                  <span className="text-[32px] font-bold text-primary tracking-tight leading-none">{(booking?.totalAmount || 398)?.toLocaleString('vi-VN')} ₫</span>
+                  <span className="text-[32px] font-bold text-primary tracking-tight leading-none">{(booking?.totalPrice || 0)?.toLocaleString('vi-VN')} ₫</span>
                 </div>
                 <p className="text-[12px] text-onSurface-variant text-right">Paid via Visa ending in •••• 4242</p>
               </div>

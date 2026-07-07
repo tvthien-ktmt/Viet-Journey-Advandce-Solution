@@ -20,7 +20,7 @@ export default function DashboardPage() {
     queryFn: () => profileApi.wishlist.list()
   });
 
-  const bookings = (bookingsData as any)?.content || (bookingsData as any)?.data?.content || [];
+  const bookings = (bookingsData as { content?: unknown[], data?: { content?: unknown[] } })?.content || (bookingsData as { data?: { content?: unknown[] } })?.data?.content || [];
 
   return (
     <>
@@ -64,7 +64,7 @@ export default function DashboardPage() {
                 </div>
               </div>
               <div>
-                <h3 className="text-[48px] md:text-[56px] font-bold text-onSurface leading-tight">4,500</h3>
+                <h3 className="text-[48px] md:text-[56px] font-bold text-onSurface leading-tight">{user?.lotusmilesMiles || 0}</h3>
                 <p className="text-[12px] uppercase tracking-wider text-onSurface-variant">Điểm thưởng</p>
               </div>
             </div>
@@ -101,43 +101,52 @@ export default function DashboardPage() {
             <section className="lg:col-span-1 flex flex-col gap-4">
               <h2 className="text-[24px] md:text-[28px] font-bold text-onSurface">Upcoming Trip</h2>
               
-              <div className="bg-surface-container-lowest rounded-xl shadow-sm border border-surface-variant overflow-hidden">
-                <div className="h-32 relative">
-                  <img src="/images/dashboard/img_2_6e8be19c.jpg" alt="Upcoming trip" className="w-full h-full object-cover" />
-                  <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm px-3 py-1 rounded text-[12px] text-primary font-medium tracking-wider uppercase">
-                    In 14 Days
+              {(() => {
+                const upcomingBooking = bookings.find((b: any) => b.status === 'CONFIRMED' || b.status === 'RESERVED');
+                const snap = upcomingBooking?.itemSnapshot ? JSON.parse(upcomingBooking.itemSnapshot) : null;
+                
+                if (!upcomingBooking) {
+                  return (
+                    <div className="bg-surface-container-lowest rounded-xl shadow-sm border border-surface-variant p-8 text-center text-onSurface-variant">
+                      Chưa có chuyến đi sắp tới.
+                    </div>
+                  );
+                }
+                
+                return (
+                  <div className="bg-surface-container-lowest rounded-xl shadow-sm border border-surface-variant overflow-hidden">
+                    <div className="h-32 relative bg-primary/10 flex items-center justify-center">
+                      <span className="material-symbols-outlined text-[48px] text-primary/30">
+                        {upcomingBooking.bookingType === 'HOTEL' ? 'hotel' : upcomingBooking.bookingType === 'TOUR' ? 'tour' : 'flight'}
+                      </span>
+                      <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm px-3 py-1 rounded text-[12px] text-primary font-medium tracking-wider uppercase">
+                        Sắp tới
+                      </div>
+                    </div>
+                    <div className="p-4">
+                      <h3 className="text-[20px] font-bold text-onSurface mb-1">{snap?.flightNo || snap?.name || `Booking BK${upcomingBooking.id}`}</h3>
+                      <p className="text-[14px] text-onSurface-variant flex items-center gap-1 mb-4">
+                        <span className="material-symbols-outlined text-[16px]">location_on</span>
+                        {snap?.from || snap?.location || 'Viet Journey'} {snap?.to ? `-> ${snap.to}` : ''}
+                      </p>
+                      
+                      <div className="relative border-l-2 border-outline-variant ml-2 mt-4 pb-2">
+                        <div className="relative pl-4 mb-4">
+                          <div className="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-primary ring-4 ring-surface-container-lowest"></div>
+                          <p className="text-[12px] text-primary uppercase tracking-wider font-medium mb-1">
+                            {snap?.departTime || snap?.checkIn || (upcomingBooking.createdAt ? format(new Date(upcomingBooking.createdAt), 'MMM dd, yyyy') : 'N/A')}
+                          </p>
+                          <p className="text-[14px] text-onSurface font-medium">Bắt đầu chuyến đi</p>
+                        </div>
+                      </div>
+                      
+                      <Link to={`/booking/${upcomingBooking.id}`} className="w-full mt-6 py-2 border border-outline rounded-lg text-primary font-bold hover:bg-primary-light/30 transition-colors block text-center">
+                        Xem Chi Tiết
+                      </Link>
+                    </div>
                   </div>
-                </div>
-                <div className="p-4">
-                  <h3 className="text-[20px] font-bold text-onSurface mb-1">2 Days 1 Night Ha Long Cruise</h3>
-                  <p className="text-[14px] text-onSurface-variant flex items-center gap-1 mb-4">
-                    <span className="material-symbols-outlined text-[16px]">location_on</span>
-                    Ha Long Bay, Quang Ninh
-                  </p>
-                  
-                  <div className="relative border-l-2 border-outline-variant ml-2 mt-4 pb-2">
-                    <div className="relative pl-4 mb-4">
-                      <div className="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-primary ring-4 ring-surface-container-lowest"></div>
-                      <p className="text-[12px] text-primary uppercase tracking-wider font-medium mb-1">OCT 15, 08:00 AM</p>
-                      <p className="text-[14px] text-onSurface font-medium">Pickup at Hanoi Old Quarter</p>
-                    </div>
-                    <div className="relative pl-4 mb-4">
-                      <div className="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-surface-container-high border-2 border-outline-variant"></div>
-                      <p className="text-[12px] text-onSurface-variant uppercase tracking-wider font-medium mb-1">OCT 15, 12:00 PM</p>
-                      <p className="text-[14px] text-onSurface font-medium">Boarding Cruise & Lunch</p>
-                    </div>
-                    <div className="relative pl-4">
-                      <div className="absolute -left-[9px] top-1 w-4 h-4 rounded-full bg-surface-container-high border-2 border-outline-variant"></div>
-                      <p className="text-[12px] text-onSurface-variant uppercase tracking-wider font-medium mb-1">OCT 16, 11:30 AM</p>
-                      <p className="text-[14px] text-onSurface font-medium">Disembark & Return</p>
-                    </div>
-                  </div>
-                  
-                  <button className="w-full mt-6 py-2 border border-outline rounded-lg text-primary font-bold hover:bg-primary-light/30 transition-colors">
-                    View Details
-                  </button>
-                </div>
-              </div>
+                );
+              })()}
               
               <h2 className="text-[20px] font-bold text-onSurface mt-4">Quick Actions</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -188,16 +197,20 @@ export default function DashboardPage() {
                         </tr>
                       </thead>
                       <tbody className="text-[14px]">
-                        {bookings.slice(0, 5).map((booking: any) => (
+                        {bookings.slice(0, 5).map((booking: any) => {
+                          const snap = booking.itemSnapshot ? JSON.parse(booking.itemSnapshot) : null;
+                          return (
                           <tr key={booking.id} className="hover:bg-surface-bright transition-colors cursor-pointer">
-                            <td className="p-4 border-b border-surface-variant font-medium text-onSurface">#{booking.bookingCode}</td>
+                            <td className="p-4 border-b border-surface-variant font-medium text-onSurface">BK{booking.id}</td>
                             <td className="p-4 border-b border-surface-variant">
                               <div className="inline-flex items-center gap-1 px-2 py-1 rounded bg-secondary-fixed/50 text-onSecondary-container">
-                                <span className="material-symbols-outlined text-[14px]">flight</span> Flight
+                                <span className="material-symbols-outlined text-[14px]">
+                                  {booking.bookingType === 'FLIGHT' ? 'flight' : booking.bookingType === 'HOTEL' ? 'hotel' : 'tour'}
+                                </span> {booking.bookingType}
                               </div>
                             </td>
                             <td className="p-4 border-b border-surface-variant text-onSurface">
-                              {booking.flight?.route?.origin?.code} -&gt; {booking.flight?.route?.destination?.code}
+                              {snap ? (snap.from || snap.name) + (snap.to ? ' -> ' + snap.to : '') : 'N/A'}
                             </td>
                             <td className="p-4 border-b border-surface-variant text-onSurface-variant">
                               {booking.createdAt ? format(new Date(booking.createdAt), 'MMM dd, yyyy') : ''}
@@ -211,7 +224,8 @@ export default function DashboardPage() {
                               </span>
                             </td>
                           </tr>
-                        ))}
+                          );
+                        })}
                         {bookings.length === 0 && (
                           <tr>
                             <td colSpan={6} className="p-8 text-center text-onSurface-variant">Chưa có đặt chỗ nào.</td>

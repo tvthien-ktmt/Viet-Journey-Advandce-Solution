@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { type InternalAxiosRequestConfig } from 'axios';
 import { useAuth } from '@/store/authStore';
 
 const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
@@ -32,7 +32,7 @@ const processQueue = (error: Error | unknown | null, token: string | null = null
 apiClient.interceptors.response.use(
   (res) => res,
   async (error) => {
-    const originalRequest = error.config as any;
+    const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
@@ -48,21 +48,16 @@ apiClient.interceptors.response.use(
       originalRequest._retry = true;
       isRefreshing = true;
 
-      const refreshToken = useAuth.getState().refreshToken;
-      
-      if (!refreshToken) {
-        processQueue(error, null);
-        useAuth.getState().logout();
-        window.location.href = '/login';
-        return Promise.reject(error);
-      }
-
+      // Always attempt to refresh using the HttpOnly cookie (BE reads refresh_token cookie automatically).
+      // Do NOT gate on JS-state `refreshToken` — it is always null after F5 (intentionally not persisted).
       try {
-        const { data } = await axios.post(BASE_URL + '/auth/refresh', { refreshToken });
+        const { data } = await axios.post(BASE_URL + '/auth/refresh', {}, { withCredentials: true });
         // The new JWT will be set in the HttpOnly cookie by the backend response
-        useAuth.getState().setAuth(data.data.user, data.data.token, data.data.refreshToken);
+        if (data.data?.user) {
+          useAuth.getState().setAuth(data.data.user, data.data.token, data.data.refreshToken);
+        }
         
-        processQueue(null, data.data.token);
+        processQueue(null, data.data?.token ?? null);
         
         return apiClient(originalRequest);
       } catch (err) {

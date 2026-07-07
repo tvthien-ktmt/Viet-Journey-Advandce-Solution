@@ -30,6 +30,8 @@ export default function ConfirmationPage() {
     return <Navigate to="/" replace />;
   }
 
+  const snapshot = booking.itemSnapshot ? JSON.parse(booking.itemSnapshot) : null;
+
   return (
     <div className="bg-vna-tint min-h-screen pt-24 pb-16">
       <div className="container mx-auto px-4 max-w-2xl">
@@ -38,7 +40,7 @@ export default function ConfirmationPage() {
             <CheckCircle2 className="text-green-600 w-12 h-12" />
           </div>
           <h1 className="text-3xl font-bold text-vna-text">{t('confirm.title')}</h1>
-          <p className="text-vna-muted mt-2">{t('confirm.emailSent').replace('{email}', booking.contactEmail || '')}</p>
+          <p className="text-vna-muted mt-2">{t('confirm.emailSent').replace('{email}', booking.contactEmail || booking.passengers?.[0]?.email || '')}</p>
         </div>
 
         <Card className="p-6 border-2 border-vna-blue shadow-xl rounded-xl">
@@ -52,17 +54,16 @@ export default function ConfirmationPage() {
             </div>
             <div className="text-right">
               <p className="text-xs text-vna-muted uppercase tracking-wider">Mã đặt chỗ</p>
-              <p className="text-3xl font-bold text-vna-gold font-mono tracking-widest">{booking.bookingCode}</p>
+              <p className="text-3xl font-bold text-vna-gold font-mono tracking-widest">BK{booking.id}</p>
             </div>
           </div>
 
           <div className="py-4 space-y-4">
-            {booking.outboundFlight && <FlightDetail flight={booking.outboundFlight} label={t('flight.outbound')} />}
-            {booking.returnFlight && (
-              <>
-                <Separator className="border-dashed" />
-                <FlightDetail flight={booking.returnFlight} label={t('flight.return')} />
-              </>
+            {snapshot && (
+              <div className="bg-slate-50 p-3 rounded-lg border border-vna-border">
+                <p className="font-semibold text-sm">{snapshot.from || snapshot.name} {snapshot.to ? `→ ${snapshot.to}` : ''}</p>
+                <p className="text-xs text-vna-muted">{snapshot.departTime || snapshot.duration} - {snapshot.airline || booking.bookingType}</p>
+              </div>
             )}
           </div>
 
@@ -71,10 +72,11 @@ export default function ConfirmationPage() {
           <div className="py-4">
             <h4 className="font-bold text-vna-text mb-3 text-sm uppercase tracking-wider">{t('flight.passengers')}</h4>
             <div className="space-y-2">
-              {booking.passengers.map((p, i) => (
+              {(booking.passengers ?? []).map((p: any, i: number) => (
                 <div key={i} className="flex justify-between text-sm">
                   <span className="font-medium uppercase">{p.fullName}</span>
-                  <span className="text-vna-muted">({t(`hold.passenger.${p.type}`)})</span>
+                  {/* p.type may not exist in BookingPassengerDTO; fallback to 'Người lớn' */}
+                  <span className="text-vna-muted">{p.type ? `(${t(`hold.passenger.${p.type}`)})` : '(Người lớn)'}</span>
                 </div>
               ))}
             </div>
@@ -83,7 +85,7 @@ export default function ConfirmationPage() {
           <Separator className="my-2 bg-vna-blue/20" />
           <div className="flex justify-between items-center font-bold text-vna-blue text-xl pt-4">
             <span>{t('confirm.paid')}</span>
-            <span>{formatVND(booking.totalAmount || 0)}</span>
+            <span>{formatVND(booking.totalPrice || 0)}</span>
           </div>
         </Card>
 

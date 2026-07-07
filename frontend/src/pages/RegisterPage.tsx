@@ -8,10 +8,12 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Eye, EyeOff, ChevronLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { authApi } from '@/api/auth';
+import { useAuth } from '@/store/authStore';
 
 export default function RegisterPage() {
   const t = useT();
   const navigate = useNavigate();
+  const { setAuth } = useAuth();
   
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -32,10 +34,22 @@ export default function RegisterPage() {
         phone,
         password
       });
+      // FE-MED-02: Auto-login after successful registration
+      try {
+        const loginRes: any = await authApi.login(email, password);
+        if (loginRes?.user) {
+          setAuth(loginRes.user, loginRes.token || loginRes.accessToken || '', loginRes.refreshToken);
+          toast.success('Đăng ký và đăng nhập thành công!');
+          navigate('/');
+          return;
+        }
+      } catch (_) {
+        // Auto-login failed — fallback to redirect to login page
+      }
       toast.success('Đăng ký thành công! Vui lòng đăng nhập.');
       navigate('/login');
     } catch (e) {
-      const error = e as any;
+      const error = e as Error & { response?: { data?: { message?: string } } };
       toast.error(error.response?.data?.message || 'Đăng ký thất bại');
     } finally {
       setIsLoading(false);
@@ -46,7 +60,7 @@ export default function RegisterPage() {
     <div className="min-h-screen bg-slate-50 flex">
       <div className="hidden lg:flex lg:w-1/2 relative bg-vna-gold overflow-hidden">
         <img 
-          src="https://images.unsplash.com/photo-1570125909232-eb263c188f7e?q=80&w=2071&auto=format&fit=crop" 
+          src="/images/search_0_03a0bac8.jpg" 
           alt="Vietnam Airlines Lotus" 
           className="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-overlay"
         />
