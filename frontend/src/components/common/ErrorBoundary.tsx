@@ -2,6 +2,7 @@ import React, { Component, type ErrorInfo, type ReactNode } from 'react';
 
 interface Props {
   children: ReactNode;
+  onReset?: () => void;
 }
 
 interface State {
@@ -33,7 +34,10 @@ export class ErrorBoundary extends Component<Props, State> {
             </p>
             <div className="flex gap-4 justify-center">
               <button
-                onClick={() => this.setState({ hasError: false, error: undefined })}
+                onClick={() => {
+                  this.props.onReset?.();
+                  this.setState({ hasError: false, error: undefined });
+                }}
                 className="px-6 py-2 bg-vna-blue text-white rounded-lg hover:bg-blue-800 transition-colors"
               >
                 Thử Lại

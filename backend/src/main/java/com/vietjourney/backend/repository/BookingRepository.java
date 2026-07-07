@@ -29,4 +29,10 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     Page<Booking> findByUserId(Long userId, Pageable pageable);
 
     long countByUserIdAndStatusIn(Long userId, List<com.vietjourney.backend.entity.enums.BookingStatus> statuses);
+
+    @Query("SELECT new map(CONCAT(f.departureAirport, '-', f.arrivalAirport) as route, COUNT(b.id) as count) FROM Booking b JOIN Flight f ON b.referenceId = f.id WHERE b.bookingType = 'flight' GROUP BY f.departureAirport, f.arrivalAirport")
+    List<java.util.Map<String, Object>> getBookingsByRoute();
+
+    @Query("SELECT new map(f.seatClass as name, COUNT(b.id) as value) FROM Booking b JOIN Flight f ON b.referenceId = f.id WHERE b.bookingType = 'flight' GROUP BY f.seatClass")
+    List<java.util.Map<String, Object>> getCabinDistribution();
 }

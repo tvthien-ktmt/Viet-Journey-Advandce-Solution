@@ -11,7 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import com.vietjourney.backend.util.PageableUtil;
+import com.vietjourney.backend.utils.PageableUtil;
 
 import java.util.List;
 import java.util.stream.Collectors;

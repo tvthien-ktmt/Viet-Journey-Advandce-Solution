@@ -22,11 +22,8 @@ public class SearchServiceImpl implements SearchService {
         SearchResponse response = new SearchResponse();
 
         if (type == null || type.isEmpty() || type.equals("all")) {
-            int halfSize = Math.max(1, pageable.getPageSize() / 2);
-            org.springframework.data.domain.Pageable tourPageable = org.springframework.data.domain.PageRequest.of(0, halfSize, pageable.getSort());
-            org.springframework.data.domain.Pageable hotelPageable = org.springframework.data.domain.PageRequest.of(0, halfSize);
-            response.setTours(tourService.searchTours(query, null, null, null, tourPageable).getContent().stream().map(com.vietjourney.backend.dto.response.TourDTO::fromEntity).collect(java.util.stream.Collectors.toList()));
-            response.setHotels(hotelService.searchHotels(query, null, null, null, hotelPageable).getContent());
+            response.setTours(tourService.searchTours(query, null, null, null, pageable).getContent().stream().map(com.vietjourney.backend.dto.response.TourDTO::fromEntity).collect(java.util.stream.Collectors.toList()));
+            response.setHotels(hotelService.searchHotels(query, null, null, null, pageable).getContent());
         } else if (type.equals("tour")) {
             response.setTours(tourService.searchTours(query, null, null, null, pageable).getContent().stream().map(com.vietjourney.backend.dto.response.TourDTO::fromEntity).collect(java.util.stream.Collectors.toList()));
             response.setHotels(Collections.emptyList());

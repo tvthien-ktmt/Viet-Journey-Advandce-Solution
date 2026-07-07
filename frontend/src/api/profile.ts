@@ -24,7 +24,7 @@ export const profileApi = {
       { id: 'B2', bookingCode: 'VNA999', route: 'SGN-DAD', date: '2025-07-20', amount: 1250000, status: 'EXPIRED' }
     ]) : api.get('/profile/bookings'),
   },
-  updateProfile: (data: { fullName: string; phone: string }): Promise<ProfileUpdateResponse> => 
+  updateProfile: (data: { fullName: string; phone: string }): Promise<import('@/store/authStore').AuthUser> => 
     api.put('/users/profile', data),
   wishlist: {
     list: () => {

@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { bookingApi } from '@/api/booking';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -43,8 +45,13 @@ export default function SeatSelectionPage() {
   const [seats, setSeats] = useState<Seat[]>([]);
   const [selectedSeats, setSelectedSeats] = useState<Seat[]>([]);
   
-  // Mock 2 passengers for demo purposes
-  const requiredSeats = 2; 
+  const { data: booking } = useQuery({
+    queryKey: ['booking', id],
+    queryFn: () => bookingApi.get(id as string),
+    enabled: !!id
+  });
+
+  const requiredSeats = booking?.passengers?.length || 1; 
 
   useEffect(() => {
     // Generate Airbus A321 Layout

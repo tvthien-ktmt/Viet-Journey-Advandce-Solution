@@ -62,7 +62,7 @@ export default function BookingDetailPage() {
             {/* Service Detail Card */}
             <div className="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/20 overflow-hidden flex flex-col sm:flex-row">
               <div className="relative h-48 w-full sm:w-2/5 sm:h-auto shrink-0">
-                <img src="/images/booking-detail/img_1_554690bb.jpg" alt="Ha Long Bay Luxury Cruise" className="absolute inset-0 w-full h-full object-cover" />
+                <img src={snapshot?.image || "/images/placeholder.jpg"} alt="Booking Image" className="absolute inset-0 w-full h-full object-cover" />
               </div>
               <div className="p-6 flex-grow flex flex-col justify-between">
                 <div>
@@ -73,7 +73,7 @@ export default function BookingDetailPage() {
                   <h3 className="text-[24px] font-bold text-onSurface mb-2">{snapshot?.flightNo || snapshot?.name || 'Booking'}</h3>
                   <div className="flex items-center text-onSurface-variant text-[14px] mb-4 gap-1">
                     <span className="material-symbols-outlined text-[18px]">info</span>
-                    <span>{snapshot?.airline || snapshot?.location || 'Viet Journey'}</span>
+                    <span>{snapshot?.airline || snapshot?.location || 'Không có thông tin nhà cung cấp'}</span>
                   </div>
                 </div>
                 
@@ -98,7 +98,7 @@ export default function BookingDetailPage() {
               </h4>
               
               <div className="flex flex-col gap-4">
-                {booking?.passengers && booking.passengers.length > 0 ? booking.passengers.map((pax: any, i: number) => (
+                {booking?.passengers && booking.passengers.length > 0 ? booking.passengers.map((pax: import('@/types/flight').BookingPassengerDTO, i: number) => (
                   <div key={i} className="flex items-center justify-between p-4 bg-surface-container-low rounded-lg border border-outline-variant/10">
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center">
@@ -117,10 +117,12 @@ export default function BookingDetailPage() {
                 )}
               </div>
               
-              <div className="mt-4 p-4 bg-secondary-container/30 border border-secondary-container/50 rounded-lg flex gap-2 items-start">
-                <span className="material-symbols-outlined text-secondary-container shrink-0 mt-[2px]">info</span>
-                <p className="text-[14px] text-onSecondary-fixed">Special Request: Vegetarian meals preferred for 1 guest. Celebrating an anniversary.</p>
-              </div>
+              {snapshot?.specialRequest && (
+                <div className="mt-4 p-4 bg-secondary-container/30 border border-secondary-container/50 rounded-lg flex gap-2 items-start">
+                  <span className="material-symbols-outlined text-secondary-container shrink-0 mt-[2px]">info</span>
+                  <p className="text-[14px] text-onSecondary-fixed">{snapshot.specialRequest}</p>
+                </div>
+              )}
             </div>
             
           </div>

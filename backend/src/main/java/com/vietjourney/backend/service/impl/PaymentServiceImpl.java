@@ -65,6 +65,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = "admin_stats", allEntries = true)
     public PaymentResponse handleCallback(java.util.Map<String, String> params) {
         String transactionRef = params.get("vnp_TxnRef");
         String status = params.get("vnp_ResponseCode");

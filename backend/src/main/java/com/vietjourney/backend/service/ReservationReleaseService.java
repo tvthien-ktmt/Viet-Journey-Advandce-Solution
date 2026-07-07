@@ -21,12 +21,30 @@ public class ReservationReleaseService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void releaseExpiredBooking(Booking booking) {
-        booking.transitionTo(BookingStatus.EXPIRED);
-        bookingRepository.save(booking);
+        int maxRetries = 3;
+        int attempt = 0;
+        while (attempt < maxRetries) {
+            try {
+                booking.transitionTo(BookingStatus.EXPIRED);
+                bookingRepository.save(booking);
 
-        BookingItemStrategy strategy = bookingStrategyFactory.getStrategy(booking.getBookingType());
-        int quantity = booking.getPassengers() != null ? booking.getPassengers().size() : 1;
-        strategy.release(booking.getReferenceId(), quantity);
-        log.info("Released expired reservation: {}", booking.getId());
+                BookingItemStrategy strategy = bookingStrategyFactory.getStrategy(booking.getBookingType());
+                int quantity = booking.getPassengers() != null ? booking.getPassengers().size() : 1;
+                strategy.release(booking.getReferenceId(), quantity);
+                log.info("Released expired reservation: {}", booking.getId());
+                break; // success
+            } catch (org.springframework.orm.ObjectOptimisticLockingFailureException e) {
+                attempt++;
+                if (attempt >= maxRetries) {
+                    log.error("Failed to release reservation {} after {} retries due to optimistic locking", booking.getId(), maxRetries, e);
+                    throw e;
+                }
+                log.warn("Optimistic locking failure for reservation {}, retrying... ({}/{})", booking.getId(), attempt, maxRetries);
+            } catch (Exception e) {
+                log.error("Persistent error releasing reservation {}: {}", booking.getId(), e.getMessage());
+                // If it's a non-transient error, just log and throw to rollback
+                throw e;
+            }
+        }
     }
 }

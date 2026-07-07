@@ -7,9 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import com.vietjourney.backend.dto.response.*;
 import com.vietjourney.backend.service.AdminService;
 import com.vietjourney.backend.repository.FlightRepository;
 import com.vietjourney.backend.repository.BookingRepository;
@@ -33,75 +31,75 @@ public class AdminController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/stats")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> getAdminStats() {
-        Map<String, Object> stats = adminService.getAdminStats();
+    public ResponseEntity<ApiResponse<AdminStatsDTO>> getAdminStats() {
+        AdminStatsDTO stats = adminService.getAdminStats();
         return ResponseEntity.ok(ApiResponse.success(stats, "Admin stats fetched"));
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/flights")
-    public ResponseEntity<List<Map<String, Object>>> getFlights() {
-        List<Map<String, Object>> flights = flightRepository.findAll().stream().map(f -> {
-            Map<String, Object> map = new HashMap<>();
-            map.put("id", f.getId().toString());
-            map.put("flightNo", f.getFlightNumber());
-            map.put("from", f.getDepartureAirport());
-            map.put("to", f.getArrivalAirport());
-            map.put("departDate", f.getDepartureTime() != null ? f.getDepartureTime().toLocalDate().toString() : "");
-            map.put("departTime", f.getDepartureTime() != null ? f.getDepartureTime().toLocalTime().toString() : "");
-            map.put("aircraft", "A321");
-            map.put("basePrice", f.getPrice());
-            map.put("status", "ACTIVE");
-            return map;
-        }).collect(Collectors.toList());
+    public ResponseEntity<List<AdminFlightDTO>> getFlights() {
+        List<AdminFlightDTO> flights = flightRepository.findAll().stream().map(f -> 
+            AdminFlightDTO.builder()
+                .id(f.getId().toString())
+                .flightNo(f.getFlightNumber())
+                .from(f.getDepartureAirport())
+                .to(f.getArrivalAirport())
+                .departDate(f.getDepartureTime() != null ? f.getDepartureTime().toLocalDate().toString() : "")
+                .departTime(f.getDepartureTime() != null ? f.getDepartureTime().toLocalTime().toString() : "")
+                .aircraft("A321")
+                .basePrice(f.getPrice())
+                .status("ACTIVE")
+                .build()
+        ).collect(Collectors.toList());
         return ResponseEntity.ok(flights);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/bookings")
-    public ResponseEntity<List<Map<String, Object>>> getBookings() {
-        List<Map<String, Object>> bookings = bookingRepository.findAll().stream().map(b -> {
-            Map<String, Object> map = new HashMap<>();
-            map.put("id", b.getId().toString());
-            map.put("bookingCode", "BK" + b.getId());
-            map.put("contactEmail", b.getContactEmail());
-            map.put("route", b.getBookingType());
-            map.put("date", b.getCreatedAt() != null ? b.getCreatedAt().toString() : "");
-            map.put("amount", b.getTotalPrice());
-            map.put("status", b.getStatus().name());
-            return map;
-        }).collect(Collectors.toList());
+    public ResponseEntity<List<AdminBookingDTO>> getBookings() {
+        List<AdminBookingDTO> bookings = bookingRepository.findAll().stream().map(b -> 
+            AdminBookingDTO.builder()
+                .id(b.getId().toString())
+                .bookingCode("BK" + b.getId())
+                .contactEmail(b.getContactEmail())
+                .route(b.getBookingType().name())
+                .date(b.getCreatedAt() != null ? b.getCreatedAt().toString() : "")
+                .amount(b.getTotalPrice())
+                .status(b.getStatus().name())
+                .build()
+        ).collect(Collectors.toList());
         return ResponseEntity.ok(bookings);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/users")
-    public ResponseEntity<List<Map<String, Object>>> getUsers() {
-        List<Map<String, Object>> users = userRepository.findAll().stream().map(u -> {
-            Map<String, Object> map = new HashMap<>();
-            map.put("id", u.getId().toString());
-            map.put("email", u.getEmail());
-            map.put("fullName", u.getFullName());
-            map.put("roles", java.util.Collections.singletonList(u.getRole()));
-            map.put("lotusmilesTier", u.getLotusmilesTier() != null ? u.getLotusmilesTier() : "MEMBER");
-            return map;
-        }).collect(Collectors.toList());
+    public ResponseEntity<List<AdminUserDTO>> getUsers() {
+        List<AdminUserDTO> users = userRepository.findAll().stream().map(u -> 
+            AdminUserDTO.builder()
+                .id(u.getId().toString())
+                .email(u.getEmail())
+                .fullName(u.getFullName())
+                .roles(java.util.Collections.singletonList(u.getRole()))
+                .lotusmilesTier(u.getLotusmilesTier() != null ? u.getLotusmilesTier() : "MEMBER")
+                .build()
+        ).collect(Collectors.toList());
         return ResponseEntity.ok(users);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/news")
-    public ResponseEntity<List<Map<String, Object>>> getNews() {
-        List<Map<String, Object>> news = blogRepository.findAll().stream().map(b -> {
-            Map<String, Object> map = new HashMap<>();
-            map.put("id", b.getId().toString());
-            map.put("title", b.getTitle());
-            map.put("category", "TIN TỨC");
-            map.put("status", "PUBLISHED");
-            map.put("date", b.getPublishedAt() != null ? b.getPublishedAt().toString() : "");
-            map.put("slug", b.getSlug());
-            return map;
-        }).collect(Collectors.toList());
+    public ResponseEntity<List<AdminNewsDTO>> getNews() {
+        List<AdminNewsDTO> news = blogRepository.findAll().stream().map(b -> 
+            AdminNewsDTO.builder()
+                .id(b.getId().toString())
+                .title(b.getTitle())
+                .category("TIN TỨC")
+                .status("PUBLISHED")
+                .date(b.getPublishedAt() != null ? b.getPublishedAt().toString() : "")
+                .slug(b.getSlug())
+                .build()
+        ).collect(Collectors.toList());
         return ResponseEntity.ok(news);
     }
 
@@ -111,17 +109,15 @@ public class AdminController {
             @org.springframework.web.bind.annotation.PathVariable Long id,
             @org.springframework.web.bind.annotation.RequestBody List<String> roles) {
         return userRepository.findById(id).map(user -> {
-            // Accept first valid role in the list
             if (roles != null && !roles.isEmpty()) {
+                // Support multi-role if requested (but currently schema is single role, we'll join or just use first valid)
                 String newRole = roles.get(0).toUpperCase().replace("ROLE_", "");
                 if ("ADMIN".equals(newRole) || "USER".equals(newRole)) {
                     user.setRole(newRole);
                     userRepository.save(user);
                 }
             }
-            Map<String, Boolean> res = new HashMap<>();
-            res.put("success", true);
-            return ResponseEntity.ok(res);
+            return ResponseEntity.ok(java.util.Collections.singletonMap("success", true));
         }).orElse(ResponseEntity.notFound().build());
     }
 }

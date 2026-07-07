@@ -15,14 +15,25 @@ export async function searchFlights(req: FlightSearchRequest): Promise<FlightSea
     } 
   });
   
-  const flights = (data.content || []).map((f: any) => ({
+  const flights = (data.content || []).map((f: {
+    id: number;
+    flightNumber: string;
+    airlineCode?: string;
+    departureAirport: string;
+    arrivalAirport: string;
+    departureTime: string;
+    arrivalTime: string;
+    seatClass: string;
+    price: number;
+    availableSeats: number;
+  }) => ({
     id: f.id.toString(),
     flightNo: f.flightNumber,
     airline: f.airlineCode || 'VN',
     from: f.departureAirport,
     to: f.arrivalAirport,
-    departTime: f.departureTime ? f.departureTime.split('T')[1].substring(0, 5) : '',
-    arriveTime: f.arrivalTime ? f.arrivalTime.split('T')[1].substring(0, 5) : '',
+    departTime: f.departureTime ? f.departureTime.split('T')[1]?.substring(0, 5) || '' : '',
+    arriveTime: f.arrivalTime ? f.arrivalTime.split('T')[1]?.substring(0, 5) || '' : '',
     duration: '2h 10m', // mockup
     stops: 0,
     aircraft: 'A321', // mockup

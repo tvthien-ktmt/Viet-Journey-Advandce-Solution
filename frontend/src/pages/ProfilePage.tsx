@@ -26,8 +26,7 @@ export default function ProfilePage() {
     setIsUpdating(true);
     try {
       const res = await profileApi.updateProfile({ fullName, phone });
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      setAuth((res as unknown as { user: any }).user, useAuth.getState().token || '', useAuth.getState().refreshToken || '');
+      setAuth(res, useAuth.getState().token || '', useAuth.getState().refreshToken || '');
       toast.success('Cập nhật thông tin thành công');
     } catch (error) {
       toast.error('Cập nhật thất bại');
@@ -85,7 +84,7 @@ export default function ProfilePage() {
                 <div className="flex justify-between items-end">
                   <div>
                     <p className="text-xs uppercase opacity-80 mb-1">Số thẻ</p>
-                    <p className="font-mono text-lg font-semibold tracking-widest">VN{user.id.padStart(8, '0')}</p>
+                    <p className="font-mono text-lg font-semibold tracking-widest">VN{String(user.id).padStart(8, '0')}</p>
                   </div>
                   <div className="text-right">
                     <p className="text-xs uppercase opacity-80 mb-1">Dặm thưởng</p>
@@ -171,7 +170,7 @@ export default function ProfilePage() {
                       </div>
                       <div className="space-y-2">
                         <Label>Số Hộ chiếu / CCCD</Label>
-                        <Input defaultValue="001090123456" disabled />
+                        <Input defaultValue="001****3456" disabled />
                       </div>
                     </div>
                     <Button type="submit" disabled={isUpdating} className="bg-vna-blue rounded-lg">

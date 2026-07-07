@@ -30,7 +30,7 @@ public class TourController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id,desc") String sort) {
         
-        Pageable pageable = com.vietjourney.backend.util.PageableUtil.createPageable(page, size, sort);
+        Pageable pageable = com.vietjourney.backend.utils.PageableUtil.createPageable(page, size, sort);
         Page<Tour> tours = tourService.searchTours(query, minPrice, maxPrice, location, pageable);
         Page<TourDTO> tourDTOs = tours.map(TourDTO::fromEntity);
         return ResponseEntity.ok(ApiResponse.success(tourDTOs, "Lấy danh sách Tour thành công"));

@@ -22,7 +22,7 @@ RUN echo 'server { \
     add_header X-XSS-Protection "1; mode=block"; \
     add_header X-Content-Type-Options "nosniff"; \
     gzip on; \
-    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript; \
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript image/svg+xml application/wasm font/woff2 font/woff; \
     location / { \
         root /usr/share/nginx/html; \
         index index.html; \

@@ -44,26 +44,23 @@ export default function ManageBookingPage() {
     setHasSearched(false);
     
     try {
-      const res: any = await bookingApi.search(code, lastName);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const b = (res as any).content || (res as any).data || res;
-      let snap: any = {};
+      const b = await bookingApi.search(code, lastName);
+      let snap: Record<string, string> = {};
       try { snap = JSON.parse(b.itemSnapshot || '{}'); } catch(e) {}
       
       setBooking({
         id: b.id ? `${b.id}` : b.bookingCode || code,
         bookingCode: b.bookingCode || code,
-        route: snap.from && snap.to ? `${snap.from} - ${snap.to}` : 'HAN - SGN',
+        route: snap.from && snap.to ? `${snap.from} - ${snap.to}` : 'Không có thông tin',
         status: b.status,
-        flightNo: snap.flightNo || 'VN201',
-        date: b.createdAt ? new Date(b.createdAt).toLocaleDateString('vi-VN') : '15/10/2025',
-        from: snap.from || 'HAN',
-        to: snap.to || 'SGN',
-        departTime: snap.departTime || '00:00',
-        arriveTime: snap.arriveTime || '00:00',
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        passengers: b.passengers?.map((p: any) => p.fullName || `${p.firstName || ''} ${p.lastName || ''}`.trim()) || [],
-        amount: b.totalPrice,
+        flightNo: snap.flightNo || 'Không rõ',
+        date: b.createdAt ? new Date(b.createdAt).toLocaleDateString('vi-VN') : 'Không có thông tin',
+        from: snap.from || 'N/A',
+        to: snap.to || 'N/A',
+        departTime: snap.departTime || '--:--',
+        arriveTime: snap.arriveTime || '--:--',
+        passengers: b.passengers?.map(p => p.fullName) || [],
+        amount: b.totalPrice || 0,
       });
       setHasSearched(true);
     } catch (e) {

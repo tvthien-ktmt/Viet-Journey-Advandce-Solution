@@ -20,7 +20,7 @@ export default function DashboardPage() {
     queryFn: () => profileApi.wishlist.list()
   });
 
-  const bookings = (bookingsData as { content?: unknown[], data?: { content?: unknown[] } })?.content || (bookingsData as { data?: { content?: unknown[] } })?.data?.content || [];
+  const bookings: import('@/types/flight').FlightBooking[] = (bookingsData as any)?.content || (bookingsData as any)?.data?.content || [];
 
   return (
     <>
@@ -102,7 +102,7 @@ export default function DashboardPage() {
               <h2 className="text-[24px] md:text-[28px] font-bold text-onSurface">Upcoming Trip</h2>
               
               {(() => {
-                const upcomingBooking = bookings.find((b: any) => b.status === 'CONFIRMED' || b.status === 'RESERVED');
+                const upcomingBooking = bookings.find((b: import('@/types/flight').FlightBooking) => b.status === 'CONFIRMED' || b.status === 'RESERVED');
                 const snap = upcomingBooking?.itemSnapshot ? JSON.parse(upcomingBooking.itemSnapshot) : null;
                 
                 if (!upcomingBooking) {
@@ -169,7 +169,7 @@ export default function DashboardPage() {
                 <div className="bg-surface border border-outline-variant rounded-md p-4 w-full flex flex-col justify-center h-48 text-onSurface-variant">
                   <p className="text-[14px] text-center mb-2">Tổng chi tiêu</p>
                   <p className="text-[32px] font-bold text-primary text-center">
-                    {bookings.reduce((sum: number, b: any) => sum + (b.totalPrice || 0), 0).toLocaleString('vi-VN')} ₫
+                    {bookings.reduce((sum: number, b: import('@/types/flight').FlightBooking) => sum + (b.totalPrice || 0), 0).toLocaleString('vi-VN')} ₫
                   </p>
                 </div>
               </div>
@@ -197,7 +197,7 @@ export default function DashboardPage() {
                         </tr>
                       </thead>
                       <tbody className="text-[14px]">
-                        {bookings.slice(0, 5).map((booking: any) => {
+                        {bookings.slice(0, 5).map((booking: import('@/types/flight').FlightBooking) => {
                           const snap = booking.itemSnapshot ? JSON.parse(booking.itemSnapshot) : null;
                           return (
                           <tr key={booking.id} className="hover:bg-surface-bright transition-colors cursor-pointer">

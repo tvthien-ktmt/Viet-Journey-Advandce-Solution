@@ -60,6 +60,7 @@ export interface BookingPassengerDTO {
 export interface FlightBooking {
   id: string; // Wait, id is number in BE, we will use number or string depending on BE response, axios often parses numbers. Let's use string | number for safety.
   status: BookingStatus | string;
+  bookingCode?: string;
   bookingType?: string;
   referenceId?: number;
   reservedUntil?: string;

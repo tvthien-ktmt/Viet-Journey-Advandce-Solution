@@ -32,6 +32,7 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional
+    @org.springframework.cache.annotation.CacheEvict(value = "admin_stats", allEntries = true)
     public BookingDTO createReservation(BookingRequest request, String userEmail) {
         if (userEmail == null || userEmail.isEmpty()) {
             throw new com.vietjourney.backend.exception.UnauthorizedActionException("Phải đăng nhập để đặt chỗ");

@@ -72,7 +72,7 @@ export default function ConfirmationPage() {
           <div className="py-4">
             <h4 className="font-bold text-vna-text mb-3 text-sm uppercase tracking-wider">{t('flight.passengers')}</h4>
             <div className="space-y-2">
-              {(booking.passengers ?? []).map((p: any, i: number) => (
+              {(booking.passengers ?? []).map((p: import('@/types/flight').BookingPassengerDTO, i: number) => (
                 <div key={i} className="flex justify-between text-sm">
                   <span className="font-medium uppercase">{p.fullName}</span>
                   {/* p.type may not exist in BookingPassengerDTO; fallback to 'Người lớn' */}

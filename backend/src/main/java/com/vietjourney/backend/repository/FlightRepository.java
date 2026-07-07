@@ -9,6 +9,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
 
 @Repository
 public interface FlightRepository extends JpaRepository<Flight, Long> {
@@ -21,6 +23,15 @@ public interface FlightRepository extends JpaRepository<Flight, Long> {
                                @Param("arrivalAirport") String arrivalAirport, 
                                @Param("departureTime") LocalDateTime departureTime, 
                                Pageable pageable);
+
+    List<Flight> findByDepartureAirportAndArrivalAirportAndDepartureTimeBetween(
+            String departureAirport, String arrivalAirport, LocalDateTime start, LocalDateTime end);
+
+    @Query("SELECT new map(FUNCTION('MONTH', f.departureTime) as month, (180.0 - AVG(f.availableSeats)) / 180.0 * 100 as factor) FROM Flight f GROUP BY FUNCTION('MONTH', f.departureTime) ORDER BY month")
+    List<Map<String, Object>> getLoadFactorByMonth();
+
+    @Query("SELECT (180.0 - AVG(f.availableSeats)) / 180.0 * 100 FROM Flight f")
+    Double getOverallLoadFactor();
 
     @org.springframework.data.jpa.repository.Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE Flight f SET f.availableSeats = f.availableSeats - :qty WHERE f.id = :id AND f.availableSeats >= :qty")

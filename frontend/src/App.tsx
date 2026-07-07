@@ -4,6 +4,7 @@ import { RootLayout } from '@/layouts/RootLayout';
 import { PageLoader } from '@/components/common/PageLoader';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { ErrorBoundary } from '@/components/common/ErrorBoundary';
+import { QueryErrorResetBoundary } from '@tanstack/react-query';
 
 // Main Pages
 import HomePage from '@/pages/HomePage';
@@ -59,9 +60,13 @@ const AdminLayout = lazy(() => import('@/layouts/AdminLayout'));
 function RouteBoundary() {
   const location = useLocation();
   return (
-    <ErrorBoundary key={location.pathname}>
-      <Outlet />
-    </ErrorBoundary>
+    <QueryErrorResetBoundary>
+      {({ reset }) => (
+        <ErrorBoundary key={location.pathname} onReset={reset}>
+          <Outlet />
+        </ErrorBoundary>
+      )}
+    </QueryErrorResetBoundary>
   );
 }
 

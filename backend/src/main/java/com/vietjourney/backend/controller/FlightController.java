@@ -28,7 +28,7 @@ public class FlightController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id,desc") String sort) {
         
-        Pageable pageable = com.vietjourney.backend.util.PageableUtil.createPageable(page, size, sort);
+        Pageable pageable = com.vietjourney.backend.utils.PageableUtil.createPageable(page, size, sort);
         Page<Flight> flights = flightService.searchFlights(departureAirport, arrivalAirport, departureTime, pageable);
         Page<FlightDTO> flightDTOs = flights.map(this::mapToDTO);
         return ResponseEntity.ok(ApiResponse.success(flightDTOs, "Lấy danh sách Chuyến bay thành công"));

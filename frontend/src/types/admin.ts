@@ -9,6 +9,10 @@ export interface Kpi {
     flights: number;
     loadFactor: number;
   };
+  revenueByMonth?: ChartDataPoint[];
+  bookingsByRoute?: ChartDataPoint[];
+  cabinDistribution?: ChartDataPoint[];
+  loadFactorByMonth?: ChartDataPoint[];
 }
 
 export interface AdminFlight {

@@ -84,14 +84,18 @@ export default function SeatHoldPage() {
 
   const onSubmit = (data: HoldFormValues) => {
     if (!holdState) return;
-    const state = holdState as HoldRequest;
     
     const req = {
        bookingType: 'FLIGHT',
-       referenceId: state.outbound.id,
+       referenceId: Number(holdState.outbound.id),
        contactEmail: data.contactEmail,
        contactPhone: data.contactPhone,
-       passengers: data.passengers
+       passengers: data.passengers.map(p => ({
+         type: p.type,
+         fullName: p.fullName,
+         gender: p.gender,
+         dateOfBirth: p.birthDate
+       }))
     };
     
     createBookingMutation.mutate(req);

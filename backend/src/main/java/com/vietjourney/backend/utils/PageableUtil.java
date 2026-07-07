@@ -1,4 +1,4 @@
-package com.vietjourney.backend.util;
+package com.vietjourney.backend.utils;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;

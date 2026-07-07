@@ -3,6 +3,7 @@ import type { AuthUser } from '@/store/authStore';
 
 interface LoginResponse { 
   token: string; 
+  refreshToken: string;
   user: AuthUser; 
 }
 

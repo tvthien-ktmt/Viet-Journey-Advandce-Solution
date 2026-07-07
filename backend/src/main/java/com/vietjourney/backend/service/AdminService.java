@@ -1,7 +1,7 @@
 package com.vietjourney.backend.service;
 
-import java.util.Map;
+import com.vietjourney.backend.dto.response.AdminStatsDTO;
 
 public interface AdminService {
-    Map<String, Object> getAdminStats();
+    AdminStatsDTO getAdminStats();
 }

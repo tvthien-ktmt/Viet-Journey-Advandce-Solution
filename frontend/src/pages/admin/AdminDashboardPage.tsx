@@ -10,34 +10,41 @@ import {
 } from 'recharts';
 
 import { ADMIN_STATS } from '@/api/mocks/admin';
+import { useT } from '@/store/langStore';
 
 export default function AdminDashboardPage() {
+  const t = useT();
   const { data: stats } = useQuery({ queryKey: ['adminStats'], queryFn: () => adminApi.kpi() });
 
-  // Use real stats for totals if available, otherwise mock. For charts, fallback to mock since backend only returns scalar stats currently.
   const kpi = stats?.totalBookings !== undefined ? {
-    totalRevenue: Number(stats.totalRevenue) ?? 12500000000,
-    totalBookings: stats.totalBookings ?? 4520,
-    totalFlights: stats.totalFlights ?? 1250,
-    loadFactor: stats.loadFactor ?? 86.5,
-    trends: stats.trends ?? { revenue: 12.5, bookings: 8.2, flights: 5.0, loadFactor: 2.1 }
-  } : ADMIN_STATS.kpi;
+    totalRevenue: Number(stats.totalRevenue) ?? 0,
+    totalBookings: stats.totalBookings ?? 0,
+    totalFlights: stats.totalFlights ?? 0,
+    loadFactor: stats.loadFactor ?? 0,
+    trends: stats.trends ?? { revenue: 0, bookings: 0, flights: 0, loadFactor: 0 }
+  } : {
+    totalRevenue: 0,
+    totalBookings: 0,
+    totalFlights: 0,
+    loadFactor: 0,
+    trends: { revenue: 0, bookings: 0, flights: 0, loadFactor: 0 }
+  };
 
-  const revenue = stats?.revenueByMonth || ADMIN_STATS.revenueByMonth;
-  const routeStats = stats?.bookingsByRoute || ADMIN_STATS.bookingsByRoute;
-  const cabinStats = stats?.cabinDistribution || ADMIN_STATS.cabinDistribution;
-  const loadFactor = stats?.loadFactorByMonth || ADMIN_STATS.loadFactorByMonth;
+  const revenue = stats?.revenueByMonth || [];
+  const routeStats = stats?.bookingsByRoute || [];
+  const cabinStats = stats?.cabinDistribution || [];
+  const loadFactor = stats?.loadFactorByMonth || [];
 
   const kpis = [
-    { label: 'Tổng doanh thu', value: kpi ? formatVND(kpi.totalRevenue) : '...', icon: Wallet, trend: kpi?.trends.revenue, trendUp: true },
-    { label: 'Số đặt chỗ', value: kpi?.totalBookings.toLocaleString() || '...', icon: Ticket, trend: kpi?.trends.bookings, trendUp: true },
-    { label: 'Số chuyến bay', value: kpi?.totalFlights.toLocaleString() || '...', icon: Plane, trend: kpi?.trends.flights, trendUp: true },
-    { label: 'Tỉ lệ lấp đầy', value: kpi ? `${kpi.loadFactor}%` : '...', icon: Percent, trend: kpi?.trends.loadFactor, trendUp: false },
+    { label: t('admin.dashboard.revenue') || 'Tổng doanh thu', value: kpi ? formatVND(kpi.totalRevenue) : '...', icon: Wallet, trend: kpi?.trends.revenue, trendUp: true },
+    { label: t('admin.dashboard.bookings') || 'Số đặt chỗ', value: kpi?.totalBookings.toLocaleString() || '...', icon: Ticket, trend: kpi?.trends.bookings, trendUp: true },
+    { label: t('admin.dashboard.flights') || 'Số chuyến bay', value: kpi?.totalFlights.toLocaleString() || '...', icon: Plane, trend: kpi?.trends.flights, trendUp: true },
+    { label: t('admin.dashboard.loadFactor') || 'Tỉ lệ lấp đầy', value: kpi ? `${kpi.loadFactor.toFixed(1)}%` : '...', icon: Percent, trend: kpi?.trends.loadFactor, trendUp: false },
   ];
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-vna-text">Tổng quan hoạt động</h1>
+      <h1 className="text-2xl font-bold text-vna-text">{t('admin.dashboard.title') || 'Tổng quan hoạt động'}</h1>
       
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
         {kpis.map((item, i) => (
@@ -62,7 +69,7 @@ export default function AdminDashboardPage() {
 
       <div className="grid md:grid-cols-2 gap-6">
         <Card className="p-6 shadow-sm border-vna-border rounded-xl">
-          <h3 className="font-bold text-vna-text mb-6">Doanh thu theo tháng</h3>
+          <h3 className="font-bold text-vna-text mb-6">{t('admin.dashboard.revenueChart') || 'Doanh thu theo tháng'}</h3>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={revenue}>
@@ -77,7 +84,7 @@ export default function AdminDashboardPage() {
         </Card>
 
         <Card className="p-6 shadow-sm border-vna-border rounded-xl">
-          <h3 className="font-bold text-vna-text mb-6">Đặt chỗ theo tuyến</h3>
+          <h3 className="font-bold text-vna-text mb-6">{t('admin.dashboard.routeChart') || 'Đặt chỗ theo tuyến'}</h3>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={routeStats}>
@@ -92,7 +99,7 @@ export default function AdminDashboardPage() {
         </Card>
 
         <Card className="p-6 shadow-sm border-vna-border rounded-xl">
-          <h3 className="font-bold text-vna-text mb-6">Phân bố hạng ghế</h3>
+          <h3 className="font-bold text-vna-text mb-6">{t('admin.dashboard.cabinChart') || 'Phân bố hạng ghế'}</h3>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
@@ -107,7 +114,7 @@ export default function AdminDashboardPage() {
         </Card>
 
         <Card className="p-6 shadow-sm border-vna-border rounded-xl">
-          <h3 className="font-bold text-vna-text mb-6">Tỉ lệ lấp đầy theo tháng</h3>
+          <h3 className="font-bold text-vna-text mb-6">{t('admin.dashboard.loadFactorChart') || 'Tỉ lệ lấp đầy theo tháng'}</h3>
           <div className="h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={loadFactor}>
