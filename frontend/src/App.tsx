@@ -118,6 +118,7 @@ export default function App() {
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/payment/:bookingId" element={<PaymentPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
+                {/* /booking/hold route uses sessionStorage ('holdState') instead of :bookingId because it is a pre-booking state. */}
                 <Route path="/booking/hold" element={<SeatHoldPage />} />
                 <Route path="/booking/:id/seats" element={<SeatSelectionPage />} />
               </Route>
