@@ -15,7 +15,7 @@ import { Button } from '@/components/ui';
 import { Card } from '@/components/ui';
 import { toast } from 'sonner';
 import type { HoldRequest } from '@/api/booking';
-import type { Passenger } from '@/types/flight';
+import type { FlightBooking, Passenger } from '@/types/flight';
 
 const passengerSchema = z.object({
   type: z.enum(['adult', 'child', 'infant']),
@@ -47,7 +47,7 @@ export default function SeatHoldPage() {
 
   const createBookingMutation = useMutation({
     mutationFn: (req: import('@/api/booking').CreateBookingRequest) => bookingApi.createBooking(req),
-    onSuccess: (data: import('@/types/flight').FlightBooking) => {
+    onSuccess: (data: FlightBooking) => {
       navigate(`/booking/${data.id}/payment`);
     }
   });

@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { bookingApi } from '@/api/booking';
 import { format } from 'date-fns';
+import type { BookingPassengerDTO } from '@/types/flight';
 
 export default function BookingDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -98,7 +99,7 @@ export default function BookingDetailPage() {
               </h4>
               
               <div className="flex flex-col gap-4">
-                {booking?.passengers && booking.passengers.length > 0 ? booking.passengers.map((pax: import('@/types/flight').BookingPassengerDTO, i: number) => (
+                {booking?.passengers && booking.passengers.length > 0 ? booking.passengers.map((pax: BookingPassengerDTO, i: number) => (
                   <div key={i} className="flex items-center justify-between p-4 bg-surface-container-low rounded-lg border border-outline-variant/10">
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 rounded-full bg-primary/10 text-primary flex items-center justify-center">

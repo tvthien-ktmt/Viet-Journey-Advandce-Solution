@@ -9,6 +9,7 @@ import { useT } from '@/store/langStore';
 import { Armchair, CheckCircle2, ChevronLeft, ChevronRight, Info } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import type { BookingPassengerDTO } from '@/types/flight';
 
 type SeatType = 'business' | 'economy' | 'premium' | 'exit-row';
 type SeatStatus = 'available' | 'occupied' | 'selected';
@@ -52,7 +53,7 @@ export default function SeatSelectionPage() {
   });
 
   const requiredSeats = booking?.passengers 
-    ? booking.passengers.filter((p: import('@/types/flight').BookingPassengerDTO) => p.type !== 'INFANT' && p.type !== 'Infant').length 
+    ? booking.passengers.filter((p: BookingPassengerDTO) => p.type !== 'INFANT' && p.type !== 'Infant').length 
     : 1;
 
   useEffect(() => {
