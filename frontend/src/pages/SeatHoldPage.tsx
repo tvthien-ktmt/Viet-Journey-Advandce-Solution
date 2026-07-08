@@ -14,7 +14,7 @@ import { Badge } from '@/components/ui';
 import { Button } from '@/components/ui';
 import { Card } from '@/components/ui';
 import { toast } from 'sonner';
-import type { HoldRequest } from '@/api/booking';
+import type { HoldRequest, CreateBookingRequest } from '@/api/booking';
 import type { FlightBooking, Passenger } from '@/types/flight';
 
 const passengerSchema = z.object({
@@ -46,7 +46,7 @@ export default function SeatHoldPage() {
   const holdState = holdStateStr ? JSON.parse(holdStateStr) : null;
 
   const createBookingMutation = useMutation({
-    mutationFn: (req: import('@/api/booking').CreateBookingRequest) => bookingApi.createBooking(req),
+    mutationFn: (req: CreateBookingRequest) => bookingApi.createBooking(req),
     onSuccess: (data: FlightBooking) => {
       navigate(`/booking/${data.id}/payment`);
     }

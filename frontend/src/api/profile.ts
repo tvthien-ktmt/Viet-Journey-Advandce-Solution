@@ -1,5 +1,6 @@
 import { api } from './client';
 import type { UpdateProfileDTO, ChangePasswordDTO } from '@/types/user';
+import type { AuthUser } from '@/store/authStore';
 
 const USE_MOCK = import.meta.env.VITE_USE_MOCK_API === 'true' || false;
 
@@ -24,7 +25,7 @@ export const profileApi = {
       { id: 'B2', bookingCode: 'VNA999', route: 'SGN-DAD', date: '2025-07-20', amount: 1250000, status: 'EXPIRED' }
     ]) : api.get('/profile/bookings'),
   },
-  updateProfile: (data: { fullName: string; phone: string }): Promise<import('@/store/authStore').AuthUser> => 
+  updateProfile: (data: { fullName: string; phone: string }): Promise<AuthUser> => 
     api.put('/users/profile', data),
   wishlist: {
     list: () => {
