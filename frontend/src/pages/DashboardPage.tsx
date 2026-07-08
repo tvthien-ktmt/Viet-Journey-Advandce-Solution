@@ -18,10 +18,7 @@ export default function DashboardPage() {
     queryFn: () => bookingApi.getMyBookings()
   });
 
-  const { data: wishlistData } = useQuery({
-    queryKey: ['wishlist'],
-    queryFn: () => profileApi.wishlist.list()
-  });
+
 
   const bookings: FlightBooking[] = (bookingsData as { content?: FlightBooking[], data?: { content?: FlightBooking[] } })?.content || (bookingsData as { data?: { content?: FlightBooking[] } })?.data?.content || [];
 

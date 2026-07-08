@@ -2,7 +2,6 @@
 import { Link, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { bookingApi } from '@/api/booking';
-import { format } from 'date-fns';
 import type { BookingPassengerDTO } from '@/types/flight';
 
 export default function BookingDetailPage() {
