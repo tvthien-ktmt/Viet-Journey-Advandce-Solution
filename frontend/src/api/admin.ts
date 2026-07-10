@@ -17,7 +17,7 @@ export const adminApi = {
   },
   users: { 
     list: (): Promise<AdminUser[]> => USE_MOCK ? Promise.resolve(ADMIN_STATS.users as AdminUser[]) : api.get('/admin/users'),
-    updateRole: (id: string, roles: string[]): Promise<{ success: boolean }> => USE_MOCK ? Promise.resolve({ success: true }) : api.put(`/admin/users/${id}/roles`, roles)
+    updateRole: (id: string, roles: string[]): Promise<{ success: boolean }> => USE_MOCK ? Promise.resolve({ success: true }) : api.put(`/admin/users/${id}/roles`, { roles })
   },
   news: {
     list: (): Promise<AdminNews[]> => USE_MOCK ? Promise.resolve([]) : api.get('/admin/news'),

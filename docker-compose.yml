@@ -31,12 +31,8 @@ services:
     environment:
       - DATABASE_URL=mysql://${MYSQL_USER:?MYSQL_USER is required}:${MYSQL_PASSWORD:?MYSQL_PASSWORD is required}@mysql:3306/${MYSQL_DATABASE:?MYSQL_DATABASE is required}
       - JWT_SECRET=${JWT_SECRET:?JWT_SECRET is required}
-      - REDIS_HOST=redis
-      - REDIS_PASSWORD=${REDIS_PASSWORD:?REDIS_PASSWORD is required}
     depends_on:
       mysql:
-        condition: service_healthy
-      redis:
         condition: service_healthy
     networks:
       - vietjourney-network

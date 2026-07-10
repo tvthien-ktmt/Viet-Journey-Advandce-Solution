@@ -1,9 +1,6 @@
 
 import type { FlightSearchRequest, FlightSearchResponse } from '@/types/flight';
-import { mockSearchFlights } from './mocks/flights';
 import { api } from './client';
-
-const USE_MOCK = import.meta.env.VITE_USE_MOCK_API === 'true' || false; // TODO: set false khi BE /flights/search ready
 
 export interface FlightDTO {
   id: number;
@@ -16,6 +13,10 @@ export interface FlightDTO {
   seatClass: string;
   price: number;
   availableSeats: number;
+  duration?: string;
+  stops?: number;
+  aircraft?: string;
+  nextDay?: boolean;
 }
 
 export interface FlightResponse {
@@ -26,7 +27,6 @@ export interface FlightResponse {
 }
 
 export async function searchFlights(req: FlightSearchRequest): Promise<FlightSearchResponse> {
-  if (USE_MOCK) return mockSearchFlights(req);
   const data = await api.get<FlightResponse>('/flights', { 
     params: {
       departureAirport: req.from,
@@ -43,21 +43,18 @@ export async function searchFlights(req: FlightSearchRequest): Promise<FlightSea
     to: f.arrivalAirport,
     departTime: f.departureTime ? f.departureTime.split('T')[1]?.substring(0, 5) || '' : '',
     arriveTime: f.arrivalTime ? f.arrivalTime.split('T')[1]?.substring(0, 5) || '' : '',
-    duration: '2h 10m', // mockup
-    stops: 0,
-    aircraft: 'A321', // mockup
+    duration: f.duration || '2h 10m',
+    stops: f.stops || 0,
+    aircraft: f.aircraft || 'A321',
     cabin: f.seatClass,
     priceVND: f.price,
     seatsLeft: f.availableSeats,
+    nextDay: f.nextDay,
   }));
   
   return { outbound: flights, request: req };
 }
 
 export async function getAirports() {
-  if (USE_MOCK) {
-    const { AIRPORTS } = await import('@/data/vna-airports');
-    return AIRPORTS;
-  }
   return api.get('/airports');
 }

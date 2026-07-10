@@ -42,7 +42,7 @@ export const getAllBookings = async (req: Request, res: Response): Promise<void>
     }
 };
 
-export const getBookingById = async (req: Request, res: Response): Promise<void> => {
+export const getBookingById = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
         const { id } = req.params;
         const booking = await prisma.booking.findUnique({
@@ -53,6 +53,12 @@ export const getBookingById = async (req: Request, res: Response): Promise<void>
             res.status(404).json({ success: false, message: 'Booking not found' });
             return;
         }
+
+        if (booking.userId !== req.user?.id && (req.user as any)?.role !== 'ADMIN') {
+            res.status(403).json({ success: false, message: 'Forbidden' });
+            return;
+        }
+
         res.json({ success: true, data: booking });
     } catch (error) {
         console.error('getBookingById error:', error);
@@ -88,7 +94,19 @@ export const searchBookings = async (req: Request, res: Response): Promise<void>
             res.status(404).json({ success: false, message: 'Booking not found' });
             return;
         }
-        res.json({ success: true, data: booking });
+
+        const maskedBooking = {
+            ...booking,
+            contactEmail: booking.contactEmail ? booking.contactEmail.replace(/(.{2})(.*)(@.*)/, '$1***$3') : null,
+            contactPhone: booking.contactPhone ? booking.contactPhone.replace(/(\d{3})\d+(?=\d{3})/, '$1****') : null,
+            passengers: booking.passengers.map(p => ({
+                ...p,
+                fullName: p.fullName ? p.fullName.split(' ').map(name => name.charAt(0) + '*'.repeat(Math.max(0, name.length - 1))).join(' ') : p.fullName,
+                documentNumber: p.documentNumber ? p.documentNumber.replace(/.(?=.{4})/g, '*') : null
+            }))
+        };
+
+        res.json({ success: true, data: maskedBooking });
     } catch (error) {
         console.error('searchBookings error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
@@ -104,6 +122,11 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
         }
 
         const { bookingType, referenceId, passengers, contactEmail, contactPhone } = req.body;
+        
+        if (!['flight', 'tour', 'hotel'].includes(bookingType)) {
+            res.status(400).json({ success: false, message: 'Invalid bookingType' });
+            return;
+        }
         
         let tourId = null, hotelId = null, flightId = null;
         let totalPrice = 0;
