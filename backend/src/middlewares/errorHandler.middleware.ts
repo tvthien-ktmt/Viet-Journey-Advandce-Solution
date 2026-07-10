@@ -1,8 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
 import { Prisma } from '@prisma/client';
+import logger from '../utils/logger';
 
 export const globalErrorHandler = (err: any, req: Request, res: Response, next: NextFunction): void => {
-    console.error('Global Error Handler:', err);
+    logger.error(`Global Error Handler: ${err.message}`, { error: err });
 
     if (err instanceof Prisma.PrismaClientKnownRequestError) {
         if (err.code === 'P2002') {

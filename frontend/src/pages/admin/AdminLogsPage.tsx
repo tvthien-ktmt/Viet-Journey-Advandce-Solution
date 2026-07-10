@@ -14,8 +14,8 @@ export default function AdminLogsPage() {
     queryFn: () => adminApi.logs.list() 
   });
 
-  const filtered = logs?.filter((l: any) => 
-    l.action?.toLowerCase().includes(search.toLowerCase()) ||
+  const filtered = logs?.filter((l: { action: string, details: string }) => 
+    l.action?.toLowerCase().includes(search.toLowerCase()) || 
     l.details?.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -56,7 +56,7 @@ export default function AdminLogsPage() {
                   <TableCell colSpan={5} className="text-center py-8 text-vna-muted">Không tìm thấy log nào</TableCell>
                 </TableRow>
               ) : (
-                filtered?.map((l: any) => (
+                filtered?.map((l: { id: number, action: string, userId: number, details: string, createdAt: string }) => (
                   <TableRow key={l.id}>
                     <TableCell>{l.id}</TableCell>
                     <TableCell>

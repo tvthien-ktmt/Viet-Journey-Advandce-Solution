@@ -1,5 +1,6 @@
 import cron from 'node-cron';
 import prisma from '../utils/prisma';
+import logger from '../utils/logger';
 import { BookingStatus } from '@prisma/client';
 
 export const startReservationCron = () => {
@@ -33,7 +34,7 @@ export const startReservationCron = () => {
                 console.log(`[Cron] Booking ${booking.id} expired. Inventory restored.`);
             }
         } catch (error) {
-            console.error('[Cron] Error processing expired bookings:', error);
+            logger.error('[Cron] Error processing expired bookings:', error);
         }
     });
 };

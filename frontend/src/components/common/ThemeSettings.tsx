@@ -5,7 +5,7 @@ import { Button } from '@/components/ui';
 export function ThemeSettings() {
   const [isOpen, setIsOpen] = useState(false);
   const [theme, setTheme] = useState<'light'|'dark'|'system'>(
-    (localStorage.getItem('theme') as any) || 'system'
+    (localStorage.getItem('theme') as 'light'|'dark'|'system') || 'system'
   );
   const [fontSize, setFontSize] = useState<'normal'|'large'>('normal');
   const [highContrast, setHighContrast] = useState(false);

@@ -9,14 +9,27 @@ import { GlobalSearch } from '@/components/common/GlobalSearch';
 import { ChatWidget } from '@/components/common/ChatWidget';
 import { BackToTop } from '@/components/common/BackToTop';
 
+import { useNotificationStore } from '@/store/notificationStore';
+
 export function RootLayout() {
   const initAuth = useAuth(s => s.initAuth);
   const isInitialized = useAuth(s => s.isInitialized);
+  const user = useAuth(s => s.user);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const initSocket = useNotificationStore(s => s.initSocket);
+  const disconnectSocket = useNotificationStore(s => s.disconnectSocket);
 
   useEffect(() => {
     initAuth();
   }, [initAuth]);
+
+  useEffect(() => {
+    if (user) {
+      initSocket(user.id);
+    } else {
+      disconnectSocket();
+    }
+  }, [user, initSocket, disconnectSocket]);
 
   useEffect(() => {
     const handleOpenSearch = () => setIsSearchOpen(true);

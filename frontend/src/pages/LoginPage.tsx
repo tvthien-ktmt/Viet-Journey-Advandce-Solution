@@ -19,16 +19,28 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  
+  const [loginMethod, setLoginMethod] = useState<'password' | 'otp'>('password');
+  const [otp, setOtp] = useState('');
+  const [otpSent, setOtpSent] = useState(false);
 
   const location = useLocation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) return;
+    if (!email) return;
     
     setIsLoading(true);
     try {
-      const res = await authApi.login(email, password);
+      let res;
+      if (loginMethod === 'password') {
+        if (!password) { setIsLoading(false); return; }
+        res = await authApi.login(email, password);
+      } else {
+        if (!otp) { setIsLoading(false); return; }
+        res = await authApi.verifyLoginOtp(email, otp);
+      }
+      
       setAuth(res.user, res.token, '');
       toast.success(t('login.success'));
       
@@ -40,6 +52,37 @@ export default function LoginPage() {
     } catch (e) {
       const error = e as Error & { response?: { data?: { message?: string } } };
       toast.error(error.response?.data?.message || t('login.failed'));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSendOtp = async () => {
+    if (!email) {
+      toast.error('Vui lòng nhập email để nhận mã OTP');
+      return;
+    }
+    setIsLoading(true);
+    try {
+      await authApi.sendLoginOtp(email);
+      setOtpSent(true);
+      toast.success('Đã gửi mã OTP, vui lòng kiểm tra email của bạn');
+    } catch (e) {
+      toast.error('Có lỗi xảy ra khi gửi mã OTP');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleMockGoogleLogin = async () => {
+    setIsLoading(true);
+    try {
+      const res = await authApi.mockGoogleLogin('mockuser@gmail.com', 'Mock Google User');
+      setAuth(res.user, res.token, '');
+      toast.success('Đăng nhập Google thành công (Mock)');
+      navigate('/profile', { replace: true });
+    } catch (e) {
+      toast.error('Đăng nhập Google thất bại');
     } finally {
       setIsLoading(false);
     }
@@ -80,6 +123,11 @@ export default function LoginPage() {
             <CardContent className="p-8 rounded-xl">
               <form onSubmit={handleSubmit} className="space-y-6">
                 
+                <div className="flex gap-4 mb-4">
+                  <Button type="button" variant={loginMethod === 'password' ? 'default' : 'outline'} className={`flex-1 ${loginMethod === 'password' ? 'bg-vna-blue hover:bg-vna-blue/90 text-white' : ''}`} onClick={() => setLoginMethod('password')}>Mật khẩu</Button>
+                  <Button type="button" variant={loginMethod === 'otp' ? 'default' : 'outline'} className={`flex-1 ${loginMethod === 'otp' ? 'bg-vna-blue hover:bg-vna-blue/90 text-white' : ''}`} onClick={() => setLoginMethod('otp')}>Mã OTP</Button>
+                </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="email">{t('login.email')}</Label>
                   <Input 
@@ -92,36 +140,74 @@ export default function LoginPage() {
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <div className="flex justify-between items-center">
-                    <Label htmlFor="password">{t('login.password')}</Label>
-                    <Link to="/forgot-password" className="text-sm font-medium text-vna-blue hover:underline transition-colors duration-200">
-                      {t('login.forgot')}
-                    </Link>
+                {loginMethod === 'password' ? (
+                  <div className="space-y-2">
+                    <div className="flex justify-between items-center">
+                      <Label htmlFor="password">{t('login.password')}</Label>
+                      <Link to="/forgot-password" className="text-sm font-medium text-vna-blue hover:underline transition-colors duration-200">
+                        {t('login.forgot')}
+                      </Link>
+                    </div>
+                    <div className="relative">
+                      <Input 
+                        id="password" 
+                        type={showPassword ? 'text' : 'password'}
+                        placeholder={t('login.passwordPlaceholder')}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="h-12 pr-10 rounded-xl"
+                        required
+                      />
+                      <button 
+                        type="button" 
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors duration-200"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                      </button>
+                    </div>
                   </div>
-                  <div className="relative">
-                    <Input 
-                      id="password" 
-                      type={showPassword ? 'text' : 'password'}
-                      placeholder={t('login.passwordPlaceholder')}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="h-12 pr-10 rounded-xl"
-                      required
-                    />
-                    <button 
-                      type="button" 
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors duration-200"
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                    </button>
+                ) : (
+                  <div className="space-y-2">
+                    <Label htmlFor="otp">Mã OTP</Label>
+                    <div className="flex gap-2">
+                      <Input 
+                        id="otp" 
+                        placeholder="Nhập mã OTP"
+                        value={otp}
+                        onChange={(e) => setOtp(e.target.value)}
+                        className="h-12 rounded-xl"
+                        required={loginMethod === 'otp'}
+                        disabled={!otpSent}
+                      />
+                      <Button type="button" onClick={handleSendOtp} disabled={isLoading || !email} className="h-12 whitespace-nowrap bg-slate-100 hover:bg-slate-200 text-slate-700">
+                        {otpSent ? 'Gửi lại' : 'Nhận mã'}
+                      </Button>
+                    </div>
                   </div>
-                </div>
+                )}
 
                 <Button type="submit" size="lg" className="w-full bg-vna-gold hover:bg-vna-gold/90 text-white text-base rounded-lg transition-colors duration-200" disabled={isLoading}>
                   {isLoading ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : t('login.submit')}
                 </Button>
+
+                <div className="relative my-6">
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="w-full border-t border-slate-200"></div>
+                  </div>
+                  <div className="relative flex justify-center text-sm">
+                    <span className="px-2 bg-white text-slate-500">Hoặc tiếp tục với</span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <Button type="button" variant="outline" className="h-12 w-full" onClick={handleMockGoogleLogin}>
+                    Google
+                  </Button>
+                  <Button type="button" variant="outline" className="h-12 w-full" onClick={() => toast.success('Mock Facebook login')}>
+                    Facebook
+                  </Button>
+                </div>
 
               </form>
             </CardContent>

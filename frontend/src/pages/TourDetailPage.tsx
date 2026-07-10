@@ -6,9 +6,11 @@ import { Badge } from '@/components/ui';
 import { ChevronLeft, MapPin, Clock, Star, Calendar, CheckCircle2, XCircle, Info, Plane } from 'lucide-react';
 import { toast } from 'sonner';
 import { useAuth } from '@/store/authStore';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getTourBySlug } from '@/api/tours';
 import { bookingApi } from '@/api/booking';
+import { reviewApi } from '@/api/reviews';
+import { Textarea } from '@/components/ui';
 
 export default function TourDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -22,6 +24,37 @@ export default function TourDetailPage() {
     queryFn: () => getTourBySlug(id as string),
     enabled: !!id
   });
+
+  const { data: reviews } = useQuery({
+    queryKey: ['reviews', data?.id],
+    queryFn: () => reviewApi.getTourReviews(data!.id.toString()),
+    enabled: !!data?.id
+  });
+
+  const queryClient = useQueryClient();
+  const [rating, setRating] = useState(5);
+  const [comment, setComment] = useState('');
+
+  const submitReview = useMutation({
+    mutationFn: (payload: { tourId: number; rating: number; comment: string }) => reviewApi.addReview(payload),
+    onSuccess: () => {
+      toast.success('Đánh giá thành công');
+      setComment('');
+      queryClient.invalidateQueries({ queryKey: ['reviews', data?.id] });
+    },
+    onError: () => toast.error('Lỗi khi gửi đánh giá')
+  });
+
+  const handleReviewSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isAuthenticated()) {
+      toast.error('Vui lòng đăng nhập để đánh giá');
+      return;
+    }
+    if (data?.id) {
+      submitReview.mutate({ tourId: Number(data.id), rating, comment });
+    }
+  };
 
   const handleBook = async () => {
     if (!isAuthenticated()) {
@@ -163,6 +196,57 @@ export default function TourDetailPage() {
               </div>
             </section>
 
+            {/* Reviews Section */}
+            <section className="bg-white p-8 rounded-2xl border border-slate-100 shadow-sm mt-8">
+              <h2 className="text-2xl font-bold text-slate-800 mb-6 flex items-center gap-2"><Star className="w-6 h-6 text-vna-gold fill-current" /> Đánh giá của khách hàng</h2>
+              
+              <div className="space-y-6 mb-8">
+                {reviews?.length === 0 ? (
+                  <p className="text-slate-500">Chưa có đánh giá nào.</p>
+                ) : (
+                  reviews?.map((rv: any) => (
+                    <div key={rv.id} className="border-b border-slate-100 pb-4">
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="w-10 h-10 bg-slate-200 rounded-full flex items-center justify-center font-bold text-slate-500">
+                          {rv.user?.fullName?.[0] || 'U'}
+                        </div>
+                        <div>
+                          <p className="font-semibold">{rv.user?.fullName || 'Người dùng ẩn danh'}</p>
+                          <div className="flex text-vna-gold">
+                            {Array.from({ length: 5 }).map((_, i) => (
+                              <Star key={i} className={`w-3 h-3 ${i < rv.rating ? 'fill-current' : 'text-slate-300'}`} />
+                            ))}
+                          </div>
+                        </div>
+                        <span className="ml-auto text-xs text-slate-400">{new Date(rv.createdAt).toLocaleDateString('vi-VN')}</span>
+                      </div>
+                      <p className="text-slate-600">{rv.comment}</p>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              <form onSubmit={handleReviewSubmit} className="space-y-4 border-t border-slate-100 pt-6">
+                <h3 className="font-bold text-slate-800">Viết đánh giá</h3>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Đánh giá (sao)</label>
+                  <select value={rating} onChange={e => setRating(Number(e.target.value))} className="w-full border-slate-200 rounded-lg p-2 bg-slate-50">
+                    <option value={5}>5 Sao - Tuyệt vời</option>
+                    <option value={4}>4 Sao - Tốt</option>
+                    <option value={3}>3 Sao - Tạm được</option>
+                    <option value={2}>2 Sao - Không hài lòng</option>
+                    <option value={1}>1 Sao - Rất tệ</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-1">Nhận xét</label>
+                  <Textarea value={comment} onChange={e => setComment(e.target.value)} required placeholder="Chia sẻ trải nghiệm của bạn..." className="bg-slate-50 min-h-[100px]" />
+                </div>
+                <Button type="submit" disabled={submitReview.isPending} className="bg-vna-blue text-white">
+                  {submitReview.isPending ? 'Đang gửi...' : 'Gửi đánh giá'}
+                </Button>
+              </form>
+            </section>
           </div>
 
           <div className="space-y-6">

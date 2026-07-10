@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui';
+import { useCurrency } from '@/store/currencyStore';
 
 const currencies = [
   { code: 'VND', symbol: '₫' },
@@ -10,14 +11,12 @@ const currencies = [
 
 export function CurrencySwitcher() {
   const [isOpen, setIsOpen] = useState(false);
-  const [currency, setCurrency] = useState(localStorage.getItem('currency') || 'VND');
+  const currency = useCurrency((s) => s.currency);
+  const setCurrency = useCurrency((s) => s.setCurrency);
 
   const handleSelect = (code: string) => {
     setCurrency(code);
-    localStorage.setItem('currency', code);
     setIsOpen(false);
-    // Real app would dispatch to a store or emit an event
-    window.location.reload(); // Simple approach to re-render prices across app
   };
 
   return (

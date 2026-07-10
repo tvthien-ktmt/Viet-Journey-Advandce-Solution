@@ -39,4 +39,10 @@ export const bookingApi = {
     api.get(`/bookings/search`, { params: { code, lastName } }),
   getMyBookings: (page = 0, size = 10): Promise<{ content: FlightBooking[] }> => 
     api.get<{ content: FlightBooking[] }>(`/bookings/my-bookings`, { params: { page, size } }),
+  checkin: (pnr: string, lastName: string): Promise<any> =>
+    api.post('/checkin', { pnr, lastName }),
+  createQRPayment: (bookingId: string): Promise<any> =>
+    api.post('/payments/qr', { bookingId }),
+  getPaymentStatus: (bookingId: string): Promise<any> =>
+    api.get(`/payments/${bookingId}/status`),
 };

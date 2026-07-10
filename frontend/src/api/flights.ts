@@ -58,3 +58,7 @@ export async function searchFlights(req: FlightSearchRequest): Promise<FlightSea
 export async function getAirports() {
   return api.get('/airports');
 }
+
+export async function getFlightStatus(flightNumber: string, date: string) {
+  return api.get(`/flights/status/${flightNumber}?date=${date}`);
+}

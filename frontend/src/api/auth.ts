@@ -16,4 +16,7 @@ export const authApi = {
   forgotPassword: (email: string) => api.post<{message: string}>('/auth/forgot-password', { email }),
   verifyOTP: (email: string, otp: string) => api.post<{message: string}>('/auth/verify-otp', { email, otp }),
   resetPassword: (email: string, otp: string, newPassword: string) => api.post<{message: string}>('/auth/reset-password', { email, otp, newPassword }),
+  sendLoginOtp: (email: string) => api.post<{message: string}>('/auth/login-otp/send', { email }),
+  verifyLoginOtp: (email: string, otp: string) => api.post<LoginResponse>('/auth/login-otp/verify', { email, otp }),
+  mockGoogleLogin: (email: string, name: string) => api.post<LoginResponse>('/auth/oauth/google', { email, name }),
 };

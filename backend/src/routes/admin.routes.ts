@@ -1,19 +1,11 @@
 import { Router } from 'express';
 import { adminController } from '../controllers/admin.controller';
-import { authenticate } from '../middlewares/auth.middleware';
+import { authenticate, authorizeAdmin } from '../middlewares/auth.middleware';
 
 const router = Router();
 
-// Middleware to check ADMIN role
-const requireAdmin = (req: any, res: any, next: any) => {
-  if (req.user?.role !== 'ADMIN') {
-    return res.status(403).json({ message: 'Forbidden: Admins only' });
-  }
-  next();
-};
-
 router.use(authenticate);
-router.use(requireAdmin);
+router.use(authorizeAdmin);
 
 // Analytics
 router.get('/analytics', adminController.getAnalytics);

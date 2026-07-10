@@ -14,7 +14,7 @@ export default function AdminPromotionsPage() {
     queryFn: () => adminApi.promotions.list() 
   });
 
-  const filtered = promos?.filter((p: any) => 
+  const filtered = promos?.filter((p: { code: string, description: string }) => 
     p.code?.toLowerCase().includes(search.toLowerCase()) || 
     p.description?.toLowerCase().includes(search.toLowerCase())
   );
@@ -23,7 +23,7 @@ export default function AdminPromotionsPage() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-vna-text">Quản lý Khuyến mãi</h1>
-        <Button disabled>Thêm Khuyến mãi</Button>
+        <Button onClick={() => alert('Tính năng đang được phát triển')}>Thêm Khuyến mãi</Button>
       </div>
       
       <Input 
@@ -49,7 +49,7 @@ export default function AdminPromotionsPage() {
             ) : filtered?.length === 0 ? (
               <TableRow><TableCell colSpan={4} className="text-center py-4 text-vna-muted">Chưa có khuyến mãi nào</TableCell></TableRow>
             ) : (
-              filtered?.map((p: any) => (
+              filtered?.map((p: { id: number, code: string, description: string, discountType: string, discountValue: number, isActive: boolean }) => (
                 <TableRow key={p.id}>
                   <TableCell className="font-bold">{p.code}</TableCell>
                   <TableCell>{p.description}</TableCell>

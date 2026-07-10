@@ -31,6 +31,7 @@ export const profileApi = {
   lotusmiles: {
     me: () => api.get('/lotusmiles/me'),
   },
+  getLoyaltyHistory: (): Promise<any> => api.get('/loyalty/history'),
   updateInfo: (data: UpdateProfileDTO): Promise<ProfileUpdateResponse> => api.put('/users/me', data),
   changePassword: (data: ChangePasswordDTO): Promise<ProfileUpdateResponse> => api.post('/auth/change-password', data),
 };

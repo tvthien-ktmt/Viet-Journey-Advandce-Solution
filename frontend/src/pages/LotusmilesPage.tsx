@@ -1,9 +1,11 @@
 import React, { useEffect } from 'react';
 import { useAuth } from '@/store/authStore';
-import { Card, CardContent, CardHeader, CardTitle, Badge } from '@/components/ui';
-import { Plane, Star, Award, History, Clock } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
+import { Plane, Award, History } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { profileApi } from '@/api/profile';
 
 export default function LotusmilesPage() {
   const { user, fetchUser } = useAuth();
@@ -17,10 +19,18 @@ export default function LotusmilesPage() {
     }
   }, [user, navigate]);
 
+  const { data: loyaltyData, isLoading } = useQuery({
+    queryKey: ['loyaltyHistory'],
+    queryFn: () => profileApi.getLoyaltyHistory(),
+    enabled: !!user
+  });
+
   if (!user) return null;
 
-  const tier = user.lotusmilesTier || 'SILVER';
-  const miles = user.lotusmilesMiles || 0;
+  const tier = loyaltyData?.data?.tier || user.lotusmilesTier || 'SILVER';
+  const miles = loyaltyData?.data?.miles || user.lotusmilesMiles || 0;
+  const history = loyaltyData?.data?.history || [];
+  
   const nextTierMiles = tier === 'SILVER' ? 1000 : tier === 'TITANIUM' ? 5000 : tier === 'GOLD' ? 10000 : miles;
   const progress = Math.min((miles / nextTierMiles) * 100, 100);
 
@@ -44,7 +54,6 @@ export default function LotusmilesPage() {
         </div>
 
         <div className="grid md:grid-cols-2 gap-6">
-          
           <Card className="shadow-sm border-vna-border">
             <CardHeader>
               <CardTitle className="text-lg">Thẻ thành viên</CardTitle>
@@ -59,26 +68,25 @@ export default function LotusmilesPage() {
                     <p className="text-sm font-semibold opacity-80 mb-1">Hạng thẻ</p>
                     <p className="text-2xl font-black uppercase tracking-widest">{tier}</p>
                   </div>
-                  <img src="https://www.vietnamairlines.com/~/media/Images/VNANew/Home/Logo/logo_vna_menu.png" alt="VNA" className="h-8 grayscale brightness-0 invert opacity-80" />
+                  <div className="text-right">
+                    <p className="text-sm font-semibold opacity-80 mb-1">Tổng dặm</p>
+                    <p className="text-3xl font-black">{miles.toLocaleString()}</p>
+                  </div>
                 </div>
-                
-                <div className="relative z-10 mt-8">
-                  <p className="text-sm font-semibold opacity-80 mb-1">{user.fullName}</p>
-                  <p className="font-mono text-lg tracking-[0.2em]">{String(user.id).padStart(8, '0')}</p>
+                <div className="mt-8 relative z-10">
+                  <p className="text-sm font-semibold opacity-80 mb-2 uppercase tracking-wider">{user.fullName}</p>
+                  <p className="text-xs opacity-70">Hiệu lực đến: 12/2026</p>
                 </div>
               </div>
 
               <div className="mt-6">
-                <div className="flex justify-between text-sm mb-2 font-medium">
-                  <span className="text-slate-600">Dặm tích lũy: <span className="text-vna-blue font-bold text-lg">{miles.toLocaleString()}</span></span>
-                  <span className="text-slate-400">/{nextTierMiles.toLocaleString()}</span>
+                <div className="flex justify-between text-sm mb-2 text-slate-600 font-medium">
+                  <span>Tiến độ lên hạng {tier === 'SILVER' ? 'TITANIUM' : tier === 'TITANIUM' ? 'GOLD' : tier === 'GOLD' ? 'PLATINUM' : 'MAX'}</span>
+                  <span>{miles.toLocaleString()} / {nextTierMiles.toLocaleString()} dặm</span>
                 </div>
-                <div className="w-full h-3 bg-slate-200 rounded-full overflow-hidden">
-                  <div className="h-full bg-vna-gold transition-all duration-1000" style={{ width: `${progress}%` }}></div>
+                <div className="w-full bg-slate-200 rounded-full h-3 overflow-hidden shadow-inner">
+                  <div className="bg-vna-blue h-3 rounded-full transition-all duration-1000 ease-out" style={{ width: `${progress}%` }}></div>
                 </div>
-                {tier !== 'PLATINUM' && (
-                  <p className="text-xs text-slate-500 mt-2 text-right">Cần thêm {(nextTierMiles - miles).toLocaleString()} dặm để lên hạng {tier === 'SILVER' ? 'TITANIUM' : tier === 'TITANIUM' ? 'GOLD' : 'PLATINUM'}</p>
-                )}
               </div>
             </CardContent>
           </Card>

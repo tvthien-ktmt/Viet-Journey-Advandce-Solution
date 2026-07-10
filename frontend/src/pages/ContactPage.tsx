@@ -1,16 +1,35 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui';
 import { Button } from '@/components/ui';
 import { Input } from '@/components/ui';
 import { Label } from '@/components/ui';
 import { Phone, Mail, MapPin, MessageSquare, Clock } from 'lucide-react';
 import { toast } from 'sonner';
+import { contactApi } from '@/api/contact';
+import { useMutation } from '@tanstack/react-query';
 
 export default function ContactPage() {
-  
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    subject: '',
+    message: '',
+    type: 'contact',
+  });
+
+  const submitMutation = useMutation({
+    mutationFn: (data: any) => contactApi.submitContact(data),
+    onSuccess: () => {
+      toast.success('Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi trong thời gian sớm nhất.');
+      setFormData({ name: '', email: '', phone: '', subject: '', message: '', type: 'contact' });
+    },
+    onError: () => toast.error('Có lỗi xảy ra, vui lòng thử lại sau.')
+  });
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success('Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi trong thời gian sớm nhất.');
+    submitMutation.mutate(formData);
   };
 
   return (
@@ -97,25 +116,21 @@ export default function ContactPage() {
                   <div className="grid md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <Label>Họ và Tên <span className="text-red-500">*</span></Label>
-                      <Input placeholder="Nguyễn Văn A" required className="h-12 rounded-lg" />
+                      <Input value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} placeholder="Nguyễn Văn A" required className="h-12 rounded-lg" />
                     </div>
                     <div className="space-y-2">
                       <Label>Địa chỉ Email <span className="text-red-500">*</span></Label>
-                      <Input type="email" placeholder="email@example.com" required className="h-12 rounded-lg" />
+                      <Input type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} placeholder="email@example.com" required className="h-12 rounded-lg" />
                     </div>
                     <div className="space-y-2">
                       <Label>Số Điện Thoại <span className="text-red-500">*</span></Label>
-                      <Input type="tel" placeholder="0912345678" required className="h-12 rounded-lg" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Mã Đặt Chỗ (Nếu có)</Label>
-                      <Input placeholder="VD: BK1234" className="h-12 uppercase rounded-lg" />
+                      <Input type="tel" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} placeholder="0912345678" required className="h-12 rounded-lg" />
                     </div>
                   </div>
 
                   <div className="space-y-2">
                     <Label>Chủ đề <span className="text-red-500">*</span></Label>
-                    <select className="w-full h-12 px-3 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-vna-blue focus:border-transparent bg-white rounded-lg">
+                    <select value={formData.subject} onChange={e => setFormData({...formData, subject: e.target.value})} required className="w-full h-12 px-3 border border-slate-200 focus:outline-none focus:ring-2 focus:ring-vna-blue focus:border-transparent bg-white rounded-lg">
                       <option value="">Chọn chủ đề cần hỗ trợ</option>
                       <option value="book">Hỗ trợ đặt vé / Đổi ngày</option>
                       <option value="refund">Hoàn vé</option>
@@ -132,11 +147,13 @@ export default function ContactPage() {
                       className="w-full min-h-[150px] p-4 border border-slate-200 rounded-md focus:outline-none focus:ring-2 focus:ring-vna-blue focus:border-transparent resize-none" 
                       placeholder="Xin vui lòng mô tả chi tiết vấn đề của Quý khách..."
                       required
+                      value={formData.message}
+                      onChange={e => setFormData({...formData, message: e.target.value})}
                     ></textarea>
                   </div>
 
-                  <Button type="submit" size="lg" className="bg-vna-gold hover:bg-vna-gold/90 text-white px-10 h-14 text-base rounded-lg transition-all duration-300">
-                    Gửi Yêu Cầu
+                  <Button type="submit" size="lg" disabled={submitMutation.isPending} className="bg-vna-gold hover:bg-vna-gold/90 text-white px-10 h-14 text-base rounded-lg transition-all duration-300">
+                    {submitMutation.isPending ? 'Đang gửi...' : 'Gửi Yêu Cầu'}
                   </Button>
                 </form>
 

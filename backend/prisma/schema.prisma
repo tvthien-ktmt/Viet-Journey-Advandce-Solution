@@ -23,11 +23,24 @@ model User {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  bookings      Booking[]
-  reviews       Review[]
-  wishlists     Wishlist[]
-  notifications Notification[]
-  refreshTokens RefreshToken[]
+  bookings           Booking[]
+  reviews            Review[]
+  wishlists          Wishlist[]
+  notifications      Notification[]
+  refreshTokens      RefreshToken[]
+  loyaltyTransactions LoyaltyTransaction[]
+}
+
+model LoyaltyTransaction {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  user        User     @relation(fields: [userId], references: [id])
+  points      Int
+  type        String   // 'EARN' | 'SPEND'
+  description String
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
 }
 
 enum Role {

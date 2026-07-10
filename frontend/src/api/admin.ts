@@ -36,6 +36,9 @@ export const adminApi = {
   },
   tours: {
     list: (): Promise<any[]> => api.get('/admin/tours'),
+    create: (data: any): Promise<any> => api.post('/tours', data), // Notice route in backend is /api/tours with Admin auth
+    update: (id: string, data: any): Promise<any> => api.put(`/tours/${id}`, data),
+    delete: (id: string): Promise<any> => api.delete(`/tours/${id}`),
   },
   feedbacks: {
     list: (): Promise<any[]> => api.get('/admin/feedbacks'),

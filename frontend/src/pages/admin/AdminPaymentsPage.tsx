@@ -14,7 +14,7 @@ export default function AdminPaymentsPage() {
     queryFn: () => adminApi.payments.list() 
   });
 
-  const filtered = payments?.filter((p: any) => 
+  const filtered = payments?.filter((p: { transactionId: string, booking: { bookingCode: string } }) => 
     p.transactionId?.toLowerCase().includes(search.toLowerCase()) ||
     p.booking?.bookingCode?.toLowerCase().includes(search.toLowerCase())
   );
@@ -22,7 +22,7 @@ export default function AdminPaymentsPage() {
   const handleExportCSV = () => {
     if (!payments) return;
     const headers = ['Mã giao dịch', 'Mã PNR', 'Số tiền', 'Trạng thái', 'Ngày GD'];
-    const rows = payments.map((p: any) => [
+    const rows = payments.map((p: { transactionId: string, booking: { bookingCode: string }, amount: number, status: string, paymentDate: string, createdAt: string }) => [
       p.transactionId || 'N/A',
       p.booking?.bookingCode || 'N/A',
       p.amount,
@@ -78,7 +78,7 @@ export default function AdminPaymentsPage() {
                   <TableCell colSpan={5} className="text-center py-8 text-vna-muted">Không tìm thấy giao dịch nào</TableCell>
                 </TableRow>
               ) : (
-                filtered?.map((p: any) => (
+                filtered?.map((p: { id: number, transactionId: string, booking: { bookingCode: string, user: { email: string } }, amount: number, status: 'SUCCESS'|'FAILED'|'PENDING', paymentDate: string, createdAt: string }) => (
                   <TableRow key={p.id}>
                     <TableCell className="font-mono">{p.transactionId || 'N/A'}</TableCell>
                     <TableCell className="font-bold text-vna-gold">{p.booking?.bookingCode || 'N/A'}</TableCell>

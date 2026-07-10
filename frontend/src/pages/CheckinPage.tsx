@@ -7,6 +7,7 @@ import { useT } from '@/store/langStore';
 import { Search, CheckCircle2, PlaneTakeoff, Printer, Download, MapPin, Calendar, Clock, AlertCircle } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { toast } from 'sonner';
+import { bookingApi } from '@/api/booking';
 
 export default function CheckinPage() {
   const t = useT();
@@ -25,11 +26,12 @@ export default function CheckinPage() {
     departTime: string;
     arriveTime: string;
     gate: string;
-    passengers: { id: string, name: string, seat: string }[];
+    passengers: { id: string, name: string, seat: string, type?: string, fullName?: string, seatNumber?: string }[];
+    qrCodeUrl?: string;
   }
   const [booking, setBooking] = useState<FlightBooking | null>(null);
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!code || !lastName) {
       toast.error('Vui lòng nhập đầy đủ thông tin');
@@ -37,37 +39,45 @@ export default function CheckinPage() {
     }
     
     setIsSearching(true);
-    
-    setTimeout(() => {
-      setIsSearching(false);
-      // MOCK DATA
-      if (code.toUpperCase() === 'BK1234' && lastName.toUpperCase() === 'NGUYEN') {
+    try {
+      const data: any = await bookingApi.search(code, lastName);
+      if (data && data.bookingType === 'flight') {
+        const flight = data.flight;
         setBooking({
-          id: 'BK1234',
-          bookingCode: 'BK1234',
-          route: 'HAN - SGN',
-          flightNo: 'VN201',
-          date: '15/10/2025',
-          from: 'Hà Nội',
-          to: 'TP. Hồ Chí Minh',
-          departTime: '08:00',
-          arriveTime: '10:15',
-          gate: '4',
-          passengers: [
-            { id: 'p1', name: 'NGUYEN VAN A', seat: '12A' },
-            { id: 'p2', name: 'LE THI B', seat: '12B' }
-          ]
+          id: String(data.id),
+          bookingCode: data.bookingCode,
+          route: `${flight?.departureAirport} - ${flight?.arrivalAirport}`,
+          flightNo: flight?.flightNumber || 'VN000',
+          date: new Date(flight?.departureTime).toLocaleDateString('vi-VN'),
+          from: flight?.departureAirport || '',
+          to: flight?.arrivalAirport || '',
+          departTime: new Date(flight?.departureTime).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+          arriveTime: new Date(flight?.arrivalTime).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+          gate: 'TBD',
+          passengers: data.passengers || []
         });
         setStep(2);
       } else {
-        toast.error('Không tìm thấy đặt chỗ phù hợp để làm thủ tục.');
+        toast.error('Không tìm thấy chuyến bay phù hợp');
       }
-    }, 1000);
+    } catch (e) {
+      toast.error('Không tìm thấy đặt chỗ phù hợp để làm thủ tục.');
+    } finally {
+      setIsSearching(false);
+    }
   };
 
-  const handleCompleteCheckin = () => {
-    toast.success('Làm thủ tục thành công!');
-    setStep(3);
+  const handleCompleteCheckin = async () => {
+    try {
+      const res: any = await bookingApi.checkin(code, lastName);
+      if (res && res.success) {
+        toast.success('Làm thủ tục thành công!');
+        setBooking(prev => prev ? { ...prev, qrCodeUrl: res.data.qrCodeUrl } : null);
+        setStep(3);
+      }
+    } catch (e) {
+      toast.error('Có lỗi xảy ra khi check-in');
+    }
   };
 
   return (
@@ -212,7 +222,7 @@ export default function CheckinPage() {
 
             {/* Boarding Pass Cards (Rendered for Print) */}
             <div className="space-y-6">
-              {booking.passengers.map((p: {id: string, name: string, seat: string}) => (
+              {booking.passengers.map((p: any) => (
                 <div key={p.id} className="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden flex flex-col md:flex-row print:shadow-none print:border print:border-black print:mb-8 break-inside-avoid">
                   
                   {/* Left Side (Main) */}
@@ -230,7 +240,7 @@ export default function CheckinPage() {
 
                     <div className="mb-6">
                       <p className="text-xs text-slate-500 font-semibold uppercase">Name of Passenger</p>
-                      <p className="text-xl font-bold">{p.name}</p>
+                      <p className="text-xl font-bold">{p.fullName || p.name}</p>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -271,7 +281,7 @@ export default function CheckinPage() {
                       </div>
                       <div className="bg-blue-50 p-3 rounded text-center print:bg-white print:border print:border-black">
                         <p className="text-xs text-slate-500 font-semibold uppercase">Seat</p>
-                        <p className="text-2xl font-bold text-vna-blue print:text-vna-text">{p.seat}</p>
+                        <p className="text-2xl font-bold text-vna-blue print:text-vna-text">{p.seatNumber || p.seat || '---'}</p>
                       </div>
                     </div>
                   </div>
@@ -285,7 +295,7 @@ export default function CheckinPage() {
                       <div className="space-y-4">
                         <div>
                           <p className="text-xs text-slate-500 font-semibold uppercase">Name</p>
-                          <p className="font-bold line-clamp-1">{p.name}</p>
+                          <p className="font-bold line-clamp-1">{p.fullName || p.name}</p>
                         </div>
                         <div className="flex justify-between">
                           <div>
@@ -294,14 +304,14 @@ export default function CheckinPage() {
                           </div>
                           <div>
                             <p className="text-xs text-slate-500 font-semibold uppercase">Seat</p>
-                            <p className="font-bold">{p.seat}</p>
+                            <p className="font-bold">{p.seatNumber || p.seat || '---'}</p>
                           </div>
                         </div>
                       </div>
                     </div>
                     
                     <div className="mt-6 flex justify-center bg-white p-2 rounded">
-                      <QRCodeSVG value={`${booking.id}|${p.name}|${booking.flightNo}|${booking.date}|${booking.from}|${booking.to}|${p.seat}`} size={120} />
+                      <QRCodeSVG value={`${booking.id}|${p.fullName || p.name}|${booking.flightNo}|${booking.date}|${booking.from}|${booking.to}|${p.seatNumber || p.seat || '---'}`} size={120} />
                     </div>
                   </div>
 

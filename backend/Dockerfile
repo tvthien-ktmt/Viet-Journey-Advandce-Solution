@@ -9,8 +9,6 @@ RUN npm install
 
 COPY . .
 
-ENV DATABASE_URL=""
-
 RUN npx prisma generate
 RUN npx tsc
 RUN mkdir -p uploads

@@ -206,11 +206,108 @@ export const vnpayIpn = async (req: Request, res: Response): Promise<void> => {
                 });
                 res.status(200).json({ Message: 'Payment Failed', RspCode: '00' });
             }
-        } else {
-            res.status(400).json({ Message: 'Invalid signature', RspCode: '97' });
         }
+        logger.info('VNPay IPN Invalid Checksum');
+        res.status(200).json({ RspCode: '97', Message: 'Invalid Checksum' });
     } catch (error) {
         logger.error('vnpayIpn error:', error);
-        res.status(500).json({ Message: 'Server Error', RspCode: '99' });
+        res.status(200).json({ RspCode: '99', Message: 'Unknown error' });
+    }
+};
+
+export const createQRPayment = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const { bookingId, gateway = 'VIETQR' } = req.body;
+
+        const booking = await prisma.booking.findUnique({
+            where: { id: Number(bookingId) },
+            include: { payment: true }
+        });
+
+        if (!booking || booking.userId !== req.user?.id) {
+            res.status(404).json({ success: false, message: 'Booking not found' });
+            return;
+        }
+
+        if (booking.payment?.status === 'SUCCESS') {
+            res.status(400).json({ success: false, message: 'Already paid' });
+            return;
+        }
+
+        const transactionId = crypto.randomUUID();
+        await prisma.payment.upsert({
+            where: { bookingId: booking.id },
+            update: { transactionId },
+            create: {
+                bookingId: booking.id,
+                amount: booking.totalPrice,
+                status: 'PENDING',
+                transactionId
+            }
+        });
+
+        // Generate a mock QR payload. For a real VietQR, this would be a specialized string.
+        const qrPayload = JSON.stringify({ bookingId: booking.id, transactionId, gateway, amount: Number(booking.totalPrice) });
+        const qrCodeUrl = `data:image/png;base64,${Buffer.from(qrPayload).toString('base64')}`;
+
+        res.json({
+            success: true,
+            data: {
+                qrCodeUrl,
+                transactionId,
+                expiresIn: 300 // 5 minutes
+            }
+        });
+    } catch (error) {
+        logger.error('createQRPayment error:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+};
+
+export const getPaymentStatus = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const { id } = req.params; // Booking ID
+        const payment = await prisma.payment.findUnique({
+            where: { bookingId: Number(id) }
+        });
+
+        res.json({
+            success: true,
+            data: { status: payment?.status || 'PENDING' }
+        });
+    } catch (error) {
+        logger.error('getPaymentStatus error:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+};
+
+export const mockWebhook = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { transactionId, status } = req.body;
+        const payment = await prisma.payment.findFirst({ where: { transactionId } });
+
+        if (!payment) {
+            res.status(404).json({ success: false, message: 'Payment not found' });
+            return;
+        }
+
+        const updatedPayment = await prisma.payment.update({
+            where: { id: payment.id },
+            data: { status: status === 'SUCCESS' ? 'SUCCESS' : 'FAILED', paymentDate: new Date() }
+        });
+
+        if (status === 'SUCCESS') {
+            await prisma.booking.update({
+                where: { id: payment.bookingId },
+                data: { status: 'CONFIRMED' }
+            });
+            // Mock send email
+            logger.info(`Payment Success for booking ${payment.bookingId}. Sending invoice...`);
+        }
+
+        res.json({ success: true, message: 'Webhook processed' });
+    } catch (error) {
+        logger.error('mockWebhook error:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
     }
 };

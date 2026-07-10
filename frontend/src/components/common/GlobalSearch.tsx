@@ -4,11 +4,11 @@ import { Search, X, Plane, Map, Tag, Newspaper } from 'lucide-react';
 import { Input, Button } from '@/components/ui';
 import { api } from '@/api/client';
 import { useQuery } from '@tanstack/react-query';
-import { useDebounce } from 'use-debounce';
+import { useDebounce } from '@/hooks/useDebounce';
 
 export function GlobalSearch({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const [query, setQuery] = useState('');
-  const [debouncedQuery] = useDebounce(query, 500);
+  const debouncedQuery = useDebounce(query, 500);
   const navigate = useNavigate();
 
   useEffect(() => {

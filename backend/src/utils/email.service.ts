@@ -5,12 +5,16 @@ const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST || 'smtp.ethereal.email',
     port: parseInt(process.env.SMTP_PORT || '587'),
     auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
+        user: process.env.SMTP_USER || '',
+        pass: process.env.SMTP_PASS || '',
     },
 });
 
 export const sendOTP = async (email: string, otp: string) => {
+    if (!process.env.SMTP_USER) {
+        logger.warn(`Mock send OTP to ${email}: ${otp}`);
+        return true;
+    }
     try {
         const mailOptions = {
             from: `"VietJourney Advance" <${process.env.SMTP_USER || 'no-reply@vietjourney.com'}>`,
@@ -49,6 +53,10 @@ export const sendOTP = async (email: string, otp: string) => {
 };
 
 export const sendInvoice = async (email: string, bookingCode: string, amount: number) => {
+    if (!process.env.SMTP_USER) {
+        logger.warn(`Mock send Invoice to ${email} for booking ${bookingCode}`);
+        return true;
+    }
     try {
         const mailOptions = {
             from: `"VietJourney Advance" <${process.env.SMTP_USER || 'no-reply@vietjourney.com'}>`,

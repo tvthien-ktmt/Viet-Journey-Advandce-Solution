@@ -137,3 +137,45 @@ export const deleteFlight = async (req: Request, res: Response): Promise<void> =
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };
+
+export const getFlightStatus = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const flightNumberStr = req.params.flightNumber as string;
+        const flight = await prisma.flight.findFirst({
+            where: { flightNumber: flightNumberStr },
+            orderBy: { departureTime: 'desc' }
+        });
+
+        if (!flight) {
+            res.status(404).json({ success: false, message: 'Flight not found' });
+            return;
+        }
+
+        const now = new Date();
+        let status = 'SCHEDULED';
+        const dept = new Date(flight.departureTime);
+        const arr = new Date(flight.arrivalTime);
+
+        if (now >= arr) {
+            status = 'LANDED';
+        } else if (now >= dept) {
+            status = 'IN_AIR';
+        } else if (now >= new Date(dept.getTime() - 45 * 60000)) {
+            status = 'BOARDING';
+        }
+
+        res.json({
+            success: true,
+            data: {
+                ...flight,
+                status,
+                gate: 'A12',
+                terminal: 'T1',
+                baggageClaim: 'Carousel 4'
+            }
+        });
+    } catch (error) {
+        logger.error('getFlightStatus error:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+};

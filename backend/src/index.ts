@@ -19,6 +19,10 @@ import searchRoutes from './routes/search.routes';
 import paymentRoutes from './routes/payment.routes';
 import uploadRoutes from './routes/upload.routes';
 import promotionRoutes from './routes/promotion.routes';
+import loyaltyRoutes from './routes/loyalty.routes';
+import checkinRoutes from './routes/checkin.routes';
+import addonsRoutes from './routes/addons.routes';
+import contactRoutes from './routes/contact.routes';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
@@ -72,6 +76,10 @@ app.use('/api/search', searchRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/uploads', uploadRoutes);
 app.use('/api/promotions', promotionRoutes);
+app.use('/api/loyalty', loyaltyRoutes);
+app.use('/api/checkin', checkinRoutes);
+app.use('/api/addons', addonsRoutes);
+app.use('/api/contact', contactRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'UP', message: 'Node.js backend is running!' });

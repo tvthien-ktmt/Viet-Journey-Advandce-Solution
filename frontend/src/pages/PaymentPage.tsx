@@ -1,29 +1,59 @@
-
 import { useParams, useNavigate, Navigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { io } from 'socket.io-client';
 import { bookingApi } from '@/api/booking';
-import { Card } from '@/components/ui';
-import { Button } from '@/components/ui';
-import { Badge } from '@/components/ui';
-import { Separator } from '@/components/ui';
+import { Card, Button, Badge, Separator } from '@/components/ui';
 import { toast } from 'sonner';
 import { formatVND } from '@/lib/formatters';
 import { useAuth } from '@/store/authStore';
-import { useState } from 'react';
 
 export default function PaymentPage() {
   const { bookingId } = useParams<{ bookingId: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [usePoints, setUsePoints] = useState(false);
+  const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
+  const [countdown, setCountdown] = useState<number>(300);
 
   const { data: booking, isLoading } = useQuery({
     queryKey: ['booking', bookingId],
     queryFn: () => bookingApi.get(bookingId!),
     enabled: !!bookingId,
   });
+
+  // Polling hook
+  useEffect(() => {
+    let interval: any;
+    if (qrCodeUrl && countdown > 0) {
+      interval = setInterval(async () => {
+        try {
+          const res = await bookingApi.getPaymentStatus(bookingId!);
+          if (res.data?.status === 'SUCCESS') {
+            toast.success('Thanh toán thành công!');
+            navigate(`/payment/callback?vnp_ResponseCode=00&vnp_TxnRef=${booking?.id}`);
+          }
+        } catch (e) {
+          // ignore
+        }
+      }, 5000);
+    }
+    return () => clearInterval(interval);
+  }, [qrCodeUrl, countdown, bookingId, navigate, booking?.id]);
+
+  // Countdown hook
+  useEffect(() => {
+    let timer: any;
+    if (qrCodeUrl && countdown > 0) {
+      timer = setInterval(() => {
+        setCountdown((prev) => prev - 1);
+      }, 1000);
+    } else if (countdown === 0 && qrCodeUrl) {
+      setQrCodeUrl(null);
+      toast.error('Mã QR đã hết hạn, vui lòng tạo lại.');
+    }
+    return () => clearInterval(timer);
+  }, [qrCodeUrl, countdown]);
 
   useEffect(() => {
     if (booking?.bookingCode) {
@@ -37,6 +67,19 @@ export default function PaymentPage() {
     }
   }, [booking?.bookingCode, booking?.id, navigate]);
 
+  const createQrMutation = useMutation({
+    mutationFn: () => bookingApi.createQRPayment(bookingId!),
+    onSuccess: (data: any) => {
+      if (data?.data?.qrCodeUrl) {
+        setQrCodeUrl(data.data.qrCodeUrl);
+        setCountdown(data.data.expiresIn || 300);
+      } else {
+        toast.error('Không thể tạo mã QR');
+      }
+    },
+    onError: () => toast.error('Tạo mã QR thất bại')
+  });
+
   const payMutation = useMutation({
     mutationFn: () => bookingApi.payVnpay(bookingId!, usePoints),
     onSuccess: (data: { paymentUrl?: string }) => {
@@ -46,9 +89,7 @@ export default function PaymentPage() {
         toast.error('Không nhận được URL thanh toán');
       }
     },
-    onError: () => {
-      toast.error('Thanh toán thất bại');
-    }
+    onError: () => toast.error('Thanh toán thất bại')
   });
 
   if (isLoading) return <div className="text-center py-20">Đang tải...</div>;
@@ -72,26 +113,47 @@ export default function PaymentPage() {
         
         <div className="grid md:grid-cols-3 gap-6 mt-6">
           <div className="md:col-span-2">
-            <Card className="p-6 shadow-sm border-vna-border rounded-xl">
+            <Card className="p-6 shadow-sm border-vna-border rounded-xl mb-6">
               <h3 className="font-bold text-vna-text mb-4 text-lg">Phương thức thanh toán</h3>
               <div className="space-y-3">
                 <label className="flex items-center gap-3 border-2 border-vna-blue rounded-xl p-4 cursor-pointer bg-vna-blue/5">
                   <input type="radio" checked readOnly className="text-vna-blue focus:ring-vna-blue rounded-lg" />
                   <div className="flex-1">
-                    <p className="font-semibold text-vna-text">VNPAY</p>
-                    <p className="text-xs text-vna-muted">QR Pay, thẻ ATM nội địa, thẻ quốc tế</p>
+                    <p className="font-semibold text-vna-text">VietQR / VNPAY</p>
+                    <p className="text-xs text-vna-muted">Mở App ngân hàng để quét mã QR</p>
                   </div>
                   <Badge className="bg-vna-blue text-white hover:bg-vna-blue transition-all duration-300">Được chọn</Badge>
                 </label>
-                <label className="flex items-center gap-3 border border-vna-border rounded-xl p-4 opacity-50 cursor-not-allowed">
-                  <input type="radio" disabled />
-                  <div>
-                    <p className="font-semibold text-vna-text">Visa / Mastercard / JCB</p>
-                    <p className="text-xs text-vna-muted">Sắp hỗ trợ</p>
-                  </div>
-                </label>
               </div>
             </Card>
+
+            {qrCodeUrl ? (
+              <Card className="p-8 text-center shadow-sm border-vna-border rounded-xl flex flex-col items-center">
+                <h3 className="font-bold text-xl mb-2">Quét mã QR để thanh toán</h3>
+                <p className="text-slate-500 mb-6 text-sm">Sử dụng ứng dụng ngân hàng hoặc ví điện tử</p>
+                <div className="bg-white p-4 rounded-2xl shadow-inner border mb-6">
+                  <img src={qrCodeUrl} alt="VietQR" className="w-64 h-64 object-contain" />
+                </div>
+                <div className="flex items-center gap-2 text-vna-red font-mono text-xl font-bold bg-vna-red/10 px-6 py-3 rounded-full">
+                  <span>Mã hết hạn sau:</span>
+                  <span>
+                    {Math.floor(countdown / 60)}:{(countdown % 60).toString().padStart(2, '0')}
+                  </span>
+                </div>
+                <p className="mt-4 text-sm text-slate-400">Hệ thống đang chờ thanh toán...</p>
+              </Card>
+            ) : (
+              <div className="flex justify-center mt-8">
+                <Button 
+                  size="lg" 
+                  className="w-full max-w-sm bg-vna-blue hover:bg-vna-blue/90" 
+                  onClick={() => createQrMutation.mutate()}
+                  disabled={createQrMutation.isPending}
+                >
+                  {createQrMutation.isPending ? 'Đang tạo...' : 'Tạo mã QR Thanh Toán'}
+                </Button>
+              </div>
+            )}
           </div>
 
           <div className="md:col-span-1">
@@ -147,13 +209,6 @@ export default function PaymentPage() {
                 </div>
               </div>
               
-              <Button 
-                className="w-full mt-6 bg-vna-gold hover:bg-vna-gold-dark text-white py-6 text-lg font-bold shadow-lg rounded-lg transition-all duration-300"
-                disabled={payMutation.isPending}
-                onClick={() => payMutation.mutate()}
-              >
-                {payMutation.isPending ? 'Đang xử lý...' : 'Thanh toán ngay'}
-              </Button>
             </Card>
           </div>
         </div>
@@ -161,4 +216,3 @@ export default function PaymentPage() {
     </div>
   );
 }
-

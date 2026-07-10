@@ -12,7 +12,7 @@ export default function AdminFeedbacksPage() {
     queryFn: () => adminApi.feedbacks.list() 
   });
 
-  const filtered = feedbacks?.filter((f: any) => 
+  const filtered = feedbacks?.filter((f: { comment: string, user: { email: string } }) => 
     f.comment?.toLowerCase().includes(search.toLowerCase()) || 
     f.user?.email?.toLowerCase().includes(search.toLowerCase())
   );
@@ -45,7 +45,7 @@ export default function AdminFeedbacksPage() {
             ) : filtered?.length === 0 ? (
               <TableRow><TableCell colSpan={3} className="text-center py-4 text-vna-muted">Chưa có phản hồi nào</TableCell></TableRow>
             ) : (
-              filtered?.map((f: any) => (
+              filtered?.map((f: { id: number, user: { email: string }, rating: number, comment: string }) => (
                 <TableRow key={f.id}>
                   <TableCell className="font-medium">{f.user?.email}</TableCell>
                   <TableCell>{'⭐'.repeat(f.rating)}</TableCell>

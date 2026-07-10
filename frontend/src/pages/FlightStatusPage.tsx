@@ -7,6 +7,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui';
 import { useT } from '@/store/langStore';
 import { Search, Plane, Clock, MapPin, RefreshCw, AlertCircle } from 'lucide-react';
 import { format } from 'date-fns';
+import { getFlightStatus } from '@/api/flights';
+import { toast } from 'sonner';
 
 type FlightStatus = 'onTime' | 'delayed' | 'cancelled' | 'boarding' | 'departed' | 'landed';
 
@@ -56,24 +58,44 @@ export default function FlightStatusPage() {
     performSearch('route');
   };
 
-  const performSearch = (type: 'flight' | 'route') => {
+  const performSearch = async (type: 'flight' | 'route') => {
     setIsSearching(true);
-    setTimeout(() => {
-      setIsSearching(false);
-      setLastUpdated(new Date());
-      
-      let filtered = [...mockStatuses];
+    
+    try {
       if (type === 'flight') {
-        filtered = mockStatuses.filter(f => f.flightNo.toLowerCase() === flightNo.toLowerCase());
-      } else if (from && to) {
-        filtered = mockStatuses.filter(f => 
-          f.from.toLowerCase() === from.toLowerCase() && 
-          f.to.toLowerCase() === to.toLowerCase()
-        );
+        const res: any = await getFlightStatus(flightNo, date);
+        if (res.success && res.data) {
+          const flightData = res.data;
+          setResults([{
+            id: flightData.flightNumber,
+            flightNo: flightData.flightNumber,
+            from: flightData.departureAirport,
+            to: flightData.arrivalAirport,
+            scheduledDepart: new Date(flightData.departureTime).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+            actualDepart: new Date(flightData.departureTime).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+            scheduledArrive: new Date(flightData.arrivalTime).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+            actualArrive: new Date(flightData.arrivalTime).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+            status: flightData.status,
+            gate: 'TBD',
+            terminal: 'T1'
+          }]);
+          setLastUpdated(new Date());
+        } else {
+          setResults([]);
+        }
+      } else {
+        // mock for route search
+        setTimeout(() => {
+          setResults(mockStatuses.filter(s => s.from.includes(from) && s.to.includes(to)));
+          setLastUpdated(new Date());
+        }, 800);
       }
-      
-      setResults(filtered);
-    }, 800);
+    } catch (e) {
+      toast.error('Không tìm thấy chuyến bay');
+      setResults([]);
+    } finally {
+      setIsSearching(false);
+    }
   };
 
   const getStatusBadge = (status: FlightStatus) => {
