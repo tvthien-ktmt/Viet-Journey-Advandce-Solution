@@ -11,6 +11,8 @@ router.get('/search', controller.searchBookings);
 router.get('/:id', authenticate, controller.getBookingById);
 router.post('/', authenticate, validate(createBookingSchema), controller.createBooking);
 router.patch('/:id/addons', authenticate, controller.updateBookingAddons);
+router.post('/:id/cancel', authenticate, controller.cancelBooking);
+router.post('/:id/change-flight', authenticate, controller.changeFlight);
 
 // Admin only
 router.get('/', authenticate, authorizeAdmin, controller.getAllBookings);

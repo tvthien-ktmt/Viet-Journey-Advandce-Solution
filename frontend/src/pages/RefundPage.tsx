@@ -6,11 +6,12 @@ import { Input } from '@/components/ui';
 import { Label } from '@/components/ui';
 import { ChevronLeft, RefreshCcw, Search, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { bookingApi } from '@/api/booking';
 
 export default function RefundPage() {
   const navigate = useNavigate();
   const [code, setCode] = useState('');
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(''); // We use this for lastName now
   const [isSearching, setIsSearching] = useState(false);
   interface RefundBooking {
     id: string;
@@ -24,35 +25,48 @@ export default function RefundPage() {
   const [isRefunding, setIsRefunding] = useState(false);
   const [isRefunded, setIsRefunded] = useState(false);
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!code || !email) return;
     setIsSearching(true);
-    setTimeout(() => {
-      setIsSearching(false);
-      // MOCK
-      if (code.toUpperCase() === 'BK1234') {
-        setBooking({
-          id: 'BK1234',
-          route: 'Hà Nội (HAN) - TP. Hồ Chí Minh (SGN)',
-          date: '15/10/2025',
-          price: 3500000,
-          refundFee: 500000,
-          passengers: 2,
-        });
-      } else {
-        toast.error('Không tìm thấy đặt chỗ');
+    try {
+      const b = await bookingApi.search(code, email);
+      if (b.status === 'CANCELLED' || b.status === 'EXPIRED') {
+        toast.error('Đặt chỗ này đã bị hủy hoặc hết hạn');
+        setBooking(null);
+        return;
       }
-    }, 1000);
+      
+      let snap: Record<string, string> = {};
+      try { snap = JSON.parse(b.itemSnapshot || '{}'); } catch(e) {}
+      
+      setBooking({
+        id: b.id.toString(),
+        route: snap.from && snap.to ? `${snap.from} - ${snap.to}` : 'Không rõ',
+        date: b.createdAt ? new Date(b.createdAt).toLocaleDateString('vi-VN') : 'N/A',
+        price: b.totalPrice || 0,
+        refundFee: 500000,
+        passengers: b.passengers?.length || 1,
+      });
+    } catch (e) {
+      toast.error('Không tìm thấy đặt chỗ');
+    } finally {
+      setIsSearching(false);
+    }
   };
 
-  const handleRefund = () => {
+  const handleRefund = async () => {
+    if (!booking) return;
     setIsRefunding(true);
-    setTimeout(() => {
-      setIsRefunding(false);
+    try {
+      await bookingApi.cancelBooking(booking.id);
       setIsRefunded(true);
-      toast.success('Yêu cầu hoàn vé đã được tiếp nhận!');
-    }, 1500);
+      toast.success('Yêu cầu hoàn vé đã được tiếp nhận và xử lý!');
+    } catch (e) {
+      toast.error('Không thể hoàn vé lúc này');
+    } finally {
+      setIsRefunding(false);
+    }
   };
 
   return (
@@ -88,11 +102,12 @@ export default function RefundPage() {
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label>Email liên hệ</Label>
+                    <Label>Họ hành khách</Label>
                     <Input 
-                      type="email"
-                      placeholder="VD: email@example.com"
-                      value={email} onChange={e => setEmail(e.target.value)}
+                      type="text"
+                      placeholder="VD: NGUYEN"
+                      className="uppercase"
+                      value={email} onChange={e => setEmail(e.target.value.toUpperCase())}
                       required
                     />
                   </div>

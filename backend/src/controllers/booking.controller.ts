@@ -286,3 +286,104 @@ export const updateBookingStatus = async (req: Request, res: Response): Promise<
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };
+
+export const cancelBooking = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const { id } = req.params;
+        const userId = req.user?.id;
+
+        const booking = await prisma.booking.findUnique({
+            where: { id: Number(id) },
+            include: { passengers: true }
+        });
+
+        if (!booking || (booking.userId !== userId && req.user?.role !== 'ADMIN')) {
+            res.status(404).json({ success: false, message: 'Booking not found' });
+            return;
+        }
+
+        if (booking.status === 'CANCELLED' || booking.status === 'EXPIRED') {
+            res.status(400).json({ success: false, message: 'Booking is already cancelled or expired' });
+            return;
+        }
+
+        await prisma.$transaction(async (tx) => {
+            await tx.booking.update({
+                where: { id: booking.id },
+                data: { status: 'CANCELLED' }
+            });
+
+            // Restore inventory
+            if (booking.bookingType === 'flight' && booking.flightId) {
+                const pax = booking.passengers?.length || 1;
+                await tx.flight.update({
+                    where: { id: booking.flightId },
+                    data: { availableSeats: { increment: pax } }
+                });
+            }
+        });
+
+        res.json({ success: true, message: 'Booking cancelled successfully' });
+    } catch (error) {
+        logger.error('cancelBooking error:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+};
+
+export const changeFlight = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const { id } = req.params;
+        const { newFlightId } = req.body;
+        const userId = req.user?.id;
+
+        const booking = await prisma.booking.findUnique({
+            where: { id: Number(id) },
+            include: { passengers: true }
+        });
+
+        if (!booking || (booking.userId !== userId && req.user?.role !== 'ADMIN') || booking.bookingType !== 'flight' || !booking.flightId) {
+            res.status(404).json({ success: false, message: 'Valid flight booking not found' });
+            return;
+        }
+
+        const newFlight = await prisma.flight.findUnique({ where: { id: Number(newFlightId) } });
+        if (!newFlight) {
+            res.status(404).json({ success: false, message: 'New flight not found' });
+            return;
+        }
+
+        const pax = booking.passengers?.length || 1;
+        if (newFlight.availableSeats < pax) {
+            res.status(400).json({ success: false, message: 'Not enough seats available on new flight' });
+            return;
+        }
+
+        await prisma.$transaction(async (tx) => {
+            // Restore old flight
+            await tx.flight.update({
+                where: { id: booking.flightId as number },
+                data: { availableSeats: { increment: pax } }
+            });
+
+            // Decrement new flight
+            await tx.flight.update({
+                where: { id: newFlight.id },
+                data: { availableSeats: { decrement: pax } }
+            });
+
+            // Update booking
+            await tx.booking.update({
+                where: { id: booking.id },
+                data: {
+                    flightId: newFlight.id,
+                    itemSnapshot: { flightNumber: newFlight.flightNumber, from: newFlight.departureAirport, to: newFlight.arrivalAirport }
+                }
+            });
+        });
+
+        res.json({ success: true, message: 'Flight changed successfully' });
+    } catch (error) {
+        logger.error('changeFlight error:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+};

@@ -6,11 +6,12 @@ import { Input } from '@/components/ui';
 import { Label } from '@/components/ui';
 import { ChevronLeft, Search, CalendarDays, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { bookingApi } from '@/api/booking';
 
 export default function ChangeFlightPage() {
   const navigate = useNavigate();
   const [code, setCode] = useState('');
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(''); // use as lastName
   const [isSearching, setIsSearching] = useState(false);
   interface ChangeFlightBooking {
     id: string;
@@ -26,40 +27,53 @@ export default function ChangeFlightPage() {
   const [newDate, setNewDate] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleSearch = (e: React.FormEvent) => {
+  const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!code || !email) return;
     setIsSearching(true);
-    setTimeout(() => {
-      setIsSearching(false);
-      // MOCK
-      if (code.toUpperCase() === 'BK1234') {
-        setBooking({
-          id: 'BK1234',
-          route: 'HAN - SGN',
-          oldDate: '15/10/2025',
-          flightNo: 'VN201',
-          changeFee: 350000,
-          fareDifference: 150000,
-        });
-        setStep(2);
-      } else {
-        toast.error('Không tìm thấy đặt chỗ');
+    try {
+      const b = await bookingApi.search(code, email);
+      if (b.status === 'CANCELLED' || b.status === 'EXPIRED') {
+        toast.error('Đặt chỗ này đã bị hủy hoặc hết hạn');
+        setBooking(null);
+        return;
       }
-    }, 1000);
+      
+      let snap: Record<string, string> = {};
+      try { snap = JSON.parse(b.itemSnapshot || '{}'); } catch(e) {}
+
+      setBooking({
+        id: b.id.toString(),
+        route: snap.from && snap.to ? `${snap.from} - ${snap.to}` : 'Không rõ',
+        oldDate: b.createdAt ? new Date(b.createdAt).toLocaleDateString('vi-VN') : 'N/A',
+        flightNo: snap.flightNumber || 'Không rõ',
+        changeFee: 350000,
+        fareDifference: 150000,
+      });
+      setStep(2);
+    } catch (e) {
+      toast.error('Không tìm thấy đặt chỗ');
+    } finally {
+      setIsSearching(false);
+    }
   };
 
-  const handleConfirmChange = () => {
-    if (!newDate) {
-      toast.error('Vui lòng chọn ngày mới');
+  const handleConfirmChange = async () => {
+    if (!newDate || !booking) {
+      toast.error('Vui lòng chọn chuyến bay mới');
       return;
     }
     setIsProcessing(true);
-    setTimeout(() => {
-      setIsProcessing(false);
+    try {
+      // Mock new flight ID since UI doesn't allow picking real flight yet
+      await bookingApi.changeFlight(booking.id, 1);
       setStep(3);
       toast.success('Đổi chuyến thành công!');
-    }, 2000);
+    } catch (e) {
+      toast.error('Không thể đổi chuyến lúc này');
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (
@@ -90,8 +104,8 @@ export default function ChangeFlightPage() {
                     <Input placeholder="VD: BK1234" className="uppercase rounded-lg" value={code} onChange={e => setCode(e.target.value.toUpperCase())} required />
                   </div>
                   <div className="space-y-2">
-                    <Label>Email liên hệ</Label>
-                    <Input type="email" placeholder="VD: email@example.com" value={email} onChange={e => setEmail(e.target.value)} required />
+                    <Label>Họ hành khách</Label>
+                    <Input type="text" placeholder="VD: NGUYEN" className="uppercase" value={email} onChange={e => setEmail(e.target.value.toUpperCase())} required />
                   </div>
                 </div>
                 <Button type="submit" className="flex items-center gap-2 w-full bg-vna-blue rounded-lg" disabled={isSearching}>

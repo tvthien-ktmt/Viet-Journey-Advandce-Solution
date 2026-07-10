@@ -45,4 +45,8 @@ export const bookingApi = {
     api.post('/payments/qr', { bookingId }),
   getPaymentStatus: (bookingId: string): Promise<any> =>
     api.get(`/payments/${bookingId}/status`),
+  cancelBooking: (bookingId: string): Promise<any> =>
+    api.post(`/bookings/${bookingId}/cancel`),
+  changeFlight: (bookingId: string, newFlightId: number): Promise<any> =>
+    api.post(`/bookings/${bookingId}/change-flight`, { newFlightId }),
 };
