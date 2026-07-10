@@ -30,7 +30,7 @@ export default function DashboardPage() {
         <header className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
           <div>
             <h1 className="text-[32px] md:text-[40px] font-bold text-onBackground mb-2">Xin chào, {user?.fullName || 'bạn'}!</h1>
-            <p className="text-[18px] text-onSurface-variant">{t('dashboard.subtitle', 'Tổng quan hoạt động du lịch của bạn')}</p>
+            <p className="text-[18px] text-onSurface-variant">{t('dashboard.subtitle')}</p>
           </div>
           <div className="flex gap-2">
             <button className="w-10 h-10 flex items-center justify-center bg-surface-container-high rounded-full shadow-sm hover:bg-surface-container-highest transition-colors">

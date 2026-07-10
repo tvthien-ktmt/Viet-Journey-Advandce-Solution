@@ -4,7 +4,7 @@ import { authenticate, authorizeAdmin } from '../middlewares/auth.middleware';
 
 const router = Router();
 
-router.get('/search', controller.searchFlights);
+router.get('/', controller.searchFlights);
 router.get('/:id', controller.getFlightById);
 
 // Admin only

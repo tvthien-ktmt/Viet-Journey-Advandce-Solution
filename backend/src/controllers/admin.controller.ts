@@ -73,3 +73,25 @@ export const getAllFlightsAdmin = async (req: Request, res: Response): Promise<v
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };
+
+export const updateUserRole = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { id } = req.params;
+        const { roles } = req.body;
+        
+        let roleToSet = 'USER';
+        if (roles && roles.includes('ADMIN')) {
+            roleToSet = 'ADMIN';
+        }
+
+        const updatedUser = await prisma.user.update({
+            where: { id: Number(id) },
+            data: { role: roleToSet as any }
+        });
+
+        res.json({ success: true, message: 'User role updated', data: updatedUser });
+    } catch (error) {
+        console.error('updateUserRole error:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+};

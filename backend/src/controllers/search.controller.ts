@@ -32,9 +32,9 @@ export const globalSearch = async (req: Request, res: Response): Promise<void> =
             prisma.flight.findMany({
                 where: {
                     OR: [
-                        { from: { contains: keyword } },
-                        { to: { contains: keyword } },
-                        { airline: { contains: keyword } }
+                        { departureAirport: { contains: keyword } },
+                        { arrivalAirport: { contains: keyword } },
+                        { airlineCode: { contains: keyword } }
                     ]
                 },
                 take: 5

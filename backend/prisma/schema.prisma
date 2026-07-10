@@ -147,27 +147,27 @@ model HotelAmenity {
 }
 
 model Flight {
-  id         Int      @id @default(autoincrement())
-  flightNo   String
-  from       String
-  to         String
-  airline    String
-  departTime DateTime
-  arriveTime DateTime
-  duration   String
-  stops      Int
-  aircraft   String
-  cabin      String
-  priceVND   Decimal  @db.Decimal(15, 2)
-  seatsLeft  Int
-  nextDay    Boolean  @default(false)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id               Int      @id @default(autoincrement())
+  flightNumber     String
+  departureAirport String
+  arrivalAirport   String
+  airlineCode      String
+  departureTime    DateTime
+  arrivalTime      DateTime
+  duration         String
+  stops            Int
+  aircraft         String
+  seatClass        String
+  price            Decimal  @db.Decimal(15, 2)
+  availableSeats   Int
+  nextDay          Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   bookings Booking[]
   reviews  Review[]
 
-  @@index([from, to, departTime])
+  @@index([departureAirport, arrivalAirport, departureTime])
 }
 
 model Booking {

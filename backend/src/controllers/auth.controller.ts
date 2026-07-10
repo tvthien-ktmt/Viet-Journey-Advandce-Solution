@@ -36,45 +36,54 @@ const setCookie = (res: Response, token: string, refreshToken: string) => {
 };
 
 export const register = async (req: Request, res: Response): Promise<void> => {
-    const { fullName, email, password, phone } = req.body;
+    try {
+        const { fullName, email, password, phone } = req.body;
 
-    const existingUser = await prisma.user.findUnique({ where: { email } });
-    if (existingUser) {
-        res.status(400).json({ success: false, message: 'Email đã tồn tại!' });
-        return;
+        const existingUser = await prisma.user.findUnique({ where: { email } });
+        if (existingUser) {
+            res.status(400).json({ success: false, message: 'Email đã tồn tại!' });
+            return;
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const newUser = await prisma.user.create({
+            data: {
+                fullName,
+                email,
+                password: hashedPassword,
+                phone
+            }
+        });
+
+        const { token, refreshToken } = generateTokens(newUser);
+        setCookie(res, token, refreshToken);
+
+        await prisma.refreshToken.create({
+            data: {
+                token: refreshToken,
+                userId: newUser.id,
+                expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+            }
+        });
+
+        res.status(201).json({
+            success: true,
+            message: 'Đăng ký thành công!',
+            data: { 
+                token, 
+                refreshToken,
+                user: { id: String(newUser.id), email: newUser.email, fullName: newUser.fullName, role: newUser.role, roles: [newUser.role] } 
+            }
+        });
+    } catch (error: any) {
+        if (error.code === 'P2002') {
+            res.status(400).json({ success: false, message: 'Email đã tồn tại!' });
+            return;
+        }
+        console.error('register error:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
     }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const newUser = await prisma.user.create({
-        data: {
-            fullName,
-            email,
-            password: hashedPassword,
-            phone
-        }
-    });
-
-    const { token, refreshToken } = generateTokens(newUser);
-    setCookie(res, token, refreshToken);
-
-    await prisma.refreshToken.create({
-        data: {
-            token: refreshToken,
-            userId: newUser.id,
-            expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-        }
-    });
-
-    res.status(201).json({
-        success: true,
-        message: 'Đăng ký thành công!',
-        data: { 
-            token, 
-            refreshToken,
-            user: { id: String(newUser.id), email: newUser.email, fullName: newUser.fullName, role: newUser.role, roles: [newUser.role] } 
-        }
-    });
 };
 
 export const login = async (req: Request, res: Response): Promise<void> => {
@@ -133,11 +142,14 @@ export const getMe = async (req: AuthRequest, res: Response): Promise<void> => {
     }
 
     res.json({
-        id: String(user.id),
-        email: user.email,
-        fullName: user.fullName,
-        role: user.role,
-        roles: [user.role]
+        success: true,
+        data: {
+            id: String(user.id),
+            email: user.email,
+            fullName: user.fullName,
+            role: user.role,
+            roles: [user.role]
+        }
     });
 };
 

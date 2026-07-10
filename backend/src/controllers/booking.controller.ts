@@ -6,12 +6,23 @@ import { BookingStatus } from '@prisma/client';
 export const getMyBookings = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
         const userId = req.user?.id;
-        const bookings = await prisma.booking.findMany({
-            where: { userId },
-            include: { tour: true, hotel: true, flight: true, passengers: true, payment: true },
-            orderBy: { createdAt: 'desc' }
-        });
-        res.json({ success: true, data: bookings });
+        const { page = '0', size = '10' } = req.query;
+        const take = parseInt(size as string);
+        const skip = parseInt(page as string) * take;
+
+        const [bookings, totalElements] = await prisma.$transaction([
+            prisma.booking.findMany({
+                where: { userId },
+                skip,
+                take,
+                include: { tour: true, hotel: true, flight: true, passengers: true, payment: true },
+                orderBy: { createdAt: 'desc' }
+            }),
+            prisma.booking.count({ where: { userId } })
+        ]);
+        
+        const totalPages = Math.ceil(totalElements / take);
+        res.json({ success: true, data: { content: bookings, totalElements, totalPages } });
     } catch (error) {
         console.error('getMyBookings error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
@@ -61,7 +72,14 @@ export const searchBookings = async (req: Request, res: Response): Promise<void>
         const booking = await prisma.booking.findFirst({
             where: {
                 bookingCode: String(code),
-                ...(email ? { contactEmail: String(email) } : {})
+                ...(email ? { contactEmail: String(email) } : {}),
+                ...(lastName ? { 
+                    passengers: {
+                        some: {
+                            fullName: { contains: String(lastName) }
+                        }
+                    } 
+                } : {})
             },
             include: { tour: true, hotel: true, flight: true, passengers: true, payment: true }
         });
@@ -85,19 +103,44 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
             return;
         }
 
-        const { bookingType, totalPrice, tourId, hotelId, flightId, passengers, contactEmail, contactPhone, itemSnapshot } = req.body;
+        const { bookingType, referenceId, passengers, contactEmail, contactPhone } = req.body;
         
-        let targetFlight = null;
-        if (bookingType === 'flight' && flightId) {
-            targetFlight = await prisma.flight.findUnique({ where: { id: flightId } });
+        let tourId = null, hotelId = null, flightId = null;
+        let totalPrice = 0;
+        let itemSnapshot = {};
+        const pax = passengers?.length || 1;
+
+        if (bookingType === 'flight' && referenceId) {
+            flightId = referenceId;
+            const targetFlight = await prisma.flight.findUnique({ where: { id: flightId } });
             if (!targetFlight) {
                 res.status(404).json({ success: false, message: 'Flight not found' });
                 return;
             }
-            if (targetFlight.seatsLeft < (passengers?.length || 1)) {
+            if (targetFlight.availableSeats < pax) {
                 res.status(400).json({ success: false, message: 'Not enough seats available' });
                 return;
             }
+            totalPrice = Number(targetFlight.price) * pax;
+            itemSnapshot = { flightNumber: targetFlight.flightNumber, from: targetFlight.departureAirport, to: targetFlight.arrivalAirport };
+        } else if (bookingType === 'tour' && referenceId) {
+            tourId = referenceId;
+            const targetTour = await prisma.tour.findUnique({ where: { id: tourId } });
+            if (!targetTour) {
+                res.status(404).json({ success: false, message: 'Tour not found' });
+                return;
+            }
+            totalPrice = Number(targetTour.price) * pax;
+            itemSnapshot = { tourName: targetTour.name };
+        } else if (bookingType === 'hotel' && referenceId) {
+            hotelId = referenceId;
+            const targetHotel = await prisma.hotel.findUnique({ where: { id: hotelId } });
+            if (!targetHotel) {
+                res.status(404).json({ success: false, message: 'Hotel not found' });
+                return;
+            }
+            totalPrice = Number(targetHotel.price) * pax;
+            itemSnapshot = { hotelName: targetHotel.name };
         }
 
         const bookingCode = 'VJ-' + Math.random().toString(36).substring(2, 10).toUpperCase();
@@ -112,10 +155,10 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
                     bookingCode,
                     contactEmail,
                     contactPhone,
-                    itemSnapshot: itemSnapshot || {},
-                    tourId: tourId || null,
-                    hotelId: hotelId || null,
-                    flightId: flightId || null,
+                    itemSnapshot,
+                    tourId,
+                    hotelId,
+                    flightId,
                     status: BookingStatus.RESERVED,
                     reservedUntil,
                     passengers: passengers ? { create: passengers } : undefined,
@@ -129,7 +172,7 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
             if (bookingType === 'flight' && flightId) {
                 await tx.flight.update({
                     where: { id: flightId },
-                    data: { seatsLeft: { decrement: passengers?.length || 1 } }
+                    data: { availableSeats: { decrement: pax } }
                 });
             }
 

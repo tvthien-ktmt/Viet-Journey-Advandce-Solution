@@ -1,7 +1,6 @@
 import type { FlightBooking, Flight, Passenger, FlightSearchRequest } from '@/types/flight';
 import { api } from './client';
 
-const USE_MOCK = import.meta.env.VITE_USE_MOCK_API === 'true' || false; // TODO: set false khi BE /booking/* ready
 
 export interface HoldRequest {
   outbound: Flight;

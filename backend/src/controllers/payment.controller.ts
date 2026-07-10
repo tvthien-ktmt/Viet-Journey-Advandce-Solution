@@ -34,6 +34,11 @@ export const createPaymentUrl = async (req: AuthRequest, res: Response): Promise
             return;
         }
 
+        if (booking.userId !== req.user?.id) {
+            res.status(403).json({ success: false, message: 'Forbidden: You do not own this booking' });
+            return;
+        }
+
         if (booking.payment?.status === 'SUCCESS') {
             res.status(400).json({ success: false, message: 'Booking is already paid' });
             return;

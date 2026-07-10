@@ -3,33 +3,49 @@ import prisma from '../utils/prisma';
 
 export const searchFlights = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { from, to, departDate } = req.query;
+        const { departureAirport, arrivalAirport, departureTime, page = '0', size = '10' } = req.query;
 
         // Simplified search logic
         let dateFilter = {};
-        if (departDate) {
-            const startOfDay = new Date(departDate as string);
+        if (departureTime) {
+            const startOfDay = new Date(departureTime as string);
             startOfDay.setUTCHours(0, 0, 0, 0);
-            const endOfDay = new Date(departDate as string);
+            const endOfDay = new Date(departureTime as string);
             endOfDay.setUTCHours(23, 59, 59, 999);
             dateFilter = {
-                departTime: {
+                departureTime: {
                     gte: startOfDay,
                     lte: endOfDay
                 }
             };
         }
 
-        const flights = await prisma.flight.findMany({
-            where: {
-                ...(from && { from: from as string }),
-                ...(to && { to: to as string }),
-                ...dateFilter
-            },
-            orderBy: { departTime: 'asc' }
-        });
+        const take = parseInt(size as string);
+        const skip = parseInt(page as string) * take;
 
-        res.json({ success: true, data: { outbound: flights, request: req.query } });
+        const [flights, totalElements] = await prisma.$transaction([
+            prisma.flight.findMany({
+                where: {
+                    ...(departureAirport && { departureAirport: departureAirport as string }),
+                    ...(arrivalAirport && { arrivalAirport: arrivalAirport as string }),
+                    ...dateFilter
+                },
+                skip,
+                take,
+                orderBy: { departureTime: 'asc' }
+            }),
+            prisma.flight.count({
+                where: {
+                    ...(departureAirport && { departureAirport: departureAirport as string }),
+                    ...(arrivalAirport && { arrivalAirport: arrivalAirport as string }),
+                    ...dateFilter
+                }
+            })
+        ]);
+        
+        const totalPages = Math.ceil(totalElements / take);
+
+        res.json({ success: true, data: { content: flights, totalElements, totalPages } });
     } catch (error) {
         console.error('searchFlights error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
@@ -55,12 +71,18 @@ export const getFlightById = async (req: Request, res: Response): Promise<void> 
 
 export const createFlight = async (req: Request, res: Response): Promise<void> => {
     try {
-        const data = req.body;
+        const { 
+            flightNumber, departureAirport, arrivalAirport, airlineCode, 
+            departureTime, arrivalTime, duration, stops, aircraft, 
+            seatClass, price, availableSeats, nextDay 
+        } = req.body;
+        
         const newFlight = await prisma.flight.create({
             data: {
-                ...data,
-                departTime: new Date(data.departTime),
-                arriveTime: new Date(data.arriveTime)
+                flightNumber, departureAirport, arrivalAirport, airlineCode, 
+                duration, stops, aircraft, seatClass, price, availableSeats, nextDay,
+                departureTime: new Date(departureTime),
+                arrivalTime: new Date(arrivalTime)
             }
         });
         res.status(201).json({ success: true, message: 'Flight created', data: newFlight });
@@ -73,14 +95,28 @@ export const createFlight = async (req: Request, res: Response): Promise<void> =
 export const updateFlight = async (req: Request, res: Response): Promise<void> => {
     try {
         const { id } = req.params;
-        const data = req.body;
+        const { 
+            flightNumber, departureAirport, arrivalAirport, airlineCode, 
+            departureTime, arrivalTime, duration, stops, aircraft, 
+            seatClass, price, availableSeats, nextDay 
+        } = req.body;
 
         const updatedFlight = await prisma.flight.update({
             where: { id: Number(id) },
             data: {
-                ...data,
-                departTime: data.departTime ? new Date(data.departTime) : undefined,
-                arriveTime: data.arriveTime ? new Date(data.arriveTime) : undefined
+                ...(flightNumber && { flightNumber }),
+                ...(departureAirport && { departureAirport }),
+                ...(arrivalAirport && { arrivalAirport }),
+                ...(airlineCode && { airlineCode }),
+                ...(duration && { duration }),
+                ...(stops !== undefined && { stops }),
+                ...(aircraft && { aircraft }),
+                ...(seatClass && { seatClass }),
+                ...(price && { price }),
+                ...(availableSeats !== undefined && { availableSeats }),
+                ...(nextDay !== undefined && { nextDay }),
+                ...(departureTime && { departureTime: new Date(departureTime) }),
+                ...(arrivalTime && { arrivalTime: new Date(arrivalTime) })
             }
         });
         res.json({ success: true, message: 'Flight updated', data: updatedFlight });
