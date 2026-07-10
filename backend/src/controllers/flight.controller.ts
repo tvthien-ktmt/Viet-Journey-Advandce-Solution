@@ -179,3 +179,70 @@ export const getFlightStatus = async (req: Request, res: Response): Promise<void
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };
+
+export const getSeatMap = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { id } = req.params;
+        const flight = await prisma.flight.findUnique({
+            where: { id: Number(id) }
+        });
+
+        if (!flight) {
+            res.status(404).json({ success: false, message: 'Flight not found' });
+            return;
+        }
+
+        // Generate deterministic seat map for this flight
+        const generateSeatMap = () => {
+            const seats = [];
+            const COLUMNS_BUSINESS = ['A', 'C', 'D', 'G'];
+            const COLUMNS_ECONOMY = ['A', 'B', 'C', 'D', 'E', 'G'];
+            
+            // Seeded random based on flight number + date
+            const seedStr = `${flight.flightNumber}-${flight.departureTime.toISOString()}`;
+            let hash = 0;
+            for (let i = 0; i < seedStr.length; i++) {
+                hash = seedStr.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            const seededRandom = () => {
+                hash = Math.sin(hash) * 10000;
+                return hash - Math.floor(hash);
+            };
+
+            for (let row = 1; row <= 30; row++) {
+                const isBusiness = row <= 3;
+                const isExitRow = row === 12 || row === 14;
+                const isPremium = row >= 4 && row <= 6;
+                const columns = isBusiness ? COLUMNS_BUSINESS : COLUMNS_ECONOMY;
+                const type = isBusiness ? 'business' : (isExitRow ? 'exit-row' : (isPremium ? 'premium' : 'economy'));
+                
+                let price = 0;
+                if (isBusiness) price = 800000;
+                else if (isPremium) price = 150000;
+                else if (isExitRow) price = 250000;
+                else price = 80000;
+
+                for (const col of columns) {
+                    const id = `${row}${col}`;
+                    let status = 'available';
+                    
+                    // Randomly occupy seats, more likely for economy
+                    const rand = seededRandom();
+                    if (isBusiness && rand < 0.3) status = 'occupied';
+                    else if (!isBusiness && rand < 0.6) status = 'occupied';
+
+                    seats.push({
+                        id, row, col, type, status, price
+                    });
+                }
+            }
+            return seats;
+        };
+
+        const seats = generateSeatMap();
+        res.json({ success: true, data: seats });
+    } catch (error) {
+        logger.error('getSeatMap error:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+};

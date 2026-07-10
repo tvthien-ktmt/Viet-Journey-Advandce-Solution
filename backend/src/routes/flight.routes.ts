@@ -8,6 +8,7 @@ const router = Router();
 
 router.get('/', controller.searchFlights);
 router.get('/status/:flightNumber', controller.getFlightStatus);
+router.get('/:id/seat-map', controller.getSeatMap);
 router.get('/:id', controller.getFlightById);
 
 // Admin only

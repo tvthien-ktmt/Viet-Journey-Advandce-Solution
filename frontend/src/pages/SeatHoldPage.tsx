@@ -94,7 +94,8 @@ export default function SeatHoldPage() {
          type: p.type,
          fullName: p.fullName,
          gender: p.gender,
-         dateOfBirth: p.birthDate
+         birthDate: p.birthDate,
+         documentNumber: p.idNumber
        }))
     };
     

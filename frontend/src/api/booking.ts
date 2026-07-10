@@ -13,7 +13,9 @@ export interface HoldRequest {
 export interface CreateBookingRequest {
   bookingType: string;
   referenceId: number;
-  passengers?: { type: string, fullName: string, gender: string, dateOfBirth: string }[];
+  contactEmail?: string;
+  contactPhone?: string;
+  passengers?: { type: string, fullName: string, gender: string, birthDate: string, documentNumber?: string }[];
 }
 
 export const bookingApi = {

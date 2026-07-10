@@ -185,7 +185,12 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
                     flightId,
                     status: BookingStatus.RESERVED,
                     reservedUntil,
-                    passengers: passengers ? { create: passengers } : undefined,
+                    passengers: passengers ? { 
+                        create: passengers.map((p: any) => ({
+                            ...p,
+                            birthDate: p.birthDate ? new Date(p.birthDate) : null
+                        }))
+                    } : undefined,
                     payment: {
                         create: { amount: totalPrice, status: 'PENDING' }
                     }

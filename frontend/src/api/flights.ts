@@ -62,3 +62,7 @@ export async function getAirports() {
 export async function getFlightStatus(flightNumber: string, date: string) {
   return api.get(`/flights/status/${flightNumber}?date=${date}`);
 }
+
+export async function getSeatMap(flightId: number | string) {
+  return api.get(`/flights/${flightId}/seat-map`);
+}

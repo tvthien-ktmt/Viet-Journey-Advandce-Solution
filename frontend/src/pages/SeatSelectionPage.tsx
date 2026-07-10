@@ -26,17 +26,7 @@ interface Seat {
 const COLUMNS_BUSINESS = ['A', 'C', 'D', 'G'];
 const COLUMNS_ECONOMY = ['A', 'B', 'C', 'D', 'E', 'G'];
 
-// Simple deterministic random based on string to mock occupied seats
-function seededRandom(str: string) {
-  let hash = 0;
-  for (let i = 0; i < str.length; i++) {
-    hash = str.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return () => {
-    hash = Math.sin(hash) * 10000;
-    return hash - Math.floor(hash);
-  };
-}
+import { getSeatMap } from '@/api/flights';
 
 export default function SeatSelectionPage() {
   const { id } = useParams<{ id: string }>();
@@ -57,54 +47,21 @@ export default function SeatSelectionPage() {
     : 1;
 
   useEffect(() => {
-    // Generate Airbus A321 Layout
-    // Business: rows 1-7 (2-2), 28 seats
-    // Economy: rows 10-37 (3-3), 168 seats
-    const rand = seededRandom(id || 'default');
-    const generatedSeats: Seat[] = [];
-
-    // Business
-    for (let r = 1; r <= 7; r++) {
-      for (const c of COLUMNS_BUSINESS) {
-        const isOccupied = rand() < 0.3;
-        generatedSeats.push({
-          id: `${r}${c}`,
-          row: r,
-          col: c,
-          type: 'business',
-          status: isOccupied ? 'occupied' : 'available',
-          price: 500000, // Upgrade fee mockup
-        });
-      }
-    }
-
-    // Economy
-    for (let r = 10; r <= 37; r++) {
-      for (const c of COLUMNS_ECONOMY) {
-        const isOccupied = rand() < 0.35;
-        let type: SeatType = 'economy';
-        let price = 0;
-        
-        if (r >= 10 && r <= 15) {
-          type = 'premium';
-          price = 150000;
-        } else if (r === 25 || r === 26) {
-          type = 'exit-row';
-          price = 250000;
+    const loadSeats = async () => {
+      if (!booking?.flightId) return;
+      try {
+        const res: any = await getSeatMap(booking.flightId);
+        if (res.success && res.data) {
+          setSeats(res.data);
         }
-
-        generatedSeats.push({
-          id: `${r}${c}`,
-          row: r,
-          col: c,
-          type,
-          status: isOccupied ? 'occupied' : 'available',
-          price,
-        });
+      } catch (err) {
+        console.error('Failed to load seat map', err);
       }
+    };
+    if (booking) {
+      loadSeats();
     }
-    setSeats(generatedSeats);
-  }, [id]);
+  }, [booking]);
 
   const handleSeatClick = (seat: Seat) => {
     if (seat.status === 'occupied') return;
