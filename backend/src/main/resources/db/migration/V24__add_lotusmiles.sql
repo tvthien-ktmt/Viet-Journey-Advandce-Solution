@@ -1,2 +1,0 @@
-ALTER TABLE users ADD COLUMN lotusmiles_tier VARCHAR(20) DEFAULT 'MEMBER';
-ALTER TABLE users ADD COLUMN lotusmiles_miles INT DEFAULT 0;

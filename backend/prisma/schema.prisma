@@ -1,0 +1,235 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  fullName  String
+  email     String   @unique
+  password  String
+  phone     String?
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  bookings      Booking[]
+  reviews       Review[]
+  wishlists     Wishlist[]
+  notifications Notification[]
+  refreshTokens RefreshToken[]
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+model RefreshToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model Tour {
+  id          Int      @id @default(autoincrement())
+  name        String
+  slug        String   @unique
+  image       String?
+  location    String
+  price       Float
+  oldPrice    Float?
+  rating      Float    @default(0)
+  reviewCount Int      @default(0)
+  duration    String
+  overview    String   @db.Text
+  isFeatured  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  itineraries TourItinerary[]
+  highlights  TourHighlight[]
+  inclusions  TourInclusion[]
+  exclusions  TourExclusion[]
+  bookings    Booking[]
+  reviews     Review[]
+}
+
+model TourItinerary {
+  id        Int    @id @default(autoincrement())
+  tourId    Int
+  dayNumber Int
+  dayTitle  String
+  content   String @db.Text
+  tour      Tour   @relation(fields: [tourId], references: [id], onDelete: Cascade)
+}
+
+model TourHighlight {
+  id      Int    @id @default(autoincrement())
+  tourId  Int
+  content String
+  tour    Tour   @relation(fields: [tourId], references: [id], onDelete: Cascade)
+}
+
+model TourInclusion {
+  id      Int    @id @default(autoincrement())
+  tourId  Int
+  content String
+  tour    Tour   @relation(fields: [tourId], references: [id], onDelete: Cascade)
+}
+
+model TourExclusion {
+  id      Int    @id @default(autoincrement())
+  tourId  Int
+  content String
+  tour    Tour   @relation(fields: [tourId], references: [id], onDelete: Cascade)
+}
+
+model Hotel {
+  id          Int      @id @default(autoincrement())
+  name        String
+  location    String
+  description String   @db.Text
+  rating      Float    @default(0)
+  price       Float
+  image       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  rooms    HotelRoom[]
+  amenities HotelAmenity[]
+  bookings Booking[]
+}
+
+model HotelRoom {
+  id       Int     @id @default(autoincrement())
+  hotelId  Int
+  name     String
+  capacity Int
+  price    Float
+  hotel    Hotel   @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+}
+
+model HotelAmenity {
+  id      Int    @id @default(autoincrement())
+  hotelId Int
+  name    String
+  icon    String?
+  hotel   Hotel  @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+}
+
+model Flight {
+  id         Int      @id @default(autoincrement())
+  flightNo   String
+  from       String
+  to         String
+  airline    String
+  departTime DateTime
+  arriveTime DateTime
+  duration   String
+  stops      Int
+  aircraft   String
+  cabin      String
+  priceVND   Float
+  seatsLeft  Int
+  nextDay    Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  bookings   Booking[]
+}
+
+model Booking {
+  id            Int             @id @default(autoincrement())
+  userId        Int
+  user          User            @relation(fields: [userId], references: [id])
+  bookingType   String          // 'tour' | 'hotel' | 'flight'
+  status        String          @default("pending") // 'pending' | 'reserved' | 'confirmed' | 'cancelled' | 'expired'
+  totalPrice    Float
+  bookingCode   String?         @unique
+  reservedUntil DateTime?
+  
+  // Relations
+  tourId        Int?
+  tour          Tour?           @relation(fields: [tourId], references: [id])
+  hotelId       Int?
+  hotel         Hotel?          @relation(fields: [hotelId], references: [id])
+  flightId      Int?
+  flight        Flight?         @relation(fields: [flightId], references: [id])
+
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  passengers    BookingPassenger[]
+  payment       Payment?
+}
+
+model BookingPassenger {
+  id             Int      @id @default(autoincrement())
+  bookingId      Int
+  booking        Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  type           String   // 'adult' | 'child' | 'infant'
+  fullName       String
+  email          String?
+  documentNumber String?
+  birthDate      DateTime?
+  gender         String?  // 'M' | 'F'
+}
+
+model Payment {
+  id            Int      @id @default(autoincrement())
+  bookingId     Int      @unique
+  booking       Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  amount        Float
+  status        String   @default("pending") // 'pending', 'success', 'failed'
+  transactionId String?
+  paymentDate   DateTime?
+  createdAt     DateTime @default(now())
+}
+
+model Blog {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String   @db.Text
+  image     String?
+  author    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Review {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  tourId    Int?
+  tour      Tour?    @relation(fields: [tourId], references: [id])
+  rating    Int
+  comment   String   @db.Text
+  createdAt DateTime @default(now())
+}
+
+model Wishlist {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  tourId    Int?
+  hotelId   Int?
+  createdAt DateTime @default(now())
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}

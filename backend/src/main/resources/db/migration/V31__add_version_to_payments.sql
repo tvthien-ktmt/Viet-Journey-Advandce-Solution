@@ -1,1 +1,0 @@
-ALTER TABLE payments ADD COLUMN version BIGINT DEFAULT 0;
