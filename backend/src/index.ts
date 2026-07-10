@@ -2,6 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import logger from './utils/logger';
+import { createServer } from 'http';
+import { initSocket } from './socket';
 import authRoutes from './routes/auth.routes';
 import userRoutes from './routes/user.routes';
 import tourRoutes from './routes/tour.routes';
@@ -16,6 +18,7 @@ import notificationRoutes from './routes/notification.routes';
 import searchRoutes from './routes/search.routes';
 import paymentRoutes from './routes/payment.routes';
 import uploadRoutes from './routes/upload.routes';
+import promotionRoutes from './routes/promotion.routes';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
@@ -68,6 +71,7 @@ app.use('/api/notifications', notificationRoutes);
 app.use('/api/search', searchRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/uploads', uploadRoutes);
+app.use('/api/promotions', promotionRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'UP', message: 'Node.js backend is running!' });
@@ -76,6 +80,11 @@ app.get('/api/health', (req, res) => {
 // Global Error Handler
 app.use(globalErrorHandler);
 
-app.listen(port, () => {
+const server = createServer(app);
+initSocket(server);
+
+server.listen(port, () => {
   logger.info(`Server is running on port ${port}`);
 });
+
+export default app;

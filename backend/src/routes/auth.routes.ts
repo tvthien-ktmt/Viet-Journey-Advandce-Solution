@@ -13,4 +13,8 @@ router.get('/me', authenticate, controller.getMe);
 router.post('/refresh', controller.refreshToken);
 router.post('/logout', authenticate, controller.logout);
 
+router.post('/forgot-password', controller.forgotPassword);
+router.post('/verify-otp', controller.verifyOTP);
+router.post('/reset-password', controller.resetPassword);
+
 export default router;

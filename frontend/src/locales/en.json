@@ -1,0 +1,217 @@
+{
+  "topbar": {
+    "contact": "Contact",
+    "flightStatus": "Flight status",
+    "lotusmiles": "Lotusmiles",
+    "login": "Log in",
+    "logout": "Log out",
+    "langLabel": "Language"
+  },
+  "header": {
+    "book": "Book now",
+    "tagline": "Stars in the Vietnamese sky",
+    "nav": {
+      "book": "Book",
+      "manage": "Manage booking",
+      "checkin": "Check-in",
+      "status": "Flight status",
+      "discover": "Discover",
+      "destinations": "Destinations"
+    },
+    "menu": "Menu"
+  },
+  "hero": {
+    "title": "Fly with Vietnam",
+    "subtitle": "Stars in the Vietnamese sky",
+    "tagline": "Over 1,000 daily flights to 60 destinations worldwide.",
+    "book": {
+      "roundTrip": "Round trip",
+      "oneWay": "One way",
+      "multiCity": "Multi-city",
+      "from": "From",
+      "to": "To",
+      "depart": "Depart",
+      "return": "Return",
+      "passengers": "Passengers",
+      "cabin": "Cabin",
+      "promo": "Promo code",
+      "promoPlaceholder": "Enter code (optional)",
+      "search": "Search flights",
+      "adults": "Adults",
+      "children": "Children",
+      "infants": "Infants",
+      "adultsHint": "(≥12 years)",
+      "childrenHint": "(2–11 years)",
+      "infantsHint": "(<2 years)",
+      "multiNote": "Multi-city feature is coming soon.",
+      "cabinEconomy": "Economy",
+      "cabinEconomySpecial": "Premium Economy",
+      "cabinBusiness": "Business",
+      "cabinPremium": "Premium Business"
+    }
+  },
+  "results": {
+    "title": "Flights",
+    "outbound": "Outbound",
+    "return": "Return",
+    "flightsFound": "flights found",
+    "nonstop": "Nonstop",
+    "stops": "stop",
+    "select": "Select",
+    "selected": "Selected",
+    "seatsLeft": "seats left",
+    "summary": "Booking summary",
+    "total": "Total",
+    "continue": "Continue to payment",
+    "loading": "Searching for flights...",
+    "empty": "No flights found.",
+    "perPax": "/ passenger",
+    "close": "Close",
+    "bookingToast": "Demo booking — thank you!"
+  },
+  "sections": {
+    "offers": "Special offers",
+    "offersSub": "Great deals for your next journey with us.",
+    "destinations": "Featured destinations",
+    "destinationsSub": "Discover beautiful destinations with Vietnam Airlines.",
+    "lotusmiles": "Lotusmiles Members",
+    "lotusmilesSub": "Earn miles and enjoy exclusive member privileges.",
+    "joinNow": "Join now",
+    "travelClasses": "Travel experience",
+    "travelClassesSub": "Enjoy maximum comfort with our cabin classes.",
+    "services": "Additional services",
+    "servicesSub": "Upgrade your journey with convenient add-on services.",
+    "news": "News & Announcements",
+    "newsSub": "Latest updates from Vietnam Airlines.",
+    "fromPrice": "From"
+  },
+  "footer": {
+    "about": "About Vietnam Airlines",
+    "services": "Services",
+    "lotusmiles": "Lotusmiles",
+    "support": "Support",
+    "aboutLinks": {
+      "intro": "About us",
+      "team": "Our team",
+      "routes": "Routes",
+      "contact": "Contact"
+    },
+    "serviceLinks": {
+      "book": "Book flights",
+      "manage": "Manage booking",
+      "checkin": "Check-in",
+      "status": "Flight status"
+    },
+    "lotusLinks": {
+      "signup": "Sign up",
+      "terms": "Terms",
+      "partners": "Partners"
+    },
+    "supportLinks": {
+      "faq": "FAQ",
+      "guide": "Guide",
+      "complaint": "Complaint"
+    },
+    "appDownload": "Download the app",
+    "follow": "Follow us",
+    "copyright": "© 2025 Vietnam Airlines. All rights reserved.",
+    "certify": "IATA · IOSA safety certified"
+  },
+  "common": {
+    "seeDetail": "See details",
+    "bookNow": "Book now",
+    "readMore": "Read more",
+    "perNight": "/ night",
+    "currency": "VND"
+  },
+  "login": {
+    "title": "Lotusmiles Login",
+    "subtitle": "Log in to earn miles and enjoy privileges.",
+    "email": "Email / Lotusmiles number",
+    "emailPlaceholder": "Enter email or card number",
+    "password": "Password",
+    "passwordPlaceholder": "Enter password",
+    "submit": "Log in",
+    "forgot": "Forgot password?",
+    "register": "No account yet? Sign up now",
+    "toastDemo": "Demo feature",
+    "success": "Login successful",
+    "failed": "Login failed"
+  },
+  "manage": {
+    "title": "Manage booking",
+    "code": "Booking code",
+    "codePlaceholder": "Ex: ABCDEF",
+    "lastName": "Last name",
+    "lastNamePlaceholder": "Ex: NGUYEN",
+    "search": "Search booking",
+    "notFound": "Booking not found",
+    "notFoundDesc": "Please check your booking code or last name.",
+    "actions": {
+      "detail": "View details",
+      "change": "Change flight",
+      "refund": "Cancel / Refund",
+      "print": "Print ticket",
+      "seats": "Select seats",
+      "extras": "Add services"
+    }
+  },
+  "checkin": {
+    "title": "Online Check-in",
+    "onlineCheckin": "Check-in",
+    "passengers": "Passenger list",
+    "seat": "Seat",
+    "selectSeat": "Select seat",
+    "complete": "Complete check-in",
+    "boardingPass": "Boarding Pass",
+    "print": "Print boarding pass",
+    "gate": "Gate",
+    "time": "Boarding time"
+  },
+  "flightstatus": {
+    "title": "Flight status",
+    "byFlight": "By flight number",
+    "byRoute": "By route",
+    "flightNo": "Flight number",
+    "flightNoPlaceholder": "Ex: VN201",
+    "date": "Date",
+    "scheduled": "Scheduled",
+    "actual": "Actual",
+    "status": "Status",
+    "terminal": "Terminal",
+    "statuses": {
+      "onTime": "On time",
+      "delayed": "Delayed",
+      "cancelled": "Cancelled",
+      "boarding": "Boarding",
+      "departed": "Departed",
+      "landed": "Landed"
+    }
+  },
+  "error": {
+    "notFound": "Page not found",
+    "forbidden": "Access denied",
+    "serverError": "System error",
+    "maintenance": "System under maintenance",
+    "bookingExpired": "Booking session expired",
+    "paymentFailed": "Payment failed",
+    "backToHome": "Back to home",
+    "retry": "Try again",
+    "contact": "Contact support"
+  },
+  "hold": {
+    "expired": "Booking hold expired",
+    "remaining": "Time remaining",
+    "bookingCode": "Booking code",
+    "warning": "Please complete passenger details to continue.",
+    "fullName": "Full name",
+    "idNumber": "ID/Passport",
+    "birthDate": "Date of birth",
+    "gender": "Gender",
+    "genderMale": "Male",
+    "genderFemale": "Female",
+    "contactEmail": "Contact email",
+    "contactPhone": "Contact phone",
+    "continue": "Continue"
+  }
+}

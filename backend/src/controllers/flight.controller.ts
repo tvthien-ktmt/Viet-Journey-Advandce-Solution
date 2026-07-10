@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import prisma from '../utils/prisma';
+import logger from '../utils/logger';
 
 export const searchFlights = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -47,7 +48,7 @@ export const searchFlights = async (req: Request, res: Response): Promise<void> 
 
         res.json({ success: true, data: { content: flights, totalElements, totalPages } });
     } catch (error) {
-        console.error('searchFlights error:', error);
+        logger.error('searchFlights error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };
@@ -64,7 +65,7 @@ export const getFlightById = async (req: Request, res: Response): Promise<void> 
 
         res.json({ success: true, data: flight });
     } catch (error) {
-        console.error('getFlightById error:', error);
+        logger.error('getFlightById error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };
@@ -87,7 +88,7 @@ export const createFlight = async (req: Request, res: Response): Promise<void> =
         });
         res.status(201).json({ success: true, message: 'Flight created', data: newFlight });
     } catch (error) {
-        console.error('createFlight error:', error);
+        logger.error('createFlight error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };
@@ -121,7 +122,7 @@ export const updateFlight = async (req: Request, res: Response): Promise<void> =
         });
         res.json({ success: true, message: 'Flight updated', data: updatedFlight });
     } catch (error) {
-        console.error('updateFlight error:', error);
+        logger.error('updateFlight error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };
@@ -132,7 +133,7 @@ export const deleteFlight = async (req: Request, res: Response): Promise<void> =
         await prisma.flight.delete({ where: { id: Number(id) } });
         res.json({ success: true, message: 'Flight deleted' });
     } catch (error) {
-        console.error('deleteFlight error:', error);
+        logger.error('deleteFlight error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };

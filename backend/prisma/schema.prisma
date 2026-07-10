@@ -18,6 +18,8 @@ model User {
   lotusmilesMiles  Int      @default(0)
   failedLoginCount Int      @default(0)
   lockedUntil      DateTime?
+  otp              String?
+  otpExpiresAt     DateTime?
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
@@ -210,6 +212,9 @@ model BookingPassenger {
   documentNumber String?
   birthDate      DateTime?
   gender         String?   // 'M' | 'F'
+  seatNumber     String?
+  baggage        String?
+  meal           String?
 }
 
 model Payment {
@@ -272,4 +277,26 @@ model Notification {
   createdAt DateTime @default(now())
 
   @@index([userId, isRead])
+}
+model Promotion {
+  id            Int      @id @default(autoincrement())
+  code          String   @unique
+  description   String
+  discountValue Decimal  @db.Decimal(15, 2)
+  discountType  String   // 'PERCENTAGE' or 'FIXED'
+  validFrom     DateTime
+  validUntil    DateTime
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Log {
+  id        Int      @id @default(autoincrement())
+  action    String
+  userId    Int?
+  details   String?  @db.Text
+  createdAt DateTime @default(now())
+
+  @@index([action, createdAt])
 }

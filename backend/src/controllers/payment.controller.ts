@@ -3,6 +3,9 @@ import crypto from 'crypto';
 import prisma from '../utils/prisma';
 import { AuthRequest } from '../middlewares/auth.middleware';
 import qs from 'qs';
+import logger from '../utils/logger';
+import { sendInvoice } from '../utils/email.service';
+import { getIO } from '../socket';
 
 function sortObject(obj: any): any {
     const sorted: any = {};
@@ -103,7 +106,7 @@ export const createPaymentUrl = async (req: AuthRequest, res: Response): Promise
 
         res.json({ success: true, data: { paymentUrl } });
     } catch (error) {
-        console.error('createPaymentUrl error:', error);
+        logger.error('createPaymentUrl error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };
@@ -153,10 +156,44 @@ export const vnpayIpn = async (req: Request, res: Response): Promise<void> => {
                     where: { id: payment.id },
                     data: { status: 'SUCCESS', paymentDate: new Date() }
                 });
-                await prisma.booking.update({
+                const updatedBooking = await prisma.booking.update({
                     where: { id: payment.bookingId },
-                    data: { status: 'CONFIRMED' }
+                    data: { status: 'CONFIRMED' },
+                    include: { user: true }
                 });
+                
+                if (updatedBooking.bookingCode) {
+                    try {
+                        getIO().to(`booking-${updatedBooking.bookingCode}`).emit('payment-success', { bookingCode: updatedBooking.bookingCode });
+                    } catch (e) {
+                        logger.error('Socket emit error', e);
+                    }
+                }
+                
+                if (updatedBooking.user?.email && updatedBooking.bookingCode) {
+                    await sendInvoice(updatedBooking.user.email, updatedBooking.bookingCode, Number(payment.amount));
+                }
+                
+                if (updatedBooking.userId) {
+                    const earnedMiles = Math.floor(Number(payment.amount) / 10000);
+                    await prisma.user.update({
+                        where: { id: updatedBooking.userId },
+                        data: { lotusmilesMiles: { increment: earnedMiles } }
+                    });
+                    
+                    const notif = await prisma.notification.create({
+                        data: {
+                            userId: updatedBooking.userId,
+                            title: 'Thanh toán thành công & Tích lũy dặm',
+                            message: `Đơn hàng ${updatedBooking.bookingCode} thanh toán thành công. Bạn đã tích lũy được ${earnedMiles} dặm thưởng Lotusmiles.`,
+                        }
+                    });
+                    
+                    try {
+                        getIO().to(`user-${updatedBooking.userId}`).emit('notification', notif);
+                    } catch (e) {}
+                }
+
                 res.status(200).json({ Message: 'Confirm Success', RspCode: '00' });
             } else {
                 await prisma.payment.update({
@@ -173,7 +210,7 @@ export const vnpayIpn = async (req: Request, res: Response): Promise<void> => {
             res.status(400).json({ Message: 'Invalid signature', RspCode: '97' });
         }
     } catch (error) {
-        console.error('vnpayIpn error:', error);
+        logger.error('vnpayIpn error:', error);
         res.status(500).json({ Message: 'Server Error', RspCode: '99' });
     }
 };

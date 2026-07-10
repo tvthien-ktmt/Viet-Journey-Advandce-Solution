@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import prisma from '../utils/prisma';
+import logger from '../utils/logger';
 
 export const getAllTours = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -29,7 +30,7 @@ export const getAllTours = async (req: Request, res: Response): Promise<void> =>
         // Return format matching FE expectation: Page<TourDTO>
         res.json({ success: true, data: { content: tours, totalElements } });
     } catch (error) {
-        console.error('getAllTours error:', error);
+        logger.error('getAllTours error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };
@@ -56,7 +57,7 @@ export const getTourByIdOrSlug = async (req: Request, res: Response): Promise<vo
 
         res.json({ success: true, data: tour });
     } catch (error) {
-        console.error('getTourByIdOrSlug error:', error);
+        logger.error('getTourByIdOrSlug error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };
@@ -77,7 +78,7 @@ export const createTour = async (req: Request, res: Response): Promise<void> => 
         });
         res.status(201).json({ success: true, message: 'Tour created', data: newTour });
     } catch (error) {
-        console.error('createTour error:', error);
+        logger.error('createTour error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };
@@ -105,7 +106,7 @@ export const updateTour = async (req: Request, res: Response): Promise<void> => 
         });
         res.json({ success: true, message: 'Tour updated', data: updatedTour });
     } catch (error) {
-        console.error('updateTour error:', error);
+        logger.error('updateTour error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };
@@ -116,7 +117,7 @@ export const deleteTour = async (req: Request, res: Response): Promise<void> => 
         await prisma.tour.delete({ where: { id: Number(id) } });
         res.json({ success: true, message: 'Tour deleted' });
     } catch (error) {
-        console.error('deleteTour error:', error);
+        logger.error('deleteTour error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };

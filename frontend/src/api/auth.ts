@@ -13,4 +13,7 @@ export const authApi = {
   register: (data: { fullName: string; email: string; password: string; phone: string }) =>
     api.post<LoginResponse>('/auth/register', data),
   me: () => api.get<AuthUser>('/auth/me'),
+  forgotPassword: (email: string) => api.post<{message: string}>('/auth/forgot-password', { email }),
+  verifyOTP: (email: string, otp: string) => api.post<{message: string}>('/auth/verify-otp', { email, otp }),
+  resetPassword: (email: string, otp: string, newPassword: string) => api.post<{message: string}>('/auth/reset-password', { email, otp, newPassword }),
 };

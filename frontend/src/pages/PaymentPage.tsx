@@ -1,6 +1,8 @@
 
 import { useParams, useNavigate, Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { useQuery, useMutation } from '@tanstack/react-query';
+import { io } from 'socket.io-client';
 import { bookingApi } from '@/api/booking';
 import { Card } from '@/components/ui';
 import { Button } from '@/components/ui';
@@ -8,10 +10,14 @@ import { Badge } from '@/components/ui';
 import { Separator } from '@/components/ui';
 import { toast } from 'sonner';
 import { formatVND } from '@/lib/formatters';
+import { useAuth } from '@/store/authStore';
+import { useState } from 'react';
 
 export default function PaymentPage() {
   const { bookingId } = useParams<{ bookingId: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [usePoints, setUsePoints] = useState(false);
 
   const { data: booking, isLoading } = useQuery({
     queryKey: ['booking', bookingId],
@@ -19,8 +25,20 @@ export default function PaymentPage() {
     enabled: !!bookingId,
   });
 
+  useEffect(() => {
+    if (booking?.bookingCode) {
+      const socket = io(import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:8080');
+      socket.emit('join-booking', booking.bookingCode);
+      socket.on('payment-success', () => {
+         toast.success('Thanh toán thành công qua thiết bị khác!');
+         navigate(`/payment/callback?vnp_ResponseCode=00&vnp_TxnRef=${booking.id}`);
+      });
+      return () => { socket.disconnect(); };
+    }
+  }, [booking?.bookingCode, booking?.id, navigate]);
+
   const payMutation = useMutation({
-    mutationFn: () => bookingApi.payVnpay(bookingId!),
+    mutationFn: () => bookingApi.payVnpay(bookingId!, usePoints),
     onSuccess: (data: { paymentUrl?: string }) => {
       if (data?.paymentUrl) {
         window.location.href = data.paymentUrl;
@@ -39,6 +57,11 @@ export default function PaymentPage() {
   if (booking.status !== 'RESERVED' && booking.status !== 'PENDING') {
     return <Navigate to="/" replace />; // Redirect if wrong status
   }
+
+  const maxPoints = user?.lotusmilesMiles || 0;
+  // 1 point = 1,000 VND discount
+  const pointsDiscount = usePoints ? maxPoints * 1000 : 0;
+  const finalPrice = Math.max(0, (booking.totalPrice || 0) - pointsDiscount);
 
   const snapshot = booking.itemSnapshot ? JSON.parse(booking.itemSnapshot) : null;
 
@@ -92,14 +115,35 @@ export default function PaymentPage() {
                   <span className="text-vna-muted">Hành khách ({booking.passengers?.length ?? 0})</span>
                   <span>{formatVND(booking.totalPrice || 0)}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-vna-muted">Phí dịch vụ</span>
-                  <span>0 ₫</span>
-                </div>
+                
+                {maxPoints > 0 && (
+                  <div className="pt-2 mt-2 border-t border-vna-border">
+                    <label className="flex items-center justify-between cursor-pointer">
+                      <div>
+                        <span className="font-semibold text-vna-text block">Dùng dặm Lotusmiles</span>
+                        <span className="text-xs text-vna-muted">Khả dụng: {maxPoints.toLocaleString()} dặm</span>
+                      </div>
+                      <input 
+                        type="checkbox" 
+                        className="w-5 h-5 accent-vna-gold cursor-pointer"
+                        checked={usePoints}
+                        onChange={(e) => setUsePoints(e.target.checked)}
+                      />
+                    </label>
+                  </div>
+                )}
+                
+                {usePoints && pointsDiscount > 0 && (
+                  <div className="flex justify-between text-green-600 font-medium">
+                    <span>Giảm giá (Lotusmiles)</span>
+                    <span>-{formatVND(pointsDiscount)}</span>
+                  </div>
+                )}
+                
                 <Separator className="my-2" />
                 <div className="flex justify-between font-bold text-lg">
                   <span className="text-vna-text">Tổng cộng</span>
-                  <span className="text-vna-red">{formatVND(booking.totalPrice || 0)}</span>
+                  <span className="text-vna-red">{formatVND(finalPrice)}</span>
                 </div>
               </div>
               

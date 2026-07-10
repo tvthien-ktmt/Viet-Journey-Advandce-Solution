@@ -1,27 +1,43 @@
 import { api } from './client';
-import { ADMIN_STATS } from './mocks/admin';
 import type { AdminFlight, AdminBooking, AdminUser, Kpi, ChartDataPoint, AdminNews } from '../types/admin';
 
-const USE_MOCK = import.meta.env.VITE_USE_MOCK_API === 'true' || false; // Follow global config
-
 export const adminApi = {
-    kpi: (): Promise<Kpi> => USE_MOCK ? Promise.resolve(ADMIN_STATS.kpi as Kpi) : api.get('/admin/stats'),
+  kpi: (): Promise<any> => api.get('/admin/analytics'),
   flights: {
-    list: (): Promise<AdminFlight[]> => USE_MOCK ? Promise.resolve(ADMIN_STATS.flights as AdminFlight[]) : api.get('/admin/flights'),
-    create: (data: Partial<AdminFlight>): Promise<AdminFlight> => USE_MOCK ? Promise.resolve({ ...data, id: Date.now().toString() } as AdminFlight) : api.post('/admin/flights', data),
-    update: (id: string, data: Partial<AdminFlight>): Promise<AdminFlight> => USE_MOCK ? Promise.resolve({ ...data, id } as AdminFlight) : api.put(`/admin/flights/${id}`, data),
-    delete: (id: string): Promise<{ success: boolean }> => USE_MOCK ? Promise.resolve({ success: true }) : api.delete(`/admin/flights/${id}`),
+    list: (): Promise<AdminFlight[]> => api.get('/admin/flights'),
+    create: (data: Partial<AdminFlight>): Promise<AdminFlight> => api.post('/admin/flights', data),
+    update: (id: string, data: Partial<AdminFlight>): Promise<AdminFlight> => api.put(`/admin/flights/${id}`, data),
+    delete: (id: string): Promise<{ success: boolean }> => api.delete(`/admin/flights/${id}`),
   },
   bookings: { 
-    list: (): Promise<AdminBooking[]> => USE_MOCK ? Promise.resolve(ADMIN_STATS.bookings as AdminBooking[]) : api.get('/admin/bookings') 
+    list: (): Promise<AdminBooking[]> => api.get('/admin/bookings'),
+    updateStatus: (id: string, status: string): Promise<AdminBooking> => api.patch(`/admin/bookings/${id}/status`, { status }),
   },
-  users: { 
-    list: (): Promise<AdminUser[]> => USE_MOCK ? Promise.resolve(ADMIN_STATS.users as AdminUser[]) : api.get('/admin/users'),
-    updateRole: (id: string, roles: string[]): Promise<{ success: boolean }> => USE_MOCK ? Promise.resolve({ success: true }) : api.put(`/admin/users/${id}/roles`, { roles })
+  users: {
+    list: (): Promise<AdminUser[]> => api.get('/admin/users'),
+    updateRole: (id: string, roles: string[]): Promise<AdminUser> => api.put(`/admin/users/${id}/role`, { roles }),
+    toggleLock: (id: string): Promise<AdminUser> => api.patch(`/admin/users/${id}/lock`),
   },
   news: {
-    list: (): Promise<AdminNews[]> => USE_MOCK ? Promise.resolve([]) : api.get('/admin/news'),
-    create: (data: Partial<AdminNews>): Promise<AdminNews> => USE_MOCK ? Promise.resolve({ ...data, id: Date.now().toString() } as AdminNews) : api.post('/admin/news', data),
-    delete: (id: string): Promise<{ success: boolean }> => USE_MOCK ? Promise.resolve({ success: true }) : api.delete(`/admin/news/${id}`),
+    list: (): Promise<AdminNews[]> => api.get('/admin/news'),
+    create: (data: Partial<AdminNews>): Promise<AdminNews> => api.post('/admin/news', data),
+    update: (id: string, data: Partial<AdminNews>): Promise<AdminNews> => api.put(`/admin/news/${id}`, data),
+    delete: (id: string): Promise<{ success: boolean }> => api.delete(`/admin/news/${id}`),
   },
+  payments: {
+    list: (): Promise<any[]> => api.get('/admin/payments'),
+  },
+  logs: {
+    list: (): Promise<any[]> => api.get('/admin/logs'),
+  },
+  promotions: {
+    list: (): Promise<any[]> => api.get('/admin/promotions'),
+    create: (data: any): Promise<any> => api.post('/admin/promotions', data),
+  },
+  tours: {
+    list: (): Promise<any[]> => api.get('/admin/tours'),
+  },
+  feedbacks: {
+    list: (): Promise<any[]> => api.get('/admin/feedbacks'),
+  }
 };

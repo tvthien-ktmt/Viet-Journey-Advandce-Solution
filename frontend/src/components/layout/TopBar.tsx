@@ -12,6 +12,8 @@ import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { LotusLogo } from '@/components/common/LotusLogo';
 import { cn } from '@/lib/utils';
+import { ThemeSettings } from '@/components/common/ThemeSettings';
+import { CurrencySwitcher } from '@/components/common/CurrencySwitcher';
 
 export function LotusLoginButton({
   className,
@@ -76,8 +78,12 @@ export function TopBar() {
   return (
     <div className="bg-[#023a78] text-white">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-1.5 text-xs sm:px-6">
-        <LangToggle />
+        <div className="flex items-center gap-2">
+          <LangToggle />
+          <CurrencySwitcher />
+        </div>
         <div className="flex items-center gap-1 sm:gap-3">
+          <ThemeSettings />
           <a href="#" onClick={(e) => e.preventDefault()} className="hidden items-center gap-1.5 text-white/85 transition-colors hover:text-[#f5a623] sm:inline-flex">
             <Phone className="size-3.5" />
             <span>{t.topbar.contact}</span>

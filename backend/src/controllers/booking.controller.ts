@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { AuthRequest } from '../middlewares/auth.middleware';
 import prisma from '../utils/prisma';
 import { BookingStatus } from '@prisma/client';
+import logger from '../utils/logger';
 
 export const getMyBookings = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
@@ -24,7 +25,7 @@ export const getMyBookings = async (req: AuthRequest, res: Response): Promise<vo
         const totalPages = Math.ceil(totalElements / take);
         res.json({ success: true, data: { content: bookings, totalElements, totalPages } });
     } catch (error) {
-        console.error('getMyBookings error:', error);
+        logger.error('getMyBookings error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };
@@ -37,7 +38,7 @@ export const getAllBookings = async (req: Request, res: Response): Promise<void>
         });
         res.json({ success: true, data: bookings });
     } catch (error) {
-        console.error('getAllBookings error:', error);
+        logger.error('getAllBookings error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };
@@ -54,14 +55,14 @@ export const getBookingById = async (req: AuthRequest, res: Response): Promise<v
             return;
         }
 
-        if (booking.userId !== req.user?.id && (req.user as any)?.role !== 'ADMIN') {
+        if (booking.userId !== req.user?.id && req.user?.role !== 'ADMIN') {
             res.status(403).json({ success: false, message: 'Forbidden' });
             return;
         }
 
         res.json({ success: true, data: booking });
     } catch (error) {
-        console.error('getBookingById error:', error);
+        logger.error('getBookingById error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };
@@ -108,7 +109,7 @@ export const searchBookings = async (req: Request, res: Response): Promise<void>
 
         res.json({ success: true, data: maskedBooking });
     } catch (error) {
-        console.error('searchBookings error:', error);
+        logger.error('searchBookings error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };
@@ -204,7 +205,67 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
 
         res.status(201).json({ success: true, message: 'Booking created', data: newBooking });
     } catch (error) {
-        console.error('createBooking error:', error);
+        logger.error('createBooking error:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+};
+
+export const updateBookingAddons = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const { id } = req.params;
+        const { passengers } = req.body; // array of { id, seatNumber, baggage, meal }
+
+        const booking = await prisma.booking.findUnique({
+            where: { id: Number(id) }
+        });
+
+        if (!booking) {
+            res.status(404).json({ success: false, message: 'Booking not found' });
+            return;
+        }
+
+        // Must calculate the extra fee
+        let extraFee = 0;
+        
+        await prisma.$transaction(async (tx) => {
+            for (const pax of passengers) {
+                // Mock extra fee calculation based on addon payload
+                // Baggage: 150k per 20kg
+                if (pax.baggage) extraFee += (Number(pax.baggage) / 20) * 150000;
+                // Seat selection
+                if (pax.seatNumber) extraFee += 100000; // simplified
+                // Meal
+                if (pax.meal && pax.meal !== 'none') extraFee += 50000;
+
+                await tx.bookingPassenger.update({
+                    where: { id: Number(pax.id) },
+                    data: {
+                        seatNumber: pax.seatNumber,
+                        baggage: pax.baggage ? String(pax.baggage) : null,
+                        meal: pax.meal
+                    }
+                });
+            }
+
+            if (extraFee > 0) {
+                await tx.booking.update({
+                    where: { id: Number(id) },
+                    data: { totalPrice: { increment: extraFee } }
+                });
+                
+                const existingPayment = await tx.payment.findUnique({ where: { bookingId: Number(id) } });
+                if (existingPayment) {
+                    await tx.payment.update({
+                        where: { id: existingPayment.id },
+                        data: { amount: { increment: extraFee } }
+                    });
+                }
+            }
+        });
+
+        res.json({ success: true, message: 'Addons updated' });
+    } catch (error) {
+        logger.error('updateBookingAddons error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };
@@ -221,7 +282,7 @@ export const updateBookingStatus = async (req: Request, res: Response): Promise<
 
         res.json({ success: true, message: 'Booking status updated', data: updatedBooking });
     } catch (error) {
-        console.error('updateBookingStatus error:', error);
+        logger.error('updateBookingStatus error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };

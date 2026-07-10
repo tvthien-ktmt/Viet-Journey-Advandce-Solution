@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import prisma from '../utils/prisma';
+import logger from '../utils/logger';
 
 export const globalSearch = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -43,7 +44,7 @@ export const globalSearch = async (req: Request, res: Response): Promise<void> =
 
         res.json({ success: true, data: { tours, hotels, flights } });
     } catch (error) {
-        console.error('globalSearch error:', error);
+        logger.error('globalSearch error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };

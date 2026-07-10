@@ -4,6 +4,7 @@ import jwt from 'jsonwebtoken';
 import prisma from '../utils/prisma';
 import { AuthRequest } from '../middlewares/auth.middleware';
 import crypto from 'crypto';
+import logger from '../utils/logger';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) throw new Error('JWT_SECRET is not defined');
@@ -81,7 +82,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
             res.status(400).json({ success: false, message: 'Email đã tồn tại!' });
             return;
         }
-        console.error('register error:', error);
+        logger.error('register error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };
@@ -187,6 +188,8 @@ export const refreshToken = async (req: Request, res: Response): Promise<void> =
         const tokens = generateTokens(user);
         setCookie(res, tokens.token, tokens.refreshToken);
 
+        await prisma.refreshToken.delete({ where: { token: rToken } }).catch(() => {});
+
         res.json({
             success: true,
             data: {
@@ -214,4 +217,69 @@ export const logout = async (req: AuthRequest, res: Response): Promise<void> => 
         await prisma.refreshToken.deleteMany({ where: { token: req.body.refreshToken } }).catch(() => {});
     }
     res.json({ success: true, message: 'Logged out successfully' });
+};
+
+import { sendOTP } from '../utils/email.service';
+
+export const forgotPassword = async (req: Request, res: Response): Promise<void> => {
+    const { email } = req.body;
+    try {
+        const user = await prisma.user.findUnique({ where: { email } });
+        if (!user) {
+            res.status(404).json({ success: false, message: 'Email không tồn tại trong hệ thống' });
+            return;
+        }
+
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        const otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 mins
+
+        await prisma.user.update({
+            where: { email },
+            data: { otp, otpExpiresAt }
+        });
+
+        await sendOTP(email, otp);
+        res.json({ success: true, message: 'Mã OTP đã được gửi đến email của bạn' });
+    } catch (error) {
+        logger.error('forgotPassword error:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+};
+
+export const verifyOTP = async (req: Request, res: Response): Promise<void> => {
+    const { email, otp } = req.body;
+    try {
+        const user = await prisma.user.findUnique({ where: { email } });
+        if (!user || user.otp !== otp || !user.otpExpiresAt || user.otpExpiresAt < new Date()) {
+            res.status(400).json({ success: false, message: 'OTP không hợp lệ hoặc đã hết hạn' });
+            return;
+        }
+
+        res.json({ success: true, message: 'Xác thực OTP thành công' });
+    } catch (error) {
+        logger.error('verifyOTP error:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+};
+
+export const resetPassword = async (req: Request, res: Response): Promise<void> => {
+    const { email, otp, newPassword } = req.body;
+    try {
+        const user = await prisma.user.findUnique({ where: { email } });
+        if (!user || user.otp !== otp || !user.otpExpiresAt || user.otpExpiresAt < new Date()) {
+            res.status(400).json({ success: false, message: 'Yêu cầu không hợp lệ' });
+            return;
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        await prisma.user.update({
+            where: { email },
+            data: { password: hashedPassword, otp: null, otpExpiresAt: null }
+        });
+
+        res.json({ success: true, message: 'Đổi mật khẩu thành công' });
+    } catch (error) {
+        logger.error('resetPassword error:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
 };

@@ -9,7 +9,6 @@ import {
   XAxis, YAxis, CartesianGrid, Tooltip, Legend
 } from 'recharts';
 
-import { ADMIN_STATS } from '@/api/mocks/admin';
 import { useT } from '@/store/langStore';
 
 export default function AdminDashboardPage() {

@@ -55,7 +55,14 @@ const AdminFlightsPage = lazy(() => import('@/pages/admin/AdminFlightsPage'));
 const AdminBookingsPage = lazy(() => import('@/pages/admin/AdminBookingsPage'));
 const AdminUsersPage = lazy(() => import('@/pages/admin/AdminUsersPage'));
 const AdminNewsPage = lazy(() => import('@/pages/admin/AdminNewsPage'));
+const AdminPaymentsPage = lazy(() => import('@/pages/admin/AdminPaymentsPage'));
+const AdminLogsPage = lazy(() => import('@/pages/admin/AdminLogsPage'));
+const AdminToursPage = lazy(() => import('@/pages/admin/AdminToursPage'));
+const AdminPromotionsPage = lazy(() => import('@/pages/admin/AdminPromotionsPage'));
+const AdminFeedbacksPage = lazy(() => import('@/pages/admin/AdminFeedbacksPage'));
 const AdminLayout = lazy(() => import('@/layouts/AdminLayout'));
+const PromotionsPage = lazy(() => import('@/pages/PromotionsPage'));
+const PromotionDetailPage = lazy(() => import('@/pages/PromotionDetailPage'));
 
 function RouteBoundary() {
   return (
@@ -106,8 +113,10 @@ export default function App() {
               <Route path="/refund" element={<RefundPage />} />
               <Route path="/register" element={<RegisterPage />} />
               <Route path="/server-error" element={<ServerErrorPage />} />
-              <Route path="/tour/:id" element={<TourDetailPage />} />
+              <Route path="/tours/:slug" element={<TourDetailPage />} />
               <Route path="/tours" element={<ToursPage />} />
+              <Route path="/promotions" element={<PromotionsPage />} />
+              <Route path="/promotions/:code" element={<PromotionDetailPage />} />
               
               {/* Protected User Routes */}
               <Route element={<ProtectedRoute roles={['USER', 'ADMIN']} />}>
@@ -134,6 +143,11 @@ export default function App() {
                 <Route path="bookings" element={<AdminBookingsPage />} />
                 <Route path="users" element={<AdminUsersPage />} />
                 <Route path="news" element={<AdminNewsPage />} />
+                <Route path="payments" element={<AdminPaymentsPage />} />
+                <Route path="logs" element={<AdminLogsPage />} />
+                <Route path="tours" element={<AdminToursPage />} />
+                <Route path="promotions" element={<AdminPromotionsPage />} />
+                <Route path="feedbacks" element={<AdminFeedbacksPage />} />
               </Route>
             </Route>
           </Route>

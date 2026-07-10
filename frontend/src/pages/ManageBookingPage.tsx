@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui';
 import { Input } from '@/components/ui';
 import { Label } from '@/components/ui';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useT } from '@/store/langStore';
 import { Search, MapPin, Calendar, Clock, Ticket, AlertCircle, Plane, Printer, Edit, XCircle, Settings, Armchair } from 'lucide-react';
 import { toast } from 'sonner';
@@ -121,6 +122,33 @@ export default function ManageBookingPage() {
             </div>
           </CardContent>
         </Card>
+
+        {isSearching && (
+          <div className="grid lg:grid-cols-3 gap-6 animate-pulse">
+            <div className="lg:col-span-2 space-y-6">
+              <Card>
+                <CardHeader className="border-b bg-slate-50 rounded-t-xl pb-4">
+                  <Skeleton className="h-6 w-1/2" />
+                  <Skeleton className="h-4 w-1/3 mt-2" />
+                </CardHeader>
+                <CardContent className="p-6">
+                  <div className="flex justify-between">
+                    <Skeleton className="h-10 w-20" />
+                    <Skeleton className="h-10 w-32" />
+                    <Skeleton className="h-10 w-20" />
+                  </div>
+                  <Skeleton className="h-10 w-full mt-6" />
+                </CardContent>
+              </Card>
+            </div>
+            <div className="space-y-6">
+              <Card>
+                <CardHeader><Skeleton className="h-6 w-32" /></CardHeader>
+                <CardContent><Skeleton className="h-20 w-full" /></CardContent>
+              </Card>
+            </div>
+          </div>
+        )}
 
         {hasSearched && !isSearching && !booking && (
           <div className="text-center py-16 bg-white rounded-2xl shadow-sm border border-slate-200">

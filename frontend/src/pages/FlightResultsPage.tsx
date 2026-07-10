@@ -7,6 +7,7 @@ import { formatDate, formatVND } from '@/lib/formatters';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui';
 import { Button } from '@/components/ui';
 import { Badge } from '@/components/ui';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Plane, Search } from 'lucide-react';
 import type { Flight, FlightSearchRequest } from '@/types/flight';
 import React, { useEffect, useCallback } from 'react';
@@ -52,9 +53,30 @@ export default function FlightResultsPage() {
 
         <div className="bg-white rounded-b-xl shadow-md min-h-[500px] border border-vna-border p-4 md:p-6">
           {isLoading ? (
-            <div className="space-y-3 p-4">
+            <div className="space-y-4 p-4">
               {[...Array(4)].map((_, i) => (
-                <div key={i} className="animate-pulse bg-gray-200 rounded-xl h-24 w-full" />
+                <div key={i} className="flex gap-4 p-4 border rounded-xl bg-slate-50/50">
+                  <div className="flex-1 space-y-4">
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-4">
+                        <Skeleton className="w-16 h-16 rounded-full" />
+                        <div className="space-y-2">
+                          <Skeleton className="h-5 w-24" />
+                          <Skeleton className="h-4 w-32" />
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-center gap-2 flex-1 px-8">
+                        <Skeleton className="h-4 w-20" />
+                        <Skeleton className="h-1 w-full max-w-[200px]" />
+                        <Skeleton className="h-3 w-16" />
+                      </div>
+                      <div className="space-y-2 text-right">
+                        <Skeleton className="h-6 w-32 ml-auto" />
+                        <Skeleton className="h-4 w-24 ml-auto" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
               ))}
             </div>
           ) : !data?.outbound?.length ? (

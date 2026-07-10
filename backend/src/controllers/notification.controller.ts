@@ -1,6 +1,7 @@
 import { Response } from 'express';
 import { AuthRequest } from '../middlewares/auth.middleware';
 import prisma from '../utils/prisma';
+import logger from '../utils/logger';
 
 export const getMyNotifications = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
@@ -17,7 +18,7 @@ export const getMyNotifications = async (req: AuthRequest, res: Response): Promi
 
         res.json({ success: true, data: notifications });
     } catch (error) {
-        console.error('getMyNotifications error:', error);
+        logger.error('getMyNotifications error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };
@@ -39,7 +40,7 @@ export const markAsRead = async (req: AuthRequest, res: Response): Promise<void>
 
         res.json({ success: true, message: 'Notification marked as read' });
     } catch (error) {
-        console.error('markAsRead error:', error);
+        logger.error('markAsRead error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };

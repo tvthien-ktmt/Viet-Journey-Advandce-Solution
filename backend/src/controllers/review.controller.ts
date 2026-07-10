@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { AuthRequest } from '../middlewares/auth.middleware';
 import prisma from '../utils/prisma';
+import logger from '../utils/logger';
 
 export const addReview = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
@@ -23,7 +24,7 @@ export const addReview = async (req: AuthRequest, res: Response): Promise<void> 
 
         res.status(201).json({ success: true, message: 'Review added', data: newReview });
     } catch (error) {
-        console.error('addReview error:', error);
+        logger.error('addReview error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };
@@ -39,7 +40,7 @@ export const getTourReviews = async (req: Request, res: Response): Promise<void>
 
         res.json({ success: true, data: reviews });
     } catch (error) {
-        console.error('getTourReviews error:', error);
+        logger.error('getTourReviews error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };
@@ -69,7 +70,7 @@ export const deleteReview = async (req: AuthRequest, res: Response): Promise<voi
         await prisma.review.delete({ where: { id: Number(id) } });
         res.json({ success: true, message: 'Review deleted' });
     } catch (error) {
-        console.error('deleteReview error:', error);
+        logger.error('deleteReview error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };

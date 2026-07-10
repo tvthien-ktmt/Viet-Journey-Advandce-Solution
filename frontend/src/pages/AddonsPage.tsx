@@ -1,5 +1,7 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useQuery, useMutation } from '@tanstack/react-query';
+import { bookingApi } from '@/api/booking';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter, CardDescription } from '@/components/ui';
 import { Button } from '@/components/ui';
 import { Switch } from '@/components/ui';
@@ -30,11 +32,26 @@ export default function AddonsPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   
-  // Mock 2 passengers
-  const [passengers, setPassengers] = useState<Passenger[]>([
-    { id: 'p1', name: 'NGUYEN VAN A', baggage: 0, meal: 'none', lounge: false, insurance: false },
-    { id: 'p2', name: 'LE THI B', baggage: 0, meal: 'none', lounge: false, insurance: false },
-  ]);
+  const { data: booking, isLoading } = useQuery({
+    queryKey: ['booking', id],
+    queryFn: () => bookingApi.get(id as string),
+    enabled: !!id,
+  });
+
+  const [passengers, setPassengers] = useState<Passenger[]>([]);
+
+  useEffect(() => {
+    if (booking && booking.passengers && passengers.length === 0) {
+      setPassengers(booking.passengers.map(p => ({
+        id: String(p.id),
+        name: p.fullName,
+        baggage: 0,
+        meal: 'none',
+        lounge: false,
+        insurance: false
+      })));
+    }
+  }, [booking, passengers.length]);
 
   const BAGGAGE_PRICE_PER_20KG = 150000;
   const LOUNGE_PRICE = 350000;
@@ -68,9 +85,31 @@ export default function AddonsPage() {
     }, 0);
   }, [passengers]);
 
+  const updateAddonsMutation = useMutation({
+    mutationFn: (payload: any[]) => bookingApi.updateAddons(id as string, payload),
+    onSuccess: () => {
+      navigate(`/booking/${id}/payment`);
+    },
+    onError: () => {
+      toast.error('Lỗi khi cập nhật tiện ích');
+    }
+  });
+
   const handleContinue = () => {
-    localStorage.setItem(`booking_${id}_addons`, JSON.stringify(passengers));
-    navigate(`/payment/${id}`);
+    const seatsStr = localStorage.getItem(`booking_${id}_seats`);
+    let seats: any[] = [];
+    if (seatsStr) {
+      seats = JSON.parse(seatsStr);
+    }
+    
+    const payload = passengers.map((p, index) => ({
+      id: Number(p.id),
+      seatNumber: seats[index] ? seats[index].id : undefined,
+      baggage: p.baggage > 0 ? String(p.baggage) : undefined,
+      meal: p.meal !== 'none' ? p.meal : undefined,
+    }));
+    
+    updateAddonsMutation.mutate(payload);
   };
 
   return (
@@ -289,8 +328,9 @@ export default function AddonsPage() {
                   className="w-full bg-vna-gold hover:bg-vna-gold/90 text-white rounded-lg transition-all duration-300" 
                   size="lg"
                   onClick={handleContinue}
+                  disabled={updateAddonsMutation.isPending}
                 >
-                  {totalFee > 0 ? 'Thanh toán ngay' : 'Bỏ qua & Tiếp tục'}
+                  {updateAddonsMutation.isPending ? 'Đang xử lý...' : (totalFee > 0 ? 'Thanh toán ngay' : 'Bỏ qua & Tiếp tục')}
                 </Button>
               </CardFooter>
             </Card>

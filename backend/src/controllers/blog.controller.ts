@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import prisma from '../utils/prisma';
+import logger from '../utils/logger';
 
 export const getAllBlogs = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -8,7 +9,7 @@ export const getAllBlogs = async (req: Request, res: Response): Promise<void> =>
         });
         res.json({ success: true, data: blogs });
     } catch (error) {
-        console.error('getAllBlogs error:', error);
+        logger.error('getAllBlogs error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };
@@ -25,7 +26,7 @@ export const getBlogById = async (req: Request, res: Response): Promise<void> =>
 
         res.json({ success: true, data: blog });
     } catch (error) {
-        console.error('getBlogById error:', error);
+        logger.error('getBlogById error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };
@@ -40,7 +41,7 @@ export const getBlogBySlug = async (req: Request, res: Response): Promise<void> 
         }
         res.json({ success: true, data: blog });
     } catch (error) {
-        console.error('getBlogBySlug error:', error);
+        logger.error('getBlogBySlug error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };
@@ -54,7 +55,7 @@ export const createBlog = async (req: Request, res: Response): Promise<void> => 
         });
         res.status(201).json({ success: true, message: 'Blog created', data: newBlog });
     } catch (error) {
-        console.error('createBlog error:', error);
+        logger.error('createBlog error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };
@@ -81,7 +82,7 @@ export const updateBlog = async (req: Request, res: Response): Promise<void> => 
         });
         res.json({ success: true, message: 'Blog updated', data: updatedBlog });
     } catch (error) {
-        console.error('updateBlog error:', error);
+        logger.error('updateBlog error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };
@@ -92,7 +93,7 @@ export const deleteBlog = async (req: Request, res: Response): Promise<void> => 
         await prisma.blog.delete({ where: { id: Number(id) } });
         res.json({ success: true, message: 'Blog deleted' });
     } catch (error) {
-        console.error('deleteBlog error:', error);
+        logger.error('deleteBlog error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };

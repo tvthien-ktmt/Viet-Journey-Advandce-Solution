@@ -1,6 +1,6 @@
 
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Plane, Ticket, Users, Newspaper, Menu, LogOut } from 'lucide-react';
+import { LayoutDashboard, Plane, Ticket, Users, Newspaper, Menu, LogOut, Wallet, FileText, Map, Tag, MessageSquare } from 'lucide-react';
 import { LotusLogo } from '@/components/common/LotusLogo';
 import { useAuth } from '@/store/authStore';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui';
@@ -21,8 +21,13 @@ export default function AdminLayout() {
     { name: 'Dashboard', icon: LayoutDashboard, path: '/admin', end: true },
     { name: 'Chuyến bay', icon: Plane, path: '/admin/flights' },
     { name: 'Đặt chỗ', icon: Ticket, path: '/admin/bookings' },
+    { name: 'Thanh toán', icon: Wallet, path: '/admin/payments' },
     { name: 'Người dùng', icon: Users, path: '/admin/users' },
     { name: 'Tin tức', icon: Newspaper, path: '/admin/news' },
+    { name: 'Tour du lịch', icon: Map, path: '/admin/tours' },
+    { name: 'Khuyến mãi', icon: Tag, path: '/admin/promotions' },
+    { name: 'Phản hồi', icon: MessageSquare, path: '/admin/feedbacks' },
+    { name: 'Nhật ký (Logs)', icon: FileText, path: '/admin/logs' },
   ];
 
   const NavLinks = () => (

@@ -1,6 +1,7 @@
 import { Response } from 'express';
 import { AuthRequest } from '../middlewares/auth.middleware';
 import prisma from '../utils/prisma';
+import logger from '../utils/logger';
 
 export const getProfile = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
@@ -22,7 +23,7 @@ export const getProfile = async (req: AuthRequest, res: Response): Promise<void>
 
         res.json({ success: true, message: 'Profile retrieved', data: user });
     } catch (error) {
-        console.error('getProfile error:', error);
+        logger.error('getProfile error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };
@@ -44,7 +45,7 @@ export const updateProfile = async (req: AuthRequest, res: Response): Promise<vo
 
         res.json({ success: true, message: 'Profile updated', data: updatedUser });
     } catch (error) {
-        console.error('updateProfile error:', error);
+        logger.error('updateProfile error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };
@@ -56,7 +57,7 @@ export const getAllUsers = async (req: AuthRequest, res: Response): Promise<void
         });
         res.json({ success: true, data: users });
     } catch (error) {
-        console.error('getAllUsers error:', error);
+        logger.error('getAllUsers error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };

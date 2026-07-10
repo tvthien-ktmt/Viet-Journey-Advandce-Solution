@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { AuthRequest } from '../middlewares/auth.middleware';
 import prisma from '../utils/prisma';
+import logger from '../utils/logger';
 
 export const getMyWishlist = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
@@ -17,7 +18,7 @@ export const getMyWishlist = async (req: AuthRequest, res: Response): Promise<vo
 
         res.json({ success: true, data: wishlist });
     } catch (error) {
-        console.error('getMyWishlist error:', error);
+        logger.error('getMyWishlist error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };
@@ -42,7 +43,7 @@ export const addToWishlist = async (req: AuthRequest, res: Response): Promise<vo
 
         res.status(201).json({ success: true, message: 'Added to wishlist', data: item });
     } catch (error) {
-        console.error('addToWishlist error:', error);
+        logger.error('addToWishlist error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };
@@ -66,7 +67,7 @@ export const removeFromWishlist = async (req: AuthRequest, res: Response): Promi
 
         res.json({ success: true, message: 'Removed from wishlist' });
     } catch (error) {
-        console.error('removeFromWishlist error:', error);
+        logger.error('removeFromWishlist error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };

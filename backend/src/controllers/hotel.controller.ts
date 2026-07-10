@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import prisma from '../utils/prisma';
+import logger from '../utils/logger';
 
 export const getAllHotels = async (req: Request, res: Response): Promise<void> => {
     try {
@@ -18,7 +19,7 @@ export const getAllHotels = async (req: Request, res: Response): Promise<void> =
         ]);
         res.json({ success: true, data: { content: hotels, totalElements } });
     } catch (error) {
-        console.error('getAllHotels error:', error);
+        logger.error('getAllHotels error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };
@@ -38,7 +39,7 @@ export const getHotelById = async (req: Request, res: Response): Promise<void> =
 
         res.json({ success: true, data: hotel });
     } catch (error) {
-        console.error('getHotelById error:', error);
+        logger.error('getHotelById error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };
@@ -57,7 +58,7 @@ export const createHotel = async (req: Request, res: Response): Promise<void> =>
         });
         res.status(201).json({ success: true, message: 'Hotel created', data: newHotel });
     } catch (error) {
-        console.error('createHotel error:', error);
+        logger.error('createHotel error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };
@@ -79,7 +80,7 @@ export const updateHotel = async (req: Request, res: Response): Promise<void> =>
         });
         res.json({ success: true, message: 'Hotel updated', data: updatedHotel });
     } catch (error) {
-        console.error('updateHotel error:', error);
+        logger.error('updateHotel error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };
@@ -90,7 +91,7 @@ export const deleteHotel = async (req: Request, res: Response): Promise<void> =>
         await prisma.hotel.delete({ where: { id: Number(id) } });
         res.json({ success: true, message: 'Hotel deleted' });
     } catch (error) {
-        console.error('deleteHotel error:', error);
+        logger.error('deleteHotel error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };

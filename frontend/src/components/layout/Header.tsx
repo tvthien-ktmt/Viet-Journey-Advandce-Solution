@@ -1,6 +1,8 @@
 
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../store/authStore';
+import { useNotificationStore } from '../../store/notificationStore';
+import { useLang } from '../../store/langStore';
 import { useState, useEffect } from 'react';
 
 export default function Header() {
@@ -10,6 +12,20 @@ export default function Header() {
   const logout = useAuth((s) => s.logout);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
+  
+  const { lang, setLang } = useLang();
+  
+  const { unreadCount, notifications, fetchNotifications, initSocket, disconnectSocket, markAsRead } = useNotificationStore();
+
+  useEffect(() => {
+    if (user && user.id) {
+      fetchNotifications();
+      initSocket(String(user.id));
+    } else {
+      disconnectSocket();
+    }
+  }, [user]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -57,8 +73,12 @@ export default function Header() {
 
           <div className="flex items-center gap-4">
             <div className="hidden sm:flex items-center gap-2">
-              <button className="p-2 rounded-full text-onSurface-variant transition-all duration-300 hover:bg-primary-light" aria-label="Language">
-                <span className="material-symbols-outlined">language</span>
+              <button 
+                className="p-2 rounded-full text-onSurface-variant transition-all duration-300 hover:bg-primary-light flex items-center font-bold text-sm uppercase" 
+                aria-label="Language"
+                onClick={() => setLang(lang === 'vn' ? 'en' : 'vn')}
+              >
+                {lang}
               </button>
               <button className="p-2 rounded-full text-onSurface-variant transition-all duration-300 hover:bg-primary-light" aria-label="Tìm kiếm">
                 <span className="material-symbols-outlined">search</span>
@@ -68,6 +88,42 @@ export default function Header() {
             <div className="flex items-center gap-2">
               {user ? (
                 <>
+                  <div className="relative">
+                    <button 
+                      onClick={() => setIsNotifOpen(!isNotifOpen)}
+                      className="p-2 rounded-full text-onSurface-variant transition-all duration-300 hover:bg-primary-light relative mr-2"
+                      aria-label="Thông báo"
+                    >
+                      <span className="material-symbols-outlined">notifications</span>
+                      {unreadCount > 0 && (
+                        <span className="absolute top-1 right-1 w-4 h-4 bg-error text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                          {unreadCount}
+                        </span>
+                      )}
+                    </button>
+                    {isNotifOpen && (
+                      <div className="absolute right-0 mt-2 w-80 bg-surface rounded-xl shadow-lg border border-surface-container-highest overflow-hidden z-50">
+                        <div className="p-4 border-b border-surface-container-highest font-bold text-onSurface">Thông báo</div>
+                        <div className="max-h-80 overflow-y-auto">
+                          {notifications.length === 0 ? (
+                            <div className="p-6 text-center text-onSurface-variant text-sm">Không có thông báo nào</div>
+                          ) : (
+                            notifications.map(n => (
+                              <div key={n.id} 
+                                className={`p-4 border-b border-surface-container-highest hover:bg-surface-container transition-colors cursor-pointer ${!n.isRead ? 'bg-primary-light/20' : ''}`}
+                                onClick={() => { markAsRead(n.id); setIsNotifOpen(false); }}
+                              >
+                                <div className="font-semibold text-sm mb-1 text-onSurface">{n.title}</div>
+                                <div className="text-xs text-onSurface-variant line-clamp-2">{n.message}</div>
+                                <div className="text-[10px] text-onSurface-variant mt-2">{new Date(n.createdAt).toLocaleString('vi-VN')}</div>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
                   <Link to="/dashboard" className="text-sm font-medium text-primary hover:underline hidden sm:block transition-all duration-300">
                     Dashboard
                   </Link>

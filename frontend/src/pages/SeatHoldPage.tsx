@@ -48,7 +48,7 @@ export default function SeatHoldPage() {
   const createBookingMutation = useMutation({
     mutationFn: (req: CreateBookingRequest) => bookingApi.createBooking(req),
     onSuccess: (data: FlightBooking) => {
-      navigate(`/booking/${data.id}/payment`);
+      navigate(`/booking/${data.id}/seats`);
     }
   });
 
