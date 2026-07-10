@@ -22,12 +22,17 @@ export const startReservationCron = () => {
                         data: { status: BookingStatus.EXPIRED }
                     });
 
+                    await tx.payment.updateMany({
+                        where: { bookingId: booking.id, status: 'PENDING' },
+                        data: { status: 'FAILED' }
+                    });
+
                     // Restore flight inventory
                     if (booking.bookingType === 'flight' && booking.flightId) {
                         const numPassengers = booking.passengers?.length || 1;
                         await tx.flight.update({
                             where: { id: booking.flightId },
-                            data: { seatsLeft: { increment: numPassengers } }
+                            data: { availableSeats: { increment: numPassengers } }
                         });
                     }
                 });

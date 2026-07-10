@@ -41,6 +41,7 @@ export const adminApi = {
     delete: (id: string): Promise<any> => api.delete(`/tours/${id}`),
   },
   feedbacks: {
-    list: (): Promise<any[]> => api.get('/admin/feedbacks'),
-  }
+    list: () => api.get('/admin/feedbacks'),
+    updateStatus: (id: string, status: string) => api.patch(`/admin/feedbacks/${id}/status`, { status }),
+  },
 };

@@ -205,9 +205,26 @@ export const adminController = {
     try {
       const feedbacks = await prisma.review.findMany({ 
         orderBy: { createdAt: 'desc' },
-        include: { user: { select: { fullName: true, email: true } } }
+        include: { user: { select: { fullName: true, email: true } }, tour: { select: { name: true } } }
       });
       res.json({ success: true, data: feedbacks });
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  },
+  
+  updateReviewStatus: async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+      const updated = await prisma.review.update({
+        where: { id: Number(id) },
+        data: { status }
+      });
+      await prisma.log.create({
+        data: { action: 'UPDATE_REVIEW_STATUS', userId: (req as any).user.id, details: `Review ID: ${id}, New Status: ${status}` }
+      });
+      res.json({ success: true, data: updated });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }

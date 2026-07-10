@@ -13,12 +13,29 @@ export const addReview = async (req: AuthRequest, res: Response): Promise<void> 
             return;
         }
 
+        if (tourId) {
+            // Check if user has a CONFIRMED booking for this tour
+            const completedBooking = await prisma.booking.findFirst({
+                where: {
+                    userId,
+                    tourId: Number(tourId),
+                    status: 'CONFIRMED'
+                }
+            });
+
+            if (!completedBooking) {
+                res.status(403).json({ success: false, message: 'Bạn chỉ có thể đánh giá sau khi hoàn thành chuyến đi này.' });
+                return;
+            }
+        }
+
         const newReview = await prisma.review.create({
             data: {
                 userId,
                 tourId: tourId ? Number(tourId) : null,
                 rating: Number(rating),
-                comment
+                comment,
+                status: 'PENDING_REVIEW'
             }
         });
 
@@ -33,8 +50,8 @@ export const getTourReviews = async (req: Request, res: Response): Promise<void>
     try {
         const { tourId } = req.params;
         const reviews = await prisma.review.findMany({
-            where: { tourId: Number(tourId) },
-            include: { user: { select: { id: true, fullName: true } } },
+            where: { tourId: Number(tourId), status: 'PUBLISHED' },
+            include: { user: { select: { id: true, fullName: true, avatarUrl: true } } },
             orderBy: { createdAt: 'desc' }
         });
 

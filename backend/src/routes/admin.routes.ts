@@ -34,6 +34,7 @@ router.get('/tours', adminController.getTours);
 
 // Feedbacks
 router.get('/feedbacks', adminController.getFeedbacks);
+router.patch('/feedbacks/:id/status', adminController.updateReviewStatus);
 
 // Logs
 router.get('/logs', adminController.getLogs);

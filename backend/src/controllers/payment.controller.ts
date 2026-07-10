@@ -283,11 +283,44 @@ export const getPaymentStatus = async (req: AuthRequest, res: Response): Promise
 
 export const mockWebhook = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { transactionId, status } = req.body;
+        const signature = req.headers['x-signature'] as string;
+        if (!signature) {
+            res.status(401).json({ success: false, message: 'Missing signature' });
+            return;
+        }
+
+        const payloadString = JSON.stringify(req.body);
+        const secretKey = process.env.VNP_HASH_SECRET || 'MOCK_SECRET';
+        const hmac = crypto.createHmac('sha512', secretKey);
+        const expectedSignature = hmac.update(Buffer.from(payloadString, 'utf-8')).digest('hex');
+
+        if (signature !== expectedSignature) {
+            logger.warn('Webhook signature mismatch');
+            res.status(401).json({ success: false, message: 'Invalid signature' });
+            return;
+        }
+
+        const { transactionId, status, amount } = req.body;
         const payment = await prisma.payment.findFirst({ where: { transactionId } });
 
         if (!payment) {
             res.status(404).json({ success: false, message: 'Payment not found' });
+            return;
+        }
+
+        // Idempotency check
+        if (payment.status !== 'PENDING') {
+            res.status(200).json({ success: true, message: 'Webhook already processed' });
+            return;
+        }
+
+        // Amount verification
+        if (amount && Number(amount) !== Number(payment.amount)) {
+            await prisma.payment.update({
+                where: { id: payment.id },
+                data: { status: 'FAILED', paymentDate: new Date() }
+            });
+            res.status(200).json({ success: true, message: 'Amount mismatch' });
             return;
         }
 

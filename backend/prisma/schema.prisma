@@ -266,6 +266,7 @@ model Review {
   flight    Flight?  @relation(fields: [flightId], references: [id])
   rating    Int
   comment   String   @db.Text
+  status    String   @default("PENDING_REVIEW") // 'PENDING_REVIEW', 'PUBLISHED', 'REJECTED'
   createdAt DateTime @default(now())
 }
 
