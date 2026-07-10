@@ -60,6 +60,7 @@ model Tour {
   exclusions  TourExclusion[]
   bookings    Booking[]
   reviews     Review[]
+  wishlists   Wishlist[]
 }
 
 model TourItinerary {
@@ -106,6 +107,7 @@ model Hotel {
   rooms    HotelRoom[]
   amenities HotelAmenity[]
   bookings Booking[]
+  wishlists Wishlist[]
 }
 
 model HotelRoom {
@@ -220,7 +222,9 @@ model Wishlist {
   userId    Int
   user      User     @relation(fields: [userId], references: [id])
   tourId    Int?
+  tour      Tour?    @relation(fields: [tourId], references: [id])
   hotelId   Int?
+  hotel     Hotel?   @relation(fields: [hotelId], references: [id])
   createdAt DateTime @default(now())
 }
 

@@ -9,6 +9,10 @@ import hotelRoutes from './routes/hotel.routes';
 import bookingRoutes from './routes/booking.routes';
 import adminRoutes from './routes/admin.routes';
 import blogRoutes from './routes/blog.routes';
+import reviewRoutes from './routes/review.routes';
+import wishlistRoutes from './routes/wishlist.routes';
+import notificationRoutes from './routes/notification.routes';
+import searchRoutes from './routes/search.routes';
 
 dotenv.config();
 
@@ -27,6 +31,10 @@ app.use('/api/hotels', hotelRoutes);
 app.use('/api/bookings', bookingRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/blogs', blogRoutes);
+app.use('/api/reviews', reviewRoutes);
+app.use('/api/wishlist', wishlistRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/search', searchRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'UP', message: 'Node.js backend is running!' });
