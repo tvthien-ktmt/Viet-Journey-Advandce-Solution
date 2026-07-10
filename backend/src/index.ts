@@ -20,6 +20,7 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import { globalErrorHandler } from './middlewares/errorHandler.middleware';
 import { startReservationCron } from './cron/reservation.cron';
+import path from 'path';
 
 dotenv.config();
 
@@ -27,10 +28,13 @@ const app = express();
 
 // Start Background Jobs
 startReservationCron();
+
 const port = process.env.PORT || 8080;
 
 // Security Middleware
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: false, // allow loading images from other origins
+}));
 
 // Rate Limiting
 const limiter = rateLimit({
@@ -46,6 +50,7 @@ app.use(cors({
 }));
 app.use(express.json());
 app.use(cookieParser());
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Routes
 app.use('/api/auth', authRoutes);

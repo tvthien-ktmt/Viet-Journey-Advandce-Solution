@@ -2,16 +2,17 @@ import { Request, Response } from 'express';
 
 export const uploadFile = async (req: Request, res: Response): Promise<void> => {
     try {
-        // In a real application, you would use 'multer' or another library to parse multipart/form-data
-        // and upload the file to S3, Cloudinary, or a local directory.
-        
-        // Mocking a successful upload for now
-        res.status(200).json({
+        if (!req.file) {
+            res.status(400).json({ success: false, message: 'No file uploaded' });
+            return;
+        }
+
+        const baseUrl = process.env.BASE_URL || 'http://localhost:8080';
+        const fileUrl = `${baseUrl}/uploads/${req.file.filename}`;
+
+        res.json({
             success: true,
-            message: 'File uploaded successfully',
-            data: {
-                url: 'https://via.placeholder.com/600x400?text=Mock+Image'
-            }
+            data: { url: fileUrl }
         });
     } catch (error) {
         console.error('uploadFile error:', error);

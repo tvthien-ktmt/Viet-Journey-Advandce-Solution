@@ -62,11 +62,22 @@ export const createBlog = async (req: Request, res: Response): Promise<void> => 
 export const updateBlog = async (req: Request, res: Response): Promise<void> => {
     try {
         const { id } = req.params;
-        const data = req.body;
+        const { title, content, image, author } = req.body;
+        
+        let slug;
+        if (title) {
+            slug = title.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
+        }
 
         const updatedBlog = await prisma.blog.update({
             where: { id: Number(id) },
-            data
+            data: {
+                ...(title && { title }),
+                ...(slug && { slug }),
+                ...(content && { content }),
+                ...(image && { image }),
+                ...(author && { author })
+            }
         });
         res.json({ success: true, message: 'Blog updated', data: updatedBlog });
     } catch (error) {
