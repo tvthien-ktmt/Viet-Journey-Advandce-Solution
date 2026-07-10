@@ -15,14 +15,37 @@ import notificationRoutes from './routes/notification.routes';
 import searchRoutes from './routes/search.routes';
 import paymentRoutes from './routes/payment.routes';
 import uploadRoutes from './routes/upload.routes';
+import cookieParser from 'cookie-parser';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import { globalErrorHandler } from './middlewares/errorHandler.middleware';
+import { startReservationCron } from './cron/reservation.cron';
 
 dotenv.config();
 
 const app = express();
+
+// Start Background Jobs
+startReservationCron();
 const port = process.env.PORT || 8080;
 
-app.use(cors());
+// Security Middleware
+app.use(helmet());
+
+// Rate Limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+  message: 'Too many requests from this IP, please try again after 15 minutes',
+});
+app.use('/api', limiter);
+
+app.use(cors({
+  origin: process.env.CORS_ORIGIN || 'http://localhost:5173',
+  credentials: true
+}));
 app.use(express.json());
+app.use(cookieParser());
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -43,6 +66,9 @@ app.use('/api/uploads', uploadRoutes);
 app.get('/api/health', (req, res) => {
   res.json({ status: 'UP', message: 'Node.js backend is running!' });
 });
+
+// Global Error Handler
+app.use(globalErrorHandler);
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);

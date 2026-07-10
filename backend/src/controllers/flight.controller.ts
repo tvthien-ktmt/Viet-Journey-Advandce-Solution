@@ -6,10 +6,25 @@ export const searchFlights = async (req: Request, res: Response): Promise<void> 
         const { from, to, departDate } = req.query;
 
         // Simplified search logic
+        let dateFilter = {};
+        if (departDate) {
+            const startOfDay = new Date(departDate as string);
+            startOfDay.setUTCHours(0, 0, 0, 0);
+            const endOfDay = new Date(departDate as string);
+            endOfDay.setUTCHours(23, 59, 59, 999);
+            dateFilter = {
+                departTime: {
+                    gte: startOfDay,
+                    lte: endOfDay
+                }
+            };
+        }
+
         const flights = await prisma.flight.findMany({
             where: {
                 ...(from && { from: from as string }),
                 ...(to && { to: to as string }),
+                ...dateFilter
             },
             orderBy: { departTime: 'asc' }
         });

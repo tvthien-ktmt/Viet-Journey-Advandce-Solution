@@ -43,10 +43,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/${MYSQL_DATABASE:?MYSQL_DATABASE is required}?useSSL=true&serverTimezone=UTC&allowPublicKeyRetrieval=true
-      - SPRING_DATASOURCE_USERNAME=${MYSQL_USER:?MYSQL_USER is required}
-      - SPRING_DATASOURCE_PASSWORD=${MYSQL_PASSWORD:?MYSQL_PASSWORD is required}
+      - DATABASE_URL=mysql://${MYSQL_USER:?MYSQL_USER is required}:${MYSQL_PASSWORD:?MYSQL_PASSWORD is required}@mysql:3306/${MYSQL_DATABASE:?MYSQL_DATABASE is required}
       - JWT_SECRET=${JWT_SECRET:?JWT_SECRET is required}
       - REDIS_HOST=redis
       - REDIS_PASSWORD=${REDIS_PASSWORD:?REDIS_PASSWORD is required}
@@ -58,7 +55,7 @@ services:
     networks:
       - vietjourney-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
       interval: 30s
       timeout: 10s
       retries: 3

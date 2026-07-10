@@ -3,24 +3,31 @@ import prisma from '../utils/prisma';
 
 export const getAllTours = async (req: Request, res: Response): Promise<void> => {
     try {
-        const { featured, limit } = req.query;
-        const take = limit ? parseInt(limit as string) : undefined;
+        const { featured, limit, page = '0', size = '10' } = req.query;
+        const take = limit ? parseInt(limit as string) : parseInt(size as string);
+        const skip = limit ? 0 : parseInt(page as string) * take;
         const isFeatured = featured === 'true' ? true : undefined;
 
-        const tours = await prisma.tour.findMany({
-            where: {
-                ...(isFeatured !== undefined && { isFeatured }),
-            },
-            take,
-            orderBy: { createdAt: 'desc' },
-            include: {
-                itineraries: true,
-                highlights: true,
-                inclusions: true,
-                exclusions: true,
-            }
-        });
-        res.json({ success: true, data: tours });
+        const where = { ...(isFeatured !== undefined && { isFeatured }) };
+
+        const [tours, totalElements] = await prisma.$transaction([
+            prisma.tour.findMany({
+                where,
+                skip,
+                take,
+                orderBy: { createdAt: 'desc' },
+                include: {
+                    itineraries: true,
+                    highlights: true,
+                    inclusions: true,
+                    exclusions: true,
+                }
+            }),
+            prisma.tour.count({ where })
+        ]);
+        
+        // Return format matching FE expectation: Page<TourDTO>
+        res.json({ success: true, data: { content: tours, totalElements } });
     } catch (error) {
         console.error('getAllTours error:', error);
         res.status(500).json({ success: false, message: 'Server error' });

@@ -9,9 +9,11 @@ RUN npm install
 
 COPY . .
 
+ENV DATABASE_URL=""
+
 RUN npx prisma generate
 RUN npx tsc
 
 EXPOSE 8080
 
-CMD ["npm", "start"]
+CMD ["npm", "run", "start:prod"]

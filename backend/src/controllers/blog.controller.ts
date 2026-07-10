@@ -30,11 +30,27 @@ export const getBlogById = async (req: Request, res: Response): Promise<void> =>
     }
 };
 
+export const getBlogBySlug = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { slug } = req.params;
+        const blog = await prisma.blog.findUnique({ where: { slug: slug as string } });
+        if (!blog) {
+            res.status(404).json({ success: false, message: 'Blog not found' });
+            return;
+        }
+        res.json({ success: true, data: blog });
+    } catch (error) {
+        console.error('getBlogBySlug error:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+};
+
 export const createBlog = async (req: Request, res: Response): Promise<void> => {
     try {
         const { title, content, image, author } = req.body;
+        const slug = title.toLowerCase().replace(/ /g, '-').replace(/[^\w-]+/g, '');
         const newBlog = await prisma.blog.create({
-            data: { title, content, image, author }
+            data: { title, slug, content, image, author }
         });
         res.status(201).json({ success: true, message: 'Blog created', data: newBlog });
     } catch (error) {

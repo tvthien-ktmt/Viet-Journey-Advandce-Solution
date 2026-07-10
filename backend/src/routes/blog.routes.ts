@@ -5,6 +5,7 @@ import { authenticate, authorizeAdmin } from '../middlewares/auth.middleware';
 const router = Router();
 
 router.get('/', controller.getAllBlogs);
+router.get('/slug/:slug', controller.getBlogBySlug);
 router.get('/:id', controller.getBlogById);
 
 // Admin only

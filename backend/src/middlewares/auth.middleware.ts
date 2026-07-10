@@ -1,7 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'secret';
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+    throw new Error('JWT_SECRET is not defined in environment variables');
+}
 
 export interface AuthRequest extends Request {
     user?: {
@@ -11,13 +14,20 @@ export interface AuthRequest extends Request {
 }
 
 export const authenticate = (req: AuthRequest, res: Response, next: NextFunction): void => {
+    // Try to get token from Authorization header or cookie
     const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        res.status(401).json({ success: false, message: 'Unauthorized' });
-        return;
+    let token = '';
+
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.split(' ')[1];
+    } else if (req.cookies && req.cookies.jwt) {
+        token = req.cookies.jwt;
     }
 
-    const token = authHeader.split(' ')[1];
+    if (!token) {
+        res.status(401).json({ success: false, message: 'No token provided' });
+        return;
+    }
 
     try {
         const decoded = jwt.verify(token, JWT_SECRET) as { id: number; role: string };

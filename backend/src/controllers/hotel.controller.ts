@@ -3,11 +3,20 @@ import prisma from '../utils/prisma';
 
 export const getAllHotels = async (req: Request, res: Response): Promise<void> => {
     try {
-        const hotels = await prisma.hotel.findMany({
-            include: { rooms: true, amenities: true },
-            orderBy: { createdAt: 'desc' }
-        });
-        res.json({ success: true, data: hotels });
+        const { page = '0', size = '10' } = req.query;
+        const take = parseInt(size as string);
+        const skip = parseInt(page as string) * take;
+
+        const [hotels, totalElements] = await prisma.$transaction([
+            prisma.hotel.findMany({
+                skip,
+                take,
+                include: { rooms: true, amenities: true },
+                orderBy: { createdAt: 'desc' }
+            }),
+            prisma.hotel.count()
+        ]);
+        res.json({ success: true, data: { content: hotels, totalElements } });
     } catch (error) {
         console.error('getAllHotels error:', error);
         res.status(500).json({ success: false, message: 'Server error' });

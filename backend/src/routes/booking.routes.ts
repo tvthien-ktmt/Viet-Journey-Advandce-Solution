@@ -5,6 +5,8 @@ import { authenticate, authorizeAdmin } from '../middlewares/auth.middleware';
 const router = Router();
 
 router.get('/my-bookings', authenticate, controller.getMyBookings);
+router.get('/search', controller.searchBookings);
+router.get('/:id', controller.getBookingById);
 router.post('/', authenticate, controller.createBooking);
 
 // Admin only
