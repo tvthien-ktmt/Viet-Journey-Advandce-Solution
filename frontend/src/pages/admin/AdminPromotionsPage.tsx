@@ -9,10 +9,12 @@ import { formatVND } from '@/lib/formatters';
 export default function AdminPromotionsPage() {
   const [search, setSearch] = useState('');
   
-  const { data: promos, isLoading } = useQuery({ 
+  const { data: promosData, isLoading } = useQuery({ 
     queryKey: ['adminPromotions'], 
     queryFn: () => adminApi.promotions.list() 
   });
+
+  const promos = promosData?.content || (Array.isArray(promosData) ? promosData : []);
 
   const filtered = promos?.filter((p: { code: string, description: string }) => 
     p.code?.toLowerCase().includes(search.toLowerCase()) || 

@@ -14,10 +14,12 @@ export default function AdminUsersPage() {
   const [search, setSearch] = useState('');
   const queryClient = useQueryClient();
   
-  const { data: users, isLoading } = useQuery({ 
+  const { data: usersData, isLoading } = useQuery({ 
     queryKey: ['adminUsers'], 
     queryFn: () => adminApi.users.list() 
   });
+
+  const users = usersData?.content || (Array.isArray(usersData) ? usersData : []);
 
   const updateRoleMutation = useMutation({
     mutationFn: ({ id, roles }: { id: string, roles: string[] }) => adminApi.users.updateRole(id, roles),

@@ -142,10 +142,6 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
                 res.status(404).json({ success: false, message: 'Flight not found' });
                 return;
             }
-            if (targetFlight.availableSeats < pax) {
-                res.status(400).json({ success: false, message: 'Not enough seats available' });
-                return;
-            }
             totalPrice = Number(targetFlight.price) * pax;
             itemSnapshot = { flightNumber: targetFlight.flightNumber, from: targetFlight.departureAirport, to: targetFlight.arrivalAirport };
         } else if (bookingType === 'tour' && referenceId) {
@@ -172,6 +168,13 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
         const reservedUntil = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
         const newBooking = await prisma.$transaction(async (tx) => {
+            if (flightId) {
+                await tx.$executeRawUnsafe(`SELECT * FROM \`Flight\` WHERE id = ? FOR UPDATE`, flightId);
+                const lockedFlight = await tx.flight.findUnique({ where: { id: flightId } });
+                if (!lockedFlight || lockedFlight.availableSeats < pax) {
+                    throw new Error('NOT_ENOUGH_SEATS');
+                }
+            }
             const booking = await tx.booking.create({
                 data: {
                     userId,
@@ -210,7 +213,11 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
         });
 
         res.status(201).json({ success: true, message: 'Booking created', data: newBooking });
-    } catch (error) {
+    } catch (error: any) {
+        if (error.message === 'NOT_ENOUGH_SEATS') {
+            res.status(400).json({ success: false, message: 'Not enough seats available' });
+            return;
+        }
         logger.error('createBooking error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
@@ -227,6 +234,16 @@ export const updateBookingAddons = async (req: AuthRequest, res: Response): Prom
 
         if (!booking) {
             res.status(404).json({ success: false, message: 'Booking not found' });
+            return;
+        }
+
+        if (booking.userId !== req.user?.id && req.user?.role !== 'ADMIN') {
+            res.status(403).json({ success: false, message: 'Forbidden' });
+            return;
+        }
+
+        if (booking.status !== 'RESERVED' && booking.status !== 'PENDING') {
+            res.status(400).json({ success: false, message: 'Booking is not in an editable state' });
             return;
         }
 
@@ -305,6 +322,26 @@ export const updateBookingStatus = async (req: Request, res: Response): Promise<
     try {
         const { id } = req.params;
         const { status } = req.body;
+
+        const ALLOWED_TRANSITIONS: Record<string, string[]> = {
+            RESERVED: ['PENDING', 'CONFIRMED', 'CANCELLED', 'EXPIRED'],
+            PENDING: ['CONFIRMED', 'CANCELLED'],
+            CONFIRMED: ['COMPLETED', 'CANCELLED'],
+            EXPIRED: [],
+            CANCELLED: [],
+            COMPLETED: []
+        };
+
+        const current = await prisma.booking.findUnique({ where: { id: Number(id) } });
+        if (!current || !ALLOWED_TRANSITIONS[current.status]?.includes(status)) {
+            res.status(400).json({ success: false, message: `Cannot transition from ${current?.status} to ${status}` });
+            return;
+        }
+
+        if (status === 'CANCELLED') {
+            res.status(400).json({ success: false, message: 'Please use the /cancel endpoint to cancel bookings' });
+            return;
+        }
 
         const updatedBooking = await prisma.booking.update({
             where: { id: Number(id) },
@@ -417,12 +454,16 @@ export const changeFlight = async (req: AuthRequest, res: Response): Promise<voi
         }
 
         const pax = booking.passengers?.length || 1;
-        if (newFlight.availableSeats < pax) {
-            res.status(400).json({ success: false, message: 'Not enough seats available on new flight' });
-            return;
-        }
 
         await prisma.$transaction(async (tx) => {
+            await tx.$executeRawUnsafe(`SELECT * FROM \`Flight\` WHERE id = ? FOR UPDATE`, booking.flightId);
+            await tx.$executeRawUnsafe(`SELECT * FROM \`Flight\` WHERE id = ? FOR UPDATE`, newFlight.id);
+
+            const lockedNewFlight = await tx.flight.findUnique({ where: { id: newFlight.id } });
+            if (!lockedNewFlight || lockedNewFlight.availableSeats < pax) {
+                throw new Error('NOT_ENOUGH_SEATS');
+            }
+
             // Restore old flight
             await tx.flight.update({
                 where: { id: booking.flightId as number },
@@ -440,13 +481,22 @@ export const changeFlight = async (req: AuthRequest, res: Response): Promise<voi
                 where: { id: booking.id },
                 data: {
                     flightId: newFlight.id,
-                    itemSnapshot: { flightNumber: newFlight.flightNumber, from: newFlight.departureAirport, to: newFlight.arrivalAirport }
+                    itemSnapshot: {
+                        ...(booking.itemSnapshot as any || {}),
+                        flightNumber: newFlight.flightNumber,
+                        from: newFlight.departureAirport,
+                        to: newFlight.arrivalAirport
+                    }
                 }
             });
         });
 
         res.json({ success: true, message: 'Flight changed successfully' });
-    } catch (error) {
+    } catch (error: any) {
+        if (error.message === 'NOT_ENOUGH_SEATS') {
+            res.status(400).json({ success: false, message: 'Not enough seats available on new flight' });
+            return;
+        }
         logger.error('changeFlight error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }

@@ -48,7 +48,8 @@ export const createPaymentUrl = async (req: AuthRequest, res: Response): Promise
         }
 
         const tmnCode = process.env.VNP_TMN_CODE || 'MOCK_TMN';
-        const secretKey = process.env.VNP_HASH_SECRET || 'MOCK_SECRET';
+        const secretKey = process.env.VNP_HASH_SECRET;
+        if (!secretKey) throw new Error('Missing VNP_HASH_SECRET');
         const vnpUrl = process.env.VNP_URL || 'https://sandbox.vnpayment.vn/paymentv2/vpcpay.html';
         const returnUrl = process.env.VNP_RETURN_URL || 'http://localhost:5173/payment-return';
 
@@ -120,91 +121,130 @@ export const vnpayIpn = async (req: Request, res: Response): Promise<void> => {
         delete vnp_Params['vnp_SecureHashType'];
 
         vnp_Params = sortObject(vnp_Params);
-        const secretKey = process.env.VNP_HASH_SECRET || 'MOCK_SECRET';
+        const secretKey = process.env.VNP_HASH_SECRET;
+        if (!secretKey) throw new Error('Missing VNP_HASH_SECRET');
         const signData = qs.stringify(vnp_Params, { encode: false });
         const hmac = crypto.createHmac('sha512', secretKey);
         const signed = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');     
 
-        if (secureHash === signed) {
+        if (typeof secureHash === 'string' && secureHash.length === signed.length && crypto.timingSafeEqual(Buffer.from(secureHash), Buffer.from(signed))) {
             const txnRef = vnp_Params['vnp_TxnRef'] as string;
             const responseCode = vnp_Params['vnp_ResponseCode'] as string;
 
-            const payment = await prisma.payment.findFirst({
+            const initialPayment = await prisma.payment.findFirst({
                 where: { transactionId: txnRef }
             });
 
-            if (!payment) {
+            if (!initialPayment) {
                 res.status(404).json({ Message: 'Order Not Found', RspCode: '01' });
                 return;
             }
 
             // Check if amount matches
-            const amountInDb = Number(payment.amount) * 100;
+            const amountInDb = Number(initialPayment.amount) * 100;
             const amountInReq = Number(vnp_Params['vnp_Amount']);
             if (amountInDb !== amountInReq) {
                 res.status(400).json({ Message: 'Invalid amount', RspCode: '04' });
                 return;
             }
 
-            if (payment.status === 'SUCCESS') {
-                res.status(200).json({ Message: 'Order already confirmed', RspCode: '02' });
-                return;
-            }
+            let updatedBookingResult: any = null;
+            let earnedMilesResult: number = 0;
 
-            if (responseCode === '00') {
-                await prisma.payment.update({
-                    where: { id: payment.id },
-                    data: { status: 'SUCCESS', paymentDate: new Date() }
-                });
-                const updatedBooking = await prisma.booking.update({
-                    where: { id: payment.bookingId },
-                    data: { status: 'CONFIRMED' },
-                    include: { user: true }
-                });
-                
-                if (updatedBooking.bookingCode) {
-                    try {
-                        getIO().to(`booking-${updatedBooking.bookingCode}`).emit('payment-success', { bookingCode: updatedBooking.bookingCode });
-                    } catch (e) {
-                        logger.error('Socket emit error', e);
+            try {
+                await prisma.$transaction(async (tx) => {
+                    await tx.$executeRawUnsafe(`SELECT * FROM \`Payment\` WHERE id = ? FOR UPDATE`, initialPayment.id);
+                    
+                    const payment = await tx.payment.findUnique({ where: { id: initialPayment.id } });
+                    if (!payment) return;
+                    
+                    if (payment.status !== 'PENDING') {
+                        throw new Error(payment.status === 'SUCCESS' ? 'ALREADY_SUCCESS' : 'ALREADY_FAILED');
                     }
-                }
-                
-                if (updatedBooking.user?.email && updatedBooking.bookingCode) {
-                    await sendInvoice(updatedBooking.user.email, updatedBooking.bookingCode, Number(payment.amount));
-                }
-                
-                if (updatedBooking.userId) {
-                    const earnedMiles = Math.floor(Number(payment.amount) / 10000);
-                    await prisma.user.update({
-                        where: { id: updatedBooking.userId },
-                        data: { lotusmilesMiles: { increment: earnedMiles } }
-                    });
-                    
-                    const notif = await prisma.notification.create({
-                        data: {
-                            userId: updatedBooking.userId,
-                            title: 'Thanh toán thành công & Tích lũy dặm',
-                            message: `Đơn hàng ${updatedBooking.bookingCode} thanh toán thành công. Bạn đã tích lũy được ${earnedMiles} dặm thưởng Lotusmiles.`,
+
+                    if (responseCode === '00') {
+                        await tx.payment.update({
+                            where: { id: payment.id },
+                            data: { status: 'SUCCESS', paymentDate: new Date() }
+                        });
+                        updatedBookingResult = await tx.booking.update({
+                            where: { id: payment.bookingId },
+                            data: { status: 'CONFIRMED' },
+                            include: { user: true }
+                        });
+                        
+                        if (updatedBookingResult.userId) {
+                            earnedMilesResult = Math.floor(Number(payment.amount) / 10000);
+                            await tx.user.update({
+                                where: { id: updatedBookingResult.userId },
+                                data: { lotusmilesMiles: { increment: earnedMilesResult } }
+                            });
+                            
+                            await tx.notification.create({
+                                data: {
+                                    userId: updatedBookingResult.userId,
+                                    title: 'Thanh toán thành công & Tích lũy dặm',
+                                    message: `Đơn hàng ${updatedBookingResult.bookingCode} thanh toán thành công. Bạn đã tích lũy được ${earnedMilesResult} dặm thưởng Lotusmiles.`,
+                                }
+                            });
                         }
-                    });
-                    
-                    try {
-                        getIO().to(`user-${updatedBooking.userId}`).emit('notification', notif);
-                    } catch (e) {}
+                    } else {
+                        await tx.payment.update({
+                            where: { id: payment.id },
+                            data: { status: 'FAILED' }
+                        });
+                        const updatedBooking = await tx.booking.update({
+                            where: { id: payment.bookingId },
+                            data: { status: 'CANCELLED' },
+                            include: { passengers: true }
+                        });
+
+                        // Release seats
+                        await tx.bookingPassenger.updateMany({
+                            where: { bookingId: payment.bookingId },
+                            data: { seatNumber: null }
+                        });
+
+                        // Restore inventory if flight
+                        if (updatedBooking.bookingType === 'flight' && updatedBooking.flightId) {
+                            const paxCount = updatedBooking.passengers.length || 1;
+                            await tx.flight.update({
+                                where: { id: updatedBooking.flightId },
+                                data: { availableSeats: { increment: paxCount } }
+                            });
+                        }
+                    }
+                });
+
+                if (responseCode === '00' && updatedBookingResult) {
+                    if (updatedBookingResult.bookingCode) {
+                        try {
+                            getIO().to(`booking-${updatedBookingResult.bookingCode}`).emit('payment-success', { bookingCode: updatedBookingResult.bookingCode });
+                        } catch (e) { logger.error('Socket emit error', e); }
+                    }
+                    if (updatedBookingResult.user?.email && updatedBookingResult.bookingCode) {
+                        await sendInvoice(updatedBookingResult.user.email, updatedBookingResult.bookingCode, amountInDb / 100);
+                    }
+                    if (updatedBookingResult.userId && earnedMilesResult) {
+                        try {
+                            getIO().to(`user-${updatedBookingResult.userId}`).emit('notification', {
+                                userId: updatedBookingResult.userId,
+                                title: 'Thanh toán thành công & Tích lũy dặm',
+                                message: `Đơn hàng ${updatedBookingResult.bookingCode} thanh toán thành công. Bạn đã tích lũy được ${earnedMilesResult} dặm thưởng Lotusmiles.`,
+                            });
+                        } catch (e) {}
+                    }
+                    res.status(200).json({ Message: 'Confirm Success', RspCode: '00' });
+                } else if (responseCode !== '00') {
+                    res.status(200).json({ Message: 'Payment Failed', RspCode: '00' });
                 }
 
-                res.status(200).json({ Message: 'Confirm Success', RspCode: '00' });
-            } else {
-                await prisma.payment.update({
-                    where: { id: payment.id },
-                    data: { status: 'FAILED' }
-                });
-                await prisma.booking.update({
-                    where: { id: payment.bookingId },
-                    data: { status: 'CANCELLED' }
-                });
-                res.status(200).json({ Message: 'Payment Failed', RspCode: '00' });
+            } catch (err: any) {
+                if (err.message === 'ALREADY_SUCCESS' || err.message === 'ALREADY_FAILED') {
+                    res.status(200).json({ Message: 'Order already confirmed', RspCode: '02' });
+                    return;
+                }
+                throw err;
             }
         }
         logger.info('VNPay IPN Invalid Checksum');

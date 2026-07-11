@@ -52,10 +52,17 @@ export const adminController = {
   // Users
   getUsers: async (req: Request, res: Response) => {
     try {
-      const users = await prisma.user.findMany({
-        select: { id: true, fullName: true, email: true, role: true, createdAt: true, lockedUntil: true }
-      });
-      res.json({ success: true, data: users });
+      const page = parseInt((req.query.page as string) || '0', 10);
+      const size = parseInt((req.query.size as string) || '100', 10);
+      const skip = page * size;
+      const [users, totalElements] = await prisma.$transaction([
+        prisma.user.findMany({
+          select: { id: true, fullName: true, email: true, role: true, createdAt: true, lockedUntil: true },
+          skip, take: size, orderBy: { createdAt: 'desc' }
+        }),
+        prisma.user.count()
+      ]);
+      res.json({ success: true, data: { content: users, totalElements, totalPages: Math.ceil(totalElements / size), page, size } });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
@@ -129,6 +136,27 @@ export const adminController = {
     try {
       const { id } = req.params;
       const { status } = req.body;
+
+      const ALLOWED_TRANSITIONS: Record<string, string[]> = {
+          RESERVED: ['PENDING', 'CONFIRMED', 'CANCELLED', 'EXPIRED'],
+          PENDING: ['CONFIRMED', 'CANCELLED'],
+          CONFIRMED: ['COMPLETED', 'CANCELLED'],
+          EXPIRED: [],
+          CANCELLED: [],
+          COMPLETED: []
+      };
+
+      const current = await prisma.booking.findUnique({ where: { id: Number(id) } });
+      if (!current || !ALLOWED_TRANSITIONS[current.status]?.includes(status)) {
+          res.status(400).json({ success: false, message: `Cannot transition from ${current?.status} to ${status}` });
+          return;
+      }
+
+      if (status === 'CANCELLED') {
+          res.status(400).json({ success: false, message: 'Please use the /cancel endpoint to cancel bookings' });
+          return;
+      }
+
       const updated = await prisma.booking.update({
         where: { id: Number(id) },
         data: { status }
@@ -171,8 +199,14 @@ export const adminController = {
   // Promotions
   getPromotions: async (req: Request, res: Response) => {
     try {
-      const promos = await prisma.promotion.findMany({ orderBy: { createdAt: 'desc' } });
-      res.json({ success: true, data: promos });
+      const page = parseInt((req.query.page as string) || '0', 10);
+      const size = parseInt((req.query.size as string) || '100', 10);
+      const skip = page * size;
+      const [promos, totalElements] = await prisma.$transaction([
+        prisma.promotion.findMany({ skip, take: size, orderBy: { createdAt: 'desc' } }),
+        prisma.promotion.count()
+      ]);
+      res.json({ success: true, data: { content: promos, totalElements, totalPages: Math.ceil(totalElements / size), page, size } });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
@@ -193,8 +227,14 @@ export const adminController = {
   // Tours
   getTours: async (req: Request, res: Response) => {
     try {
-      const tours = await prisma.tour.findMany({ orderBy: { createdAt: 'desc' } });
-      res.json({ success: true, data: tours });
+      const page = parseInt((req.query.page as string) || '0', 10);
+      const size = parseInt((req.query.size as string) || '100', 10);
+      const skip = page * size;
+      const [tours, totalElements] = await prisma.$transaction([
+        prisma.tour.findMany({ skip, take: size, orderBy: { createdAt: 'desc' } }),
+        prisma.tour.count()
+      ]);
+      res.json({ success: true, data: { content: tours, totalElements, totalPages: Math.ceil(totalElements / size), page, size } });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }
@@ -203,11 +243,17 @@ export const adminController = {
   // Feedbacks
   getFeedbacks: async (req: Request, res: Response) => {
     try {
-      const feedbacks = await prisma.review.findMany({ 
-        orderBy: { createdAt: 'desc' },
-        include: { user: { select: { fullName: true, email: true } }, tour: { select: { name: true } } }
-      });
-      res.json({ success: true, data: feedbacks });
+      const page = parseInt((req.query.page as string) || '0', 10);
+      const size = parseInt((req.query.size as string) || '100', 10);
+      const skip = page * size;
+      const [feedbacks, totalElements] = await prisma.$transaction([
+        prisma.review.findMany({ 
+          skip, take: size, orderBy: { createdAt: 'desc' },
+          include: { user: { select: { fullName: true, email: true } }, tour: { select: { name: true } } }
+        }),
+        prisma.review.count()
+      ]);
+      res.json({ success: true, data: { content: feedbacks, totalElements, totalPages: Math.ceil(totalElements / size), page, size } });
     } catch (error: any) {
       res.status(500).json({ message: error.message });
     }

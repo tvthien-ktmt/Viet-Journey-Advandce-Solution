@@ -11,6 +11,15 @@ const authLimiter = rateLimit({
     message: { success: false, message: 'Quá nhiều yêu cầu, vui lòng thử lại sau 15 phút' }
 });
 
+const otpLimiter = rateLimit({
+    windowMs: 5 * 60 * 1000, // 5 minutes
+    max: 5,
+    keyGenerator: (req) => {
+        return req.body.email ? `${req.ip}_${req.body.email}` : (req.ip || 'unknown');
+    },
+    message: { success: false, message: 'Bạn đã thử quá nhiều lần. Vui lòng thử lại sau 5 phút.' }
+});
+
 const router = Router();
 
 router.post('/register', authLimiter, validate(registerSchema), controller.register);
@@ -20,12 +29,12 @@ router.post('/refresh', controller.refreshToken);
 router.post('/logout', authenticate, controller.logout);
 router.post('/change-password', authenticate, controller.changePassword);
 
-router.post('/forgot-password', controller.forgotPassword);
-router.post('/verify-otp', controller.verifyOTP);
-router.post('/reset-password', controller.resetPassword);
+router.post('/forgot-password', otpLimiter, controller.forgotPassword);
+router.post('/verify-otp', otpLimiter, controller.verifyOTP);
+router.post('/reset-password', otpLimiter, controller.resetPassword);
 
-router.post('/login-otp/send', controller.sendLoginOTP);
-router.post('/login-otp/verify', controller.verifyLoginOTP);
+router.post('/login-otp/send', otpLimiter, controller.sendLoginOTP);
+router.post('/login-otp/verify', otpLimiter, controller.verifyLoginOTP);
 router.post('/oauth/google', controller.mockGoogleLogin);
 
 export default router;

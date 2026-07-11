@@ -17,10 +17,12 @@ export default function AdminToursPage() {
     name: '', slug: '', location: '', price: '', oldPrice: '', duration: '', overview: '', isFeatured: false
   });
 
-  const { data: tours, isLoading } = useQuery({ 
+  const { data: toursData, isLoading } = useQuery({ 
     queryKey: ['adminTours'], 
     queryFn: () => adminApi.tours.list() 
   });
+
+  const tours = toursData?.content || (Array.isArray(toursData) ? toursData : []);
 
   const createMutation = useMutation({
     mutationFn: (data: any) => adminApi.tours.create(data),

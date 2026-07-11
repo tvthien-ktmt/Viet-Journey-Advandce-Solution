@@ -9,10 +9,12 @@ export default function AdminFeedbacksPage() {
   const [search, setSearch] = useState('');
   const queryClient = useQueryClient();
   
-  const { data: feedbacks, isLoading } = useQuery({ 
+  const { data: feedbacksData, isLoading } = useQuery({ 
     queryKey: ['adminFeedbacks'], 
     queryFn: () => adminApi.feedbacks.list() 
   });
+
+  const feedbacks = feedbacksData?.content || (Array.isArray(feedbacksData) ? feedbacksData : []);
 
   const updateStatusMutation = useMutation({
     mutationFn: ({ id, status }: { id: string, status: string }) => adminApi.feedbacks.updateStatus(id, status),

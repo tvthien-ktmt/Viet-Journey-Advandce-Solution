@@ -9,7 +9,8 @@ import logger from '../utils/logger';
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) throw new Error('JWT_SECRET is not defined');
 
-const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET || JWT_SECRET + '_refresh';
+const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET;
+if (!JWT_REFRESH_SECRET) throw new Error('JWT_REFRESH_SECRET is not defined');
 
 const generateTokens = (user: any) => {
     const token = jwt.sign({ id: user.id, role: user.role }, JWT_SECRET, {
@@ -369,7 +370,7 @@ export const sendLoginOTP = async (req: Request, res: Response): Promise<void> =
         });
 
         // Mock sending email
-        logger.info(`Login OTP for ${email}: ${otp}`);
+        // logger.info(`Login OTP for ${email}: ${otp}`); // Removed for security (CQ-002)
 
         res.json({ success: true, message: 'Nếu email tồn tại, OTP đã được gửi.' });
     } catch (error) {
