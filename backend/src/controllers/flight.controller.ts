@@ -140,39 +140,56 @@ export const deleteFlight = async (req: Request, res: Response): Promise<void> =
 
 export const getFlightStatus = async (req: Request, res: Response): Promise<void> => {
     try {
-        const flightNumberStr = req.params.flightNumber as string;
-        const flight = await prisma.flight.findFirst({
-            where: { flightNumber: flightNumberStr },
-            orderBy: { departureTime: 'desc' }
-        });
+        const { flightNumber, origin, destination, date } = req.query;
+        let flights: any[] = [];
+        
+        if (flightNumber) {
+            flights = await prisma.flight.findMany({
+                where: { flightNumber: String(flightNumber) },
+                orderBy: { departureTime: 'desc' }
+            });
+        } else if (origin && destination) {
+            flights = await prisma.flight.findMany({
+                where: { 
+                    departureAirport: String(origin),
+                    arrivalAirport: String(destination)
+                },
+                orderBy: { departureTime: 'desc' },
+                take: 5
+            });
+        }
 
-        if (!flight) {
+        if (!flights || flights.length === 0) {
             res.status(404).json({ success: false, message: 'Flight not found' });
             return;
         }
 
         const now = new Date();
-        let status = 'SCHEDULED';
-        const dept = new Date(flight.departureTime);
-        const arr = new Date(flight.arrivalTime);
+        const results = flights.map(flight => {
+            let status = 'SCHEDULED';
+            const dept = new Date(flight.departureTime);
+            const arr = new Date(flight.arrivalTime);
 
-        if (now >= arr) {
-            status = 'LANDED';
-        } else if (now >= dept) {
-            status = 'IN_AIR';
-        } else if (now >= new Date(dept.getTime() - 45 * 60000)) {
-            status = 'BOARDING';
-        }
-
-        res.json({
-            success: true,
-            data: {
+            if (now >= arr) {
+                status = 'LANDED';
+            } else if (now >= dept) {
+                status = 'IN_AIR';
+            } else if (now >= new Date(dept.getTime() - 45 * 60000)) {
+                status = 'BOARDING';
+            }
+            
+            return {
                 ...flight,
                 status,
                 gate: 'A12',
                 terminal: 'T1',
                 baggageClaim: 'Carousel 4'
-            }
+            };
+        });
+
+        res.json({
+            success: true,
+            data: flightNumber ? results[0] : results
         });
     } catch (error) {
         logger.error('getFlightStatus error:', error);

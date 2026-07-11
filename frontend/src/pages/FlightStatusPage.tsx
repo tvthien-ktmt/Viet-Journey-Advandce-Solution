@@ -7,7 +7,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui';
 import { useT } from '@/store/langStore';
 import { Search, Plane, Clock, MapPin, RefreshCw, AlertCircle } from 'lucide-react';
 import { format } from 'date-fns';
-import { getFlightStatus } from '@/api/flights';
+import { getFlightStatus, getFlightStatusByRoute } from '@/api/flights';
 import { toast } from 'sonner';
 
 type FlightStatus = 'onTime' | 'delayed' | 'cancelled' | 'boarding' | 'departed' | 'landed';
@@ -76,19 +76,33 @@ export default function FlightStatusPage() {
             scheduledArrive: new Date(flightData.arrivalTime).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
             actualArrive: new Date(flightData.arrivalTime).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
             status: flightData.status,
-            gate: 'TBD',
-            terminal: 'T1'
+            gate: flightData.gate || 'TBD',
+            terminal: flightData.terminal || 'T1'
           }]);
           setLastUpdated(new Date());
         } else {
           setResults([]);
         }
       } else {
-        // mock for route search
-        setTimeout(() => {
-          setResults(mockStatuses.filter(s => s.from.includes(from) && s.to.includes(to)));
+        const res: any = await getFlightStatusByRoute(from, to, date);
+        if (res.success && res.data && res.data.length > 0) {
+          setResults(res.data.map((flightData: any) => ({
+            id: flightData.flightNumber,
+            flightNo: flightData.flightNumber,
+            from: flightData.departureAirport,
+            to: flightData.arrivalAirport,
+            scheduledDepart: new Date(flightData.departureTime).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+            actualDepart: new Date(flightData.departureTime).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+            scheduledArrive: new Date(flightData.arrivalTime).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+            actualArrive: new Date(flightData.arrivalTime).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' }),
+            status: flightData.status,
+            gate: flightData.gate || 'TBD',
+            terminal: flightData.terminal || 'T1'
+          })));
           setLastUpdated(new Date());
-        }, 800);
+        } else {
+          setResults([]);
+        }
       }
     } catch (e) {
       toast.error('Không tìm thấy chuyến bay');
