@@ -1,21 +1,21 @@
 import React, { useEffect } from 'react';
 import { useAuth } from '@/store/authStore';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
-import { Plane, Award, History } from 'lucide-react';
+import { Plane, Award, History, Star, Clock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { profileApi } from '@/api/profile';
 
 export default function LotusmilesPage() {
-  const { user, fetchUser } = useAuth();
+  const { user, initAuth } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!user) {
       navigate('/login');
     } else {
-      fetchUser();
+      initAuth();
     }
   }, [user, navigate]);
 

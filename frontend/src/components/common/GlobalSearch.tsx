@@ -25,7 +25,7 @@ export function GlobalSearch({ isOpen, onClose }: { isOpen: boolean; onClose: ()
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  const { data: results, isLoading } = useQuery({
+  const { data: results, isLoading } = useQuery<any>({
     queryKey: ['globalSearch', debouncedQuery],
     queryFn: async () => {
       if (!debouncedQuery) return null;

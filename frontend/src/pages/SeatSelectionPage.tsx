@@ -48,9 +48,9 @@ export default function SeatSelectionPage() {
 
   useEffect(() => {
     const loadSeats = async () => {
-      if (!booking?.flightId) return;
+      if (!booking?.referenceId) return;
       try {
-        const res: any = await getSeatMap(booking.flightId);
+        const res: any = await getSeatMap(booking.referenceId);
         if (res.success && res.data) {
           setSeats(res.data);
         }
