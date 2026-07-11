@@ -42,8 +42,16 @@ export function SiteHeader() {
             </a>
           ))}
         </nav>
-
         <div className="flex items-center gap-2">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="text-[#0b1f3a] hover:bg-slate-100 hidden sm:flex"
+            onClick={() => document.dispatchEvent(new CustomEvent('open-global-search'))}
+            aria-label="Tìm kiếm"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          </Button>
           <a href="#booking" className="flex items-center gap-2 hidden bg-[#023a78] text-white hover:bg-vna-blue-800 sm:inline-flex rounded-md transition-all duration-300 h-9 px-3 text-xs font-medium">
             <Ticket className="size-4" />
             <span>{t.header.book}</span>

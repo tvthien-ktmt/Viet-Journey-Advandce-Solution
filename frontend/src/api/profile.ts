@@ -25,7 +25,7 @@ export const profileApi = {
     api.put('/users/me', data),
   wishlist: {
     list: () => api.get('/wishlist'),
-    add: (id: string) => api.post('/wishlist', { id }),
+    add: (data: { tourId?: number, hotelId?: number }) => api.post('/wishlist', data),
     remove: (id: string) => api.delete(`/wishlist/${id}`),
   },
   lotusmiles: {

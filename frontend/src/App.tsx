@@ -63,6 +63,8 @@ const AdminFeedbacksPage = lazy(() => import('@/pages/admin/AdminFeedbacksPage')
 const AdminLayout = lazy(() => import('@/layouts/AdminLayout'));
 const PromotionsPage = lazy(() => import('@/pages/PromotionsPage'));
 const PromotionDetailPage = lazy(() => import('@/pages/PromotionDetailPage'));
+const WishlistPage = lazy(() => import('@/pages/profile/WishlistPage'));
+const SettingsPage = lazy(() => import('@/pages/profile/SettingsPage'));
 
 function RouteBoundary() {
   return (
@@ -130,6 +132,8 @@ export default function App() {
                 {/* /booking/hold route uses sessionStorage ('holdState') instead of :bookingId because it is a pre-booking state. */}
                 <Route path="/booking/hold" element={<SeatHoldPage />} />
                 <Route path="/booking/:id/seats" element={<SeatSelectionPage />} />
+                <Route path="/wishlist" element={<WishlistPage />} />
+                <Route path="/settings" element={<SettingsPage />} />
               </Route>
               
               <Route path="*" element={<NotFoundPage />} />

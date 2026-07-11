@@ -4,6 +4,7 @@ import { useAuth } from '../../store/authStore';
 import { useNotificationStore } from '../../store/notificationStore';
 import { useLang } from '../../store/langStore';
 import { useState, useEffect } from 'react';
+import { GlobalSearch } from './GlobalSearch';
 
 export default function Header() {
   const location = useLocation();
@@ -13,6 +14,7 @@ export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   
   const { lang, setLang } = useLang();
   
@@ -80,7 +82,11 @@ export default function Header() {
               >
                 {lang}
               </button>
-              <button className="p-2 rounded-full text-onSurface-variant transition-all duration-300 hover:bg-primary-light" aria-label="Tìm kiếm">
+              <button 
+                className="p-2 rounded-full text-onSurface-variant transition-all duration-300 hover:bg-primary-light" 
+                aria-label="Tìm kiếm"
+                onClick={() => setIsSearchOpen(true)}
+              >
                 <span className="material-symbols-outlined">search</span>
               </button>
             </div>
@@ -152,6 +158,7 @@ export default function Header() {
             </button>
           </div>
         </div>
+        <GlobalSearch isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
       </header>
 
       {/* Mobile Navigation (Bottom Bar) */}

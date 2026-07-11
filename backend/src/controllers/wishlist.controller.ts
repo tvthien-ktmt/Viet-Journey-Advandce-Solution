@@ -13,7 +13,7 @@ export const getMyWishlist = async (req: AuthRequest, res: Response): Promise<vo
 
         const wishlist = await prisma.wishlist.findMany({
             where: { userId },
-            include: { tour: true }
+            include: { tour: true, hotel: true }
         });
 
         res.json({ success: true, data: wishlist });
