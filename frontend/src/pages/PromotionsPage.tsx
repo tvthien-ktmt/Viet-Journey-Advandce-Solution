@@ -49,8 +49,11 @@ export default function PromotionsPage() {
                   <span>HSD: {formatDate(new Date(promo.validUntil).toISOString())}</span>
                 </div>
                 
-                <Button className="w-full mt-4 bg-vna-gold text-vna-blue hover:bg-yellow-500" asChild>
-                  <Link to={`/promotions/${promo.code}`}>Xem chi tiết & Sử dụng</Link>
+                <Button 
+                  className="w-full mt-4 bg-vna-gold text-vna-blue hover:bg-yellow-500" 
+                  onClick={() => window.location.href = `/promotions/${promo.code}`}
+                >
+                  Xem chi tiết & Sử dụng
                 </Button>
               </div>
             </Card>

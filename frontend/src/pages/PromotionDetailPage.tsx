@@ -91,8 +91,12 @@ export default function PromotionDetailPage() {
           </div>
           
           <div className="pt-6 border-t border-vna-border text-center">
-            <Button size="lg" className="bg-vna-gold text-vna-blue hover:bg-yellow-500 font-bold px-12" asChild>
-              <Link to="/">Tìm chuyến bay ngay</Link>
+            <Button 
+              size="lg" 
+              className="bg-vna-gold text-vna-blue hover:bg-yellow-500 font-bold px-12" 
+              onClick={() => window.location.href = "/"}
+            >
+              Tìm chuyến bay ngay
             </Button>
           </div>
         </Card>
