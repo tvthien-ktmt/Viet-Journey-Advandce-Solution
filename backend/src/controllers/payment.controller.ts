@@ -289,56 +289,78 @@ export const mockWebhook = async (req: Request, res: Response): Promise<void> =>
             return;
         }
 
-        const payloadString = JSON.stringify(req.body);
-        const secretKey = process.env.VNP_HASH_SECRET || 'MOCK_SECRET';
-        const hmac = crypto.createHmac('sha512', secretKey);
-        const expectedSignature = hmac.update(Buffer.from(payloadString, 'utf-8')).digest('hex');
+        const secretKey = process.env.VNP_HASH_SECRET;
+        if (!secretKey) throw new Error('Missing VNP_HASH_SECRET');
 
-        if (signature !== expectedSignature) {
+        const sortedPayload = sortObject(req.body);
+        const signData = qs.stringify(sortedPayload, { encode: false });
+        const hmac = crypto.createHmac('sha512', secretKey);
+        const expectedSignature = hmac.update(Buffer.from(signData, 'utf-8')).digest('hex');
+
+        if (signature.length !== expectedSignature.length || !crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature))) {
             logger.warn('Webhook signature mismatch');
             res.status(401).json({ success: false, message: 'Invalid signature' });
             return;
         }
 
         const { transactionId, status, amount } = req.body;
-        const payment = await prisma.payment.findFirst({ where: { transactionId } });
 
-        if (!payment) {
-            res.status(404).json({ success: false, message: 'Payment not found' });
-            return;
-        }
-
-        // Idempotency check
-        if (payment.status !== 'PENDING') {
-            res.status(200).json({ success: true, message: 'Webhook already processed' });
-            return;
-        }
-
-        // Amount verification
-        if (amount && Number(amount) !== Number(payment.amount)) {
-            await prisma.payment.update({
-                where: { id: payment.id },
-                data: { status: 'FAILED', paymentDate: new Date() }
-            });
-            res.status(200).json({ success: true, message: 'Amount mismatch' });
-            return;
-        }
-
-        const updatedPayment = await prisma.payment.update({
-            where: { id: payment.id },
-            data: { status: status === 'SUCCESS' ? 'SUCCESS' : 'FAILED', paymentDate: new Date() }
+        const initialPayment = await prisma.payment.findFirst({
+            where: { transactionId }
         });
 
-        if (status === 'SUCCESS') {
-            await prisma.booking.update({
-                where: { id: payment.bookingId },
-                data: { status: 'CONFIRMED' }
-            });
-            // Mock send email
-            logger.info(`Payment Success for booking ${payment.bookingId}. Sending invoice...`);
+        if (!initialPayment) {
+            res.status(404).json({ success: false, message: 'Transaction not found' });
+            return;
         }
 
-        res.json({ success: true, message: 'Webhook processed' });
+        await prisma.$transaction(async (tx) => {
+            // Lock the Payment row to prevent concurrent webhook processing
+            await tx.$executeRawUnsafe(`SELECT * FROM \`Payment\` WHERE id = ? FOR UPDATE`, initialPayment.id);
+            
+            const payment = await tx.payment.findUnique({ where: { id: initialPayment.id } });
+            if (!payment || payment.status !== 'PENDING') {
+                return; // Already processed
+            }
+
+            if (status === 'SUCCESS') {
+                await tx.payment.update({
+                    where: { id: payment.id },
+                    data: { status: 'SUCCESS', paymentDate: new Date() }
+                });
+                await tx.booking.update({
+                    where: { id: payment.bookingId },
+                    data: { status: 'CONFIRMED' }
+                });
+            } else {
+                await tx.payment.update({
+                    where: { id: payment.id },
+                    data: { status: 'FAILED' }
+                });
+                const updatedBooking = await tx.booking.update({
+                    where: { id: payment.bookingId },
+                    data: { status: 'CANCELLED' },
+                    include: { passengers: true }
+                });
+
+                // Release seats
+                await tx.bookingPassenger.updateMany({
+                    where: { bookingId: payment.bookingId },
+                    data: { seatNumber: null }
+                });
+
+                // Restore inventory if flight
+                if (updatedBooking.bookingType === 'flight' && updatedBooking.flightId) {
+                    const paxCount = updatedBooking.passengers.length || 1;
+                    await tx.flight.update({
+                        where: { id: updatedBooking.flightId },
+                        data: { availableSeats: { increment: paxCount } }
+                    });
+                }
+            }
+        });
+
+        res.status(200).json({ success: true, message: 'Webhook processed successfully' });
     } catch (error) {
         logger.error('mockWebhook error:', error);
         res.status(500).json({ success: false, message: 'Server error' });

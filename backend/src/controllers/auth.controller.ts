@@ -98,10 +98,26 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         return;
     }
 
+    if (user.lockedUntil && user.lockedUntil > new Date()) {
+        res.status(429).json({ success: false, message: 'Tài khoản đã bị khoá tạm thời do đăng nhập sai nhiều lần. Vui lòng thử lại sau 15 phút.' });
+        return;
+    }
+
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
+        const failedCount = user.failedLoginCount + 1;
+        const updateData: any = { failedLoginCount: failedCount };
+        if (failedCount >= 5) {
+            updateData.lockedUntil = new Date(Date.now() + 15 * 60 * 1000);
+        }
+        await prisma.user.update({ where: { id: user.id }, data: updateData });
+
         res.status(400).json({ success: false, message: 'Sai email hoặc mật khẩu' });
         return;
+    }
+
+    if (user.failedLoginCount > 0 || user.lockedUntil) {
+        await prisma.user.update({ where: { id: user.id }, data: { failedLoginCount: 0, lockedUntil: null } });
     }
 
     const { token, refreshToken } = generateTokens(user);
@@ -231,6 +247,43 @@ export const logout = async (req: AuthRequest, res: Response): Promise<void> => 
     res.json({ success: true, message: 'Logged out successfully' });
 };
 
+export const changePassword = async (req: AuthRequest, res: Response): Promise<void> => {
+    try {
+        const userId = req.user?.id;
+        if (!userId) {
+            res.status(401).json({ success: false, message: 'Unauthorized' });
+            return;
+        }
+
+        const { oldPassword, newPassword } = req.body;
+        const user = await prisma.user.findUnique({ where: { id: userId } });
+        if (!user) {
+            res.status(404).json({ success: false, message: 'User not found' });
+            return;
+        }
+
+        const isMatch = await bcrypt.compare(oldPassword, user.password);
+        if (!isMatch) {
+            res.status(400).json({ success: false, message: 'Mật khẩu cũ không chính xác' });
+            return;
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        await prisma.user.update({
+            where: { id: userId },
+            data: { password: hashedPassword }
+        });
+
+        // Invalidate all existing refresh tokens to force logout from other devices
+        await prisma.refreshToken.deleteMany({ where: { userId } });
+
+        res.json({ success: true, message: 'Đổi mật khẩu thành công. Vui lòng đăng nhập lại.' });
+    } catch (error) {
+        logger.error('changePassword error:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+};
+
 import { sendOTP } from '../utils/email.service';
 
 export const forgotPassword = async (req: Request, res: Response): Promise<void> => {
@@ -250,7 +303,9 @@ export const forgotPassword = async (req: Request, res: Response): Promise<void>
             data: { otp, otpExpiresAt }
         });
 
-        await sendOTP(email, otp);
+        // Fire and forget to prevent timing attack (User Enumeration)
+        sendOTP(email, otp).catch(err => logger.error('Failed to send OTP email', err));
+        
         res.json({ success: true, message: 'Nếu email tồn tại trong hệ thống, mã OTP đã được gửi' });
     } catch (error) {
         logger.error('forgotPassword error:', error);

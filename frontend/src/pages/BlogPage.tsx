@@ -8,14 +8,6 @@ import { BlogCard } from '@/components/blog/BlogCard';
 import { useQuery } from '@tanstack/react-query';
 import { blogApi } from '@/api/blog';
 
-const mockBlogs = [
-  { id: '1', title: 'Vietnam Airlines chính thức mở đường bay thẳng đến Munich (Đức)', category: 'Tin tức VNA', date: '04/10/2025', image: '/placeholder.svg' },
-  { id: '2', title: 'Top 5 điểm đến không thể bỏ lỡ tại Nhật Bản mùa thu', category: 'Cẩm nang du lịch', date: '12/09/2025', image: '/placeholder.svg' },
-  { id: '3', title: 'Ưu đãi hạng Thương gia: Trải nghiệm đẳng cấp với giá hấp dẫn', category: 'Khuyến mãi', date: '01/09/2025', image: '/placeholder.svg' },
-  { id: '4', title: 'Khám phá ẩm thực đường phố Bangkok cùng VNA', category: 'Cẩm nang du lịch', date: '15/08/2025', image: '/placeholder.svg' },
-  { id: '5', title: 'Triển khai dịch vụ làm thủ tục tự động (Auto Check-in)', category: 'Tin tức VNA', date: '02/08/2025', image: '/placeholder.svg' },
-];
-
 export default function BlogPage() {
   const navigate = useNavigate();
   const [filter, setFilter] = useState('Tất cả');
@@ -25,15 +17,17 @@ export default function BlogPage() {
     queryFn: () => blogApi.list()
   });
 
-  const blogs = data || mockBlogs;
   const categories = ['Tất cả', 'Tin tức VNA', 'Cẩm nang du lịch', 'Khuyến mãi'];
   const [searchTerm, setSearchTerm] = useState('');
-  const filteredBlogs = (data || []).filter((blog: any) => 
-    blog.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    (blog.category && blog.category.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
-  const featuredBlog = filteredBlogs[0];
-  const otherBlogs = filteredBlogs.slice(1);
+  
+  const filteredBlogs = (data || []).filter((blog: any) => {
+    const matchSearch = blog.title.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchFilter = filter === 'Tất cả' || blog.category === filter;
+    return matchSearch && matchFilter;
+  });
+  
+  const featuredBlog = filteredBlogs.length > 0 ? filteredBlogs[0] : null;
+  const otherBlogs = filteredBlogs.length > 1 ? filteredBlogs.slice(1) : [];
 
   return (
     <div className="min-h-screen bg-slate-50 pb-20 pt-24">
@@ -57,7 +51,8 @@ export default function BlogPage() {
         </div>
 
         {isLoading && <p className="text-center py-10">Đang tải...</p>}
-        {isError && <p className="text-center py-10 text-red-500">Lỗi tải dữ liệu. Bạn đang xem dữ liệu mẫu.</p>}
+        {isError && <p className="text-center py-10 text-red-500">Lỗi tải dữ liệu.</p>}
+        {!isLoading && !isError && filteredBlogs.length === 0 && <p className="text-center py-10 text-slate-500">Chưa có bài viết nào.</p>}
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredBlogs && filteredBlogs.length > 0 ? (

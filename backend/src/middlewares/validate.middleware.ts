@@ -10,14 +10,14 @@ export const validate = (schema: ZodSchema) => (req: Request, res: Response, nex
         });
         next();
     } catch (error: any) {
-        if (error instanceof ZodError) {
+        if (error instanceof ZodError || error.errors) {
             res.status(400).json({
                 success: false,
-                message: 'Dữ liệu không hợp lệ',
-                errors: (error as any).errors.map((e: any) => ({ path: e.path.join('.'), message: e.message }))
+                message: error.errors?.[0]?.message || 'Dữ liệu không hợp lệ',
+                errors: error.errors?.map((e: any) => ({ path: e.path?.join('.'), message: e.message })) || []
             });
             return;
         }
-        res.status(500).json({ success: false, message: 'Server error' });
+        res.status(500).json({ success: false, message: error.message || 'Server error' });
     }
 };

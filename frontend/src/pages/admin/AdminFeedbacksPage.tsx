@@ -23,7 +23,7 @@ export default function AdminFeedbacksPage() {
     onError: () => toast.error('Cập nhật thất bại')
   });
 
-  const filtered = feedbacks?.filter((f: { comment: string, user: { email: string } }) => 
+  const filtered = (feedbacks as any[])?.filter((f: any) => 
     f.comment?.toLowerCase().includes(search.toLowerCase()) || 
     f.user?.email?.toLowerCase().includes(search.toLowerCase())
   );

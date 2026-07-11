@@ -28,6 +28,7 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import { globalErrorHandler } from './middlewares/errorHandler.middleware';
 import { startReservationCron } from './cron/reservation.cron';
+import { startPaymentCron } from './cron/payment.cron';
 import path from 'path';
 
 dotenv.config();
@@ -36,6 +37,7 @@ const app = express();
 
 // Start Background Jobs
 startReservationCron();
+startPaymentCron();
 
 const port = process.env.PORT || 8080;
 

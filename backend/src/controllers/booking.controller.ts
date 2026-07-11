@@ -71,8 +71,8 @@ export const searchBookings = async (req: Request, res: Response): Promise<void>
     try {
         const { code, lastName, email } = req.query;
         
-        if (!code) {
-            res.status(400).json({ success: false, message: 'Booking code is required' });
+        if (!code || (!lastName && !email)) {
+            res.status(400).json({ success: false, message: 'Booking code and (Last Name or Email) are required' });
             return;
         }
 
@@ -122,7 +122,8 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
             return;
         }
 
-        const { bookingType, referenceId, passengers, contactEmail, contactPhone } = req.body;
+        const { referenceId, passengers, contactEmail, contactPhone } = req.body;
+        const bookingType = req.body.bookingType as 'flight' | 'tour' | 'hotel';
         
         if (!['flight', 'tour', 'hotel'].includes(bookingType)) {
             res.status(400).json({ success: false, message: 'Invalid bookingType' });
@@ -218,7 +219,7 @@ export const createBooking = async (req: AuthRequest, res: Response): Promise<vo
 export const updateBookingAddons = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
         const { id } = req.params;
-        const { passengers } = req.body; // array of { id, seatNumber, baggage, meal }
+        const { passengers } = req.body;
 
         const booking = await prisma.booking.findUnique({
             where: { id: Number(id) }
@@ -229,17 +230,38 @@ export const updateBookingAddons = async (req: AuthRequest, res: Response): Prom
             return;
         }
 
-        // Must calculate the extra fee
         let extraFee = 0;
         
         await prisma.$transaction(async (tx) => {
+            // Lock the flight row to prevent seat race condition (Row-level lock)
+            if (booking.flightId) {
+                await tx.$executeRawUnsafe(`SELECT * FROM \`Flight\` WHERE id = ? FOR UPDATE`, booking.flightId);
+            }
+
+            // Extract requested seat numbers
+            const requestedSeats = passengers.map((p: any) => p.seatNumber).filter(Boolean);
+
+            if (booking.flightId && requestedSeats.length > 0) {
+                // Check if any requested seat is already taken in the same flight
+                const takenSeats = await tx.bookingPassenger.findMany({
+                    where: {
+                        seatNumber: { in: requestedSeats },
+                        booking: {
+                            flightId: booking.flightId,
+                            status: { in: ['PENDING', 'CONFIRMED'] },
+                            id: { not: booking.id } // Exclude current booking
+                        }
+                    }
+                });
+
+                if (takenSeats.length > 0) {
+                    throw new Error('SEAT_TAKEN');
+                }
+            }
+
             for (const pax of passengers) {
-                // Mock extra fee calculation based on addon payload
-                // Baggage: 150k per 20kg
                 if (pax.baggage) extraFee += (Number(pax.baggage) / 20) * 150000;
-                // Seat selection
-                if (pax.seatNumber) extraFee += 100000; // simplified
-                // Meal
+                if (pax.seatNumber) extraFee += 100000;
                 if (pax.meal && pax.meal !== 'none') extraFee += 50000;
 
                 await tx.bookingPassenger.update({
@@ -269,7 +291,11 @@ export const updateBookingAddons = async (req: AuthRequest, res: Response): Prom
         });
 
         res.json({ success: true, message: 'Addons updated' });
-    } catch (error) {
+    } catch (error: any) {
+        if (error.message === 'SEAT_TAKEN') {
+            res.status(409).json({ success: false, message: 'One or more requested seats are already taken' });
+            return;
+        }
         logger.error('updateBookingAddons error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
@@ -299,7 +325,7 @@ export const cancelBooking = async (req: AuthRequest, res: Response): Promise<vo
 
         const booking = await prisma.booking.findUnique({
             where: { id: Number(id) },
-            include: { passengers: true }
+            include: { passengers: true, flight: true, payment: true }
         });
 
         if (!booking || (booking.userId !== userId && req.user?.role !== 'ADMIN')) {
@@ -312,11 +338,34 @@ export const cancelBooking = async (req: AuthRequest, res: Response): Promise<vo
             return;
         }
 
+        if (booking.flight && booking.flight.departureTime) {
+            const timeDiff = booking.flight.departureTime.getTime() - Date.now();
+            if (timeDiff < 3 * 60 * 60 * 1000) {
+                res.status(400).json({ success: false, message: 'Cannot cancel booking less than 3 hours before departure' });
+                return;
+            }
+        }
+
         await prisma.$transaction(async (tx) => {
+            // Lock booking to prevent double cancellation race condition
+            const lockedBookings: any[] = await tx.$queryRaw`SELECT status FROM \`Booking\` WHERE id = ${booking.id} FOR UPDATE`;
+            if (lockedBookings.length === 0 || lockedBookings[0].status === 'CANCELLED' || lockedBookings[0].status === 'EXPIRED') {
+                throw new Error('ALREADY_CANCELLED');
+            }
+
             await tx.booking.update({
                 where: { id: booking.id },
                 data: { status: 'CANCELLED' }
             });
+
+            // Handle refund status if paid
+            if (booking.payment && booking.payment.status === 'SUCCESS') {
+                // Update itemSnapshot to mark refund, keep Payment as SUCCESS for historical record
+                await tx.booking.update({
+                    where: { id: booking.id },
+                    data: { itemSnapshot: booking.itemSnapshot ? { ...(booking.itemSnapshot as any), refundStatus: 'PENDING' } : { refundStatus: 'PENDING' } }
+                });
+            }
 
             // Restore inventory
             if (booking.bookingType === 'flight' && booking.flightId) {
@@ -326,10 +375,20 @@ export const cancelBooking = async (req: AuthRequest, res: Response): Promise<vo
                     data: { availableSeats: { increment: pax } }
                 });
             }
+            
+            // Release seats
+            await tx.bookingPassenger.updateMany({
+                where: { bookingId: booking.id },
+                data: { seatNumber: null }
+            });
         });
 
-        res.json({ success: true, message: 'Booking cancelled successfully' });
-    } catch (error) {
+        res.json({ success: true, message: 'Booking cancelled successfully. If paid, refund is pending.' });
+    } catch (error: any) {
+        if (error.message === 'ALREADY_CANCELLED') {
+            res.status(400).json({ success: false, message: 'Booking is already cancelled or expired' });
+            return;
+        }
         logger.error('cancelBooking error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }

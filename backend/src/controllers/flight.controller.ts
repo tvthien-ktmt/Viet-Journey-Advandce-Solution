@@ -6,11 +6,24 @@ export const searchFlights = async (req: Request, res: Response): Promise<void> 
     try {
         const { departureAirport, arrivalAirport, departureTime, page = '0', size = '10' } = req.query;
 
+        if (departureAirport && arrivalAirport && departureAirport === arrivalAirport) {
+            res.status(400).json({ success: false, message: 'Departure and arrival airports cannot be the same' });
+            return;
+        }
+
         // Simplified search logic
         let dateFilter = {};
         if (departureTime) {
             const startOfDay = new Date(departureTime as string);
             startOfDay.setUTCHours(0, 0, 0, 0);
+            
+            // Do not allow searching for dates before today
+            const today = new Date();
+            today.setUTCHours(0, 0, 0, 0);
+            if (startOfDay < today) {
+                res.status(400).json({ success: false, message: 'Cannot search for past flights' });
+                return;
+            }
             const endOfDay = new Date(departureTime as string);
             endOfDay.setUTCHours(23, 59, 59, 999);
             dateFilter = {

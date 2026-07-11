@@ -19,35 +19,15 @@ export default function BlogDetailPage() {
     enabled: !!id
   });
 
-  // MOCK CONTENT (Fallback)
-  const mockBlog = {
-    id: id,
-    title: 'Vietnam Airlines chính thức mở đường bay thẳng đến Munich (Đức)',
-    category: 'Tin tức VNA',
-    date: '04/10/2025',
-    image: '/placeholder.svg',
-    content: `
-      <p class="lead font-medium text-lg text-slate-700 mb-6">Từ tháng 10 năm 2025, Vietnam Airlines chính thức khai trương đường bay thẳng giữa Hà Nội / TP. Hồ Chí Minh và Munich – thủ phủ của bang Bavaria, Đức. Đây là bước tiến quan trọng trong chiến lược mở rộng mạng bay quốc tế của Hãng hàng không Quốc gia Việt Nam.</p>
-      
-      <h3 class="text-2xl font-bold text-slate-800 mt-10 mb-4">Mở rộng kết nối Việt Nam - Châu Âu</h3>
-      <p class="mb-4">Đường bay mới sẽ được khai thác bằng siêu máy bay Boeing 787-9 Dreamliner với tần suất 4 chuyến/tuần. Munich là điểm đến thứ hai tại Đức và điểm đến thứ 6 tại Châu Âu mà Vietnam Airlines khai thác đường bay thẳng.</p>
-      <p class="mb-4">Phát biểu tại buổi lễ công bố, đại diện Vietnam Airlines nhấn mạnh: "Việc mở đường bay thẳng đến Munich không chỉ đáp ứng nhu cầu đi lại ngày càng tăng giữa Việt Nam và Đức, mà còn mở ra những cơ hội mới về hợp tác kinh tế, thương mại, du lịch và giao lưu văn hóa giữa hai nước."</p>
+  const blog = data;
 
-      <img src="/placeholder.svg" alt="Cabin" class="w-full rounded-2xl my-8 object-cover h-[400px]" />
+  if (isLoading) {
+    return <div className="min-h-screen bg-white pb-20 pt-32 text-center">Đang tải...</div>;
+  }
 
-      <h3 class="text-2xl font-bold text-slate-800 mt-10 mb-4">Lịch bay chi tiết</h3>
-      <ul class="list-disc pl-6 mb-8 space-y-2 text-slate-700">
-        <li><strong>Hà Nội (HAN) - Munich (MUC):</strong> Khởi hành lúc 23:50 thứ 6 và Chủ nhật hàng tuần.</li>
-        <li><strong>Munich (MUC) - Hà Nội (HAN):</strong> Khởi hành lúc 13:35 thứ 7 và Thứ 2 hàng tuần.</li>
-        <li><strong>TP. Hồ Chí Minh (SGN) - Munich (MUC):</strong> Khởi hành lúc 23:50 thứ 2 và thứ 4 hàng tuần.</li>
-        <li><strong>Munich (MUC) - TP. Hồ Chí Minh (SGN):</strong> Khởi hành lúc 13:35 thứ 3 và thứ 5 hàng tuần.</li>
-      </ul>
-
-      <p class="mb-4">Nhân dịp khai trương đường bay mới, Vietnam Airlines triển khai chương trình ưu đãi đặc biệt với mức giá khứ hồi chỉ từ 14.999.000 VNĐ (đã bao gồm thuế, phí). Ưu đãi áp dụng cho vé xuất từ nay đến hết ngày 30/11/2025, cho hành trình khởi hành trước 31/03/2026.</p>
-    `
-  };
-
-  const blog = data || mockBlog;
+  if (isError || !blog) {
+    return <div className="min-h-screen bg-white pb-20 pt-32 text-center text-red-500">Lỗi tải dữ liệu hoặc bài viết không tồn tại.</div>;
+  }
 
   const copyLink = () => {
     navigator.clipboard.writeText(window.location.href);
