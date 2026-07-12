@@ -3,7 +3,6 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminApi } from '@/api/admin';
 import type { AdminUser } from '@/types/admin';
 import { Input } from '@/components/ui';
-import { Card } from '@/components/ui';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui';
 import { Badge } from '@/components/ui';
 import { Avatar } from '@/components/ui';

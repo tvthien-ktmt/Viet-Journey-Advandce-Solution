@@ -129,7 +129,7 @@ export default function AdminToursPage() {
                   <TableCell>
                     <div className="flex gap-2">
                       <Button variant="outline" size="sm" onClick={() => handleOpenDialog(t)}>Sửa</Button>
-                      <Button variant="destructive" size="sm" onClick={() => deleteMutation.mutate(t.id)}>Xóa</Button>
+                      <Button variant="destructive" size="sm" onClick={() => { if(window.confirm('Bạn có chắc chắn muốn xoá tour này? Hành động này không thể hoàn tác.')) deleteMutation.mutate(t.id) }}>Xóa</Button>
                     </div>
                   </TableCell>
                 </TableRow>

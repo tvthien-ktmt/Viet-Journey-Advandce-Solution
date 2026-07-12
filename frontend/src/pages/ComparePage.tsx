@@ -2,10 +2,10 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader } from '@/components/ui';
 import { Button } from '@/components/ui';
-import { CheckCircle2, XCircle, ArrowRight, Plane, Coffee, Briefcase, Sofa } from 'lucide-react';
+import { CheckCircle2, XCircle, Plane, Briefcase, Sofa } from 'lucide-react';
 
 export default function ComparePage() {
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-slate-50 pb-20 pt-24">
@@ -40,7 +40,7 @@ export default function ComparePage() {
                 <li className="flex items-start opacity-50"><XCircle className="w-5 h-5 mr-3 text-red-400 shrink-0 mt-0.5" /> <span className="text-slate-500 line-through">Phòng chờ Thương gia</span></li>
                 <li className="flex items-start opacity-50"><XCircle className="w-5 h-5 mr-3 text-red-400 shrink-0 mt-0.5" /> <span className="text-slate-500 line-through">Lối đi ưu tiên SkyPriority</span></li>
               </ul>
-              <Button variant="outline" className="w-full h-12 border-vna-blue text-vna-blue hover:bg-blue-50 mt-auto rounded-lg transition-all duration-300" onClick={() => navigate('/')}>
+              <Button variant="outline" className="w-full h-12 border-vna-blue text-vna-blue hover:bg-blue-50 mt-auto rounded-lg transition-all duration-300" onClick={() => _navigate('/')}>
                 Đặt vé Phổ thông
               </Button>
             </CardContent>
@@ -68,7 +68,7 @@ export default function ComparePage() {
                 <li className="flex items-start"><CheckCircle2 className="w-5 h-5 mr-3 text-vna-gold shrink-0 mt-0.5" /> <span className="text-slate-700 font-medium">Quầy làm thủ tục riêng</span></li>
                 <li className="flex items-start opacity-50"><XCircle className="w-5 h-5 mr-3 text-red-400 shrink-0 mt-0.5" /> <span className="text-slate-500 line-through">Phòng chờ Thương gia</span></li>
               </ul>
-              <Button className="w-full h-12 bg-vna-gold hover:bg-vna-gold/90 text-white mt-auto rounded-lg transition-all duration-300" onClick={() => navigate('/')}>
+              <Button className="w-full h-12 bg-vna-gold hover:bg-vna-gold/90 text-white mt-auto rounded-lg transition-all duration-300" onClick={() => _navigate('/')}>
                 Đặt vé Phổ thông ĐB
               </Button>
             </CardContent>
@@ -93,7 +93,7 @@ export default function ComparePage() {
                 <li className="flex items-start"><CheckCircle2 className="w-5 h-5 mr-3 text-vna-gold shrink-0 mt-0.5" /> <span className="text-vna-gold font-bold">Sử dụng Phòng chờ Thương gia (Lotus Lounge)</span></li>
                 <li className="flex items-start"><CheckCircle2 className="w-5 h-5 mr-3 text-vna-gold shrink-0 mt-0.5" /> <span className="text-vna-gold font-bold">Đặc quyền SkyPriority toàn diện</span></li>
               </ul>
-              <Button className="w-full h-12 bg-white text-vna-text hover:bg-slate-200 mt-auto font-bold rounded-lg transition-all duration-300" onClick={() => navigate('/')}>
+              <Button className="w-full h-12 bg-white text-vna-text hover:bg-slate-200 mt-auto font-bold rounded-lg transition-all duration-300" onClick={() => _navigate('/')}>
                 Trải nghiệm Thương Gia
               </Button>
             </CardContent>

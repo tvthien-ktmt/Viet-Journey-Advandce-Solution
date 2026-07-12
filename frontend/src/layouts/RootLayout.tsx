@@ -1,4 +1,5 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Toaster } from 'sonner';
 import { TopBar } from '@/components/layout/TopBar';
 import { SiteHeader } from '@/components/layout/SiteHeader';
@@ -18,6 +19,7 @@ export function RootLayout() {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const initSocket = useNotificationStore(s => s.initSocket);
   const disconnectSocket = useNotificationStore(s => s.disconnectSocket);
+  const location = useLocation();
 
   useEffect(() => {
     initAuth();
@@ -43,9 +45,18 @@ export function RootLayout() {
     <div className="flex min-h-screen flex-col bg-white">
       <TopBar />
       <SiteHeader />
-      <main className="flex-1">
-        <Outlet />
-      </main>
+      <AnimatePresence mode="wait">
+        <motion.main 
+          key={location.pathname}
+          initial={{ opacity: 0, y: 15 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -15 }}
+          transition={{ duration: 0.3, ease: 'easeOut' }}
+          className="flex-1"
+        >
+          <Outlet />
+        </motion.main>
+      </AnimatePresence>
       <SiteFooter />
       <Toaster position="top-right" richColors closeButton />
       <GlobalSearch isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui';
 import { Button } from '@/components/ui';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui';
 import { MapPin, Plane, ArrowRight } from 'lucide-react';
 
 const destinations = [
@@ -18,7 +18,7 @@ const destinations = [
 ];
 
 export default function DestinationsPage() {
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
   const [filter, setFilter] = useState('all');
 
   const filteredData = destinations.filter(d => filter === 'all' || d.type === filter);
@@ -62,7 +62,7 @@ export default function DestinationsPage() {
             <Card 
               key={dest.id} 
               className="overflow-hidden group cursor-pointer border-0 shadow-md hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 rounded-xl"
-              onClick={() => navigate(`/destination/${dest.id}`)}
+              onClick={() => _navigate(`/destination/${dest.id}`)}
             >
               <div className="relative h-64 overflow-hidden">
                 <img 
@@ -99,7 +99,7 @@ export default function DestinationsPage() {
           <Plane className="w-12 h-12 text-vna-blue mx-auto mb-4" />
           <h2 className="text-2xl font-bold text-slate-800 mb-2">Bạn đã chọn được điểm đến tiếp theo?</h2>
           <p className="text-slate-600 mb-6 max-w-xl mx-auto">Hàng ngàn chuyến bay đang mở bán với mức giá vô cùng hấp dẫn. Hãy đặt vé ngay hôm nay để nhận nhiều ưu đãi.</p>
-          <Button size="lg" className="bg-vna-blue text-white rounded-lg" onClick={() => navigate('/')}>
+          <Button size="lg" className="bg-vna-blue text-white rounded-lg" onClick={() => _navigate('/')}>
             Tìm chuyến bay ngay
           </Button>
         </div>

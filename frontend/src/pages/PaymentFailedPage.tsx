@@ -3,7 +3,7 @@ import { Button } from '@/components/ui';
 import { useNavigate, useParams } from 'react-router-dom';
 
 export default function PaymentFailedPage() {
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
   const { id } = useParams();
 
   return (
@@ -19,10 +19,10 @@ export default function PaymentFailedPage() {
         </p>
 
         <div className="flex flex-col gap-3">
-          <Button onClick={() => navigate(`/payment/${id}`)} className="bg-vna-blue hover:bg-vna-blue-700 transition-all duration-300">
+          <Button onClick={() => _navigate(`/payment/${id}`)} className="bg-vna-blue hover:bg-vna-blue-700 transition-all duration-300">
             Thử thanh toán lại
           </Button>
-          <Button variant="default" onClick={() => navigate('/')} className="text-vna-muted dark:text-slate-400 hover:text-vna-blue transition-all duration-300">
+          <Button variant="default" onClick={() => _navigate('/')} className="text-vna-muted dark:text-slate-400 hover:text-vna-blue transition-all duration-300">
             Hủy và về trang chủ
           </Button>
         </div>

@@ -10,9 +10,9 @@ import { getHotelBySlug } from '@/api/hotels';
 
 export default function HotelDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const isAuthenticated = useAuth((s) => s.isAuthenticated);
+  const _navigate = useNavigate();
+  const _location = useLocation();
+  const _isAuthenticated = useAuth((s) => s.isAuthenticated);
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['hotel', id],
@@ -21,9 +21,9 @@ export default function HotelDetailPage() {
   });
 
   const handleBook = () => {
-    if (!isAuthenticated()) {
+    if (!_isAuthenticated()) {
       toast.error('Vui lòng đăng nhập để đặt phòng');
-      navigate('/login', { state: { from: location.pathname } });
+      _navigate('/login', { state: { from: _location.pathname } });
       return;
     }
     toast.success('Gửi yêu cầu đặt phòng thành công!');
@@ -33,7 +33,7 @@ export default function HotelDetailPage() {
     <div className="min-h-screen bg-slate-50 pb-20 pt-24">
       
       <div className="max-w-6xl mx-auto px-4">
-        <Button variant="ghost" className="flex items-center gap-2 mb-6 text-slate-500 hover:text-vna-blue rounded-lg transition-all duration-300" onClick={() => navigate(-1)}>
+        <Button variant="ghost" className="flex items-center gap-2 mb-6 text-slate-500 hover:text-vna-blue rounded-lg transition-all duration-300" onClick={() => _navigate(-1)}>
           <ChevronLeft className="w-5 h-5 mr-1" /> Quay lại tìm kiếm
         </Button>
 

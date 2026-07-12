@@ -3,7 +3,7 @@ import { Button } from '@/components/ui';
 import { useNavigate, useParams } from 'react-router-dom';
 
 export default function BookingExpiredPage() {
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
   const { id } = useParams();
 
   return (
@@ -19,10 +19,10 @@ export default function BookingExpiredPage() {
         </p>
 
         <div className="flex flex-col gap-3">
-          <Button onClick={() => navigate('/')} className="bg-vna-blue hover:bg-vna-blue-700 transition-all duration-300">
+          <Button onClick={() => _navigate('/')} className="bg-vna-blue hover:bg-vna-blue-700 transition-all duration-300">
             Tìm chuyến bay mới
           </Button>
-          <Button variant="ghost" onClick={() => navigate('/contact')} className="text-vna-blue dark:text-vna-gold">
+          <Button variant="ghost" onClick={() => _navigate('/contact')} className="text-vna-blue dark:text-vna-gold">
             Liên hệ hỗ trợ
           </Button>
         </div>

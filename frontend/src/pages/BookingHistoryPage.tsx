@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Link } from 'react-router-dom';
 import { bookingApi } from '@/api/booking';
 import type { FlightBooking } from '@/types/flight';
@@ -6,14 +6,14 @@ import { useAuth } from '@/store/authStore';
 import { useQuery } from '@tanstack/react-query';
 
 export default function BookingHistoryPage() {
-  const isAuthenticated = useAuth(s => s.isAuthenticated());
+  const _isAuthenticated = useAuth(s => s.isAuthenticated());
   const { data: bookings = [], isLoading } = useQuery({
     queryKey: ['bookings'],
     queryFn: async () => {
       const res = await bookingApi.getMyBookings();
       return res?.content || [];
     },
-    enabled: isAuthenticated
+    enabled: _isAuthenticated
   });
 
   return (
@@ -62,7 +62,7 @@ export default function BookingHistoryPage() {
                           const snap = JSON.parse(b.itemSnapshot || '{}');
                           if (b.bookingType === 'FLIGHT') return `${snap.from || ''} → ${snap.to || ''}`;
                           return snap.name || b.bookingType;
-                        } catch(e) {
+                        } catch {
                           return b.bookingType === 'FLIGHT' ? 'Vé máy bay' : b.bookingType === 'TOUR' ? 'Tour du lịch' : 'Khách sạn';
                         }
                       })()}

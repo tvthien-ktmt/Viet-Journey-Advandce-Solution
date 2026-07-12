@@ -11,8 +11,8 @@ import { authApi } from '@/api/auth';
 import { useAuth } from '@/store/authStore';
 
 export default function RegisterPage() {
-  const t = useT();
-  const navigate = useNavigate();
+  const _t = useT();
+  const _navigate = useNavigate();
   const { setAuth } = useAuth();
   
   const [showPassword, setShowPassword] = useState(false);
@@ -40,16 +40,16 @@ export default function RegisterPage() {
         if (loginRes?.user) {
           setAuth(loginRes.user, loginRes.token || '', '');
           toast.success('Đăng ký và đăng nhập thành công!');
-          navigate('/');
+          _navigate('/');
           return;
         }
-      } catch (_) {
+      } catch (_e: any) {
         // Auto-login failed — fallback to redirect to login page
       }
       toast.success('Đăng ký thành công! Vui lòng đăng nhập.');
-      navigate('/login');
-    } catch (e) {
-      const error = e as Error & { response?: { data?: { message?: string } } };
+      _navigate('/login');
+    } catch (_e: any) {
+      const error = _e as Error & { response?: { data?: { message?: string } } };
       toast.error(error.response?.data?.message || 'Đăng ký thất bại');
     } finally {
       setIsLoading(false);
@@ -60,8 +60,8 @@ export default function RegisterPage() {
     <div className="min-h-screen bg-slate-50 flex">
       <div className="hidden lg:flex lg:w-1/2 relative bg-vna-gold overflow-hidden">
         <img 
-          src="/images/search_0_03a0bac8.jpg" 
-          alt="Vietnam Airlines Lotus" 
+          src="/images/vna_login_bg.png" 
+          alt="Vietnam Airlines" 
           className="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-overlay"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-vna-gold/90 via-vna-gold/40 to-transparent" />
@@ -76,7 +76,7 @@ export default function RegisterPage() {
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
         <div className="w-full max-w-md">
           
-          <Button variant="ghost" className="flex items-center gap-2 mb-8 text-slate-500 hover:text-vna-blue rounded-lg transition-colors duration-200" onClick={() => navigate('/')}>
+          <Button variant="ghost" className="flex items-center gap-2 mb-8 text-slate-500 hover:text-vna-blue rounded-lg transition-colors duration-200" onClick={() => _navigate('/')}>
             <ChevronLeft className="w-4 h-4 mr-2" /> Quay lại trang chủ
           </Button>
 

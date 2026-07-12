@@ -4,17 +4,20 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { io } from 'socket.io-client';
 import { bookingApi } from '@/api/booking';
 import { Card, Button, Badge, Separator } from '@/components/ui';
+import { CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatVND } from '@/lib/formatters';
 import { useAuth } from '@/store/authStore';
 
 export default function PaymentPage() {
   const { bookingId } = useParams<{ bookingId: string }>();
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
   const { user } = useAuth();
   const [usePoints, setUsePoints] = useState(false);
   const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
   const [countdown, setCountdown] = useState<number>(300);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [isExpired, setIsExpired] = useState(false);
 
   const { data: booking, isLoading } = useQuery({
     queryKey: ['booking', bookingId],
@@ -25,47 +28,69 @@ export default function PaymentPage() {
   // Polling hook
   useEffect(() => {
     let interval: any;
-    if (qrCodeUrl && countdown > 0) {
+    let timeout: any;
+    if (qrCodeUrl && countdown > 0 && !isSuccess) {
       interval = setInterval(async () => {
         try {
           const res = await bookingApi.getPaymentStatus(bookingId!);
           if (res.data?.status === 'SUCCESS') {
+            setIsSuccess(true);
             toast.success('Thanh toán thành công!');
-            navigate(`/payment/callback?vnp_ResponseCode=00&vnp_TxnRef=${booking?.id}`);
+            timeout = setTimeout(() => {
+               _navigate(`/payment/callback?vnp_ResponseCode=00&vnp_TxnRef=${booking?.id}`);
+            }, 3000);
+          } else if (res.data?.status === 'EXPIRED' || res.data?.status === 'LATE_PAYMENT') {
+            setQrCodeUrl(null);
+            setIsExpired(true);
+            toast.error('Mã QR đã hết hạn. Nếu bạn chuyển khoản sau thời gian này sẽ không được ghi nhận.');
           }
-        } catch (e) {
+        } catch {
           // ignore
         }
       }, 5000);
     }
-    return () => clearInterval(interval);
-  }, [qrCodeUrl, countdown, bookingId, navigate, booking?.id]);
+    return () => {
+      if (interval) clearInterval(interval);
+      if (timeout) clearTimeout(timeout);
+    };
+  }, [qrCodeUrl, countdown, bookingId, _navigate, booking?.id, isSuccess]);
 
   // Countdown hook
   useEffect(() => {
     let timer: any;
-    if (qrCodeUrl && countdown > 0) {
+    if (qrCodeUrl && countdown > 0 && !isSuccess) {
       timer = setInterval(() => {
         setCountdown((prev) => prev - 1);
       }, 1000);
-    } else if (countdown === 0 && qrCodeUrl) {
+    } else if (countdown === 0 && qrCodeUrl && !isSuccess) {
       setQrCodeUrl(null);
-      toast.error('Mã QR đã hết hạn, vui lòng tạo lại.');
+      setIsExpired(true);
+      toast.error('Mã QR đã hết hạn. Nếu bạn chuyển khoản sau thời gian này sẽ không được ghi nhận.');
     }
     return () => clearInterval(timer);
-  }, [qrCodeUrl, countdown]);
+  }, [qrCodeUrl, countdown, isSuccess]);
 
   useEffect(() => {
-    if (booking?.bookingCode) {
+    let timeout: any;
+    if (booking?.bookingCode && !isSuccess) {
       const socket = io(import.meta.env.VITE_API_URL?.replace('/api', '') || 'http://localhost:8080');
       socket.emit('join-booking', booking.bookingCode);
       socket.on('payment-success', () => {
+         setIsSuccess(true);
          toast.success('Thanh toán thành công qua thiết bị khác!');
-         navigate(`/payment/callback?vnp_ResponseCode=00&vnp_TxnRef=${booking.id}`);
+         timeout = setTimeout(() => {
+            _navigate(`/payment/callback?vnp_ResponseCode=00&vnp_TxnRef=${booking.id}`);
+         }, 3000);
       });
-      return () => { socket.disconnect(); };
+      return () => {
+        socket.disconnect();
+        if (timeout) clearTimeout(timeout);
+      };
     }
-  }, [booking?.bookingCode, booking?.id, navigate]);
+    return () => {
+      if (timeout) clearTimeout(timeout);
+    };
+  }, [booking?.bookingCode, booking?.id, _navigate, isSuccess]);
 
   const createQrMutation = useMutation({
     mutationFn: () => bookingApi.createQRPayment(bookingId!),
@@ -80,7 +105,7 @@ export default function PaymentPage() {
     onError: () => toast.error('Tạo mã QR thất bại')
   });
 
-  const payMutation = useMutation({
+  const _payMutation = useMutation({
     mutationFn: () => bookingApi.payVnpay(bookingId!, usePoints),
     onSuccess: (data: { paymentUrl?: string }) => {
       if (data?.paymentUrl) {
@@ -127,7 +152,28 @@ export default function PaymentPage() {
               </div>
             </Card>
 
-            {qrCodeUrl ? (
+            {isSuccess ? (
+              <Card className="p-8 text-center shadow-sm border-green-200 bg-green-50 rounded-xl flex flex-col items-center animate-in fade-in zoom-in duration-500">
+                <CheckCircle2 className="text-green-500 w-24 h-24 mb-4 animate-bounce" />
+                <h3 className="font-bold text-2xl text-green-700 mb-2">Thanh toán thành công!</h3>
+                <p className="text-green-600 mb-6">Hệ thống đang chuyển hướng tới trang xác nhận...</p>
+              </Card>
+            ) : isExpired ? (
+              <Card className="p-8 text-center shadow-sm border-red-200 bg-red-50 rounded-xl flex flex-col items-center animate-in fade-in zoom-in duration-500">
+                <div className="w-20 h-20 rounded-full bg-red-100 flex items-center justify-center mb-4">
+                  <span className="text-4xl">⏳</span>
+                </div>
+                <h3 className="font-bold text-2xl text-red-700 mb-2">Mã QR đã hết hạn</h3>
+                <p className="text-red-600 mb-6 max-w-md">Khoản chuyển sau thời gian hiệu lực không được ghi nhận. Vui lòng liên hệ hỗ trợ nếu bạn đã chuyển tiền.</p>
+                <Button 
+                  size="lg" 
+                  className="bg-vna-blue hover:bg-vna-blue/90" 
+                  onClick={() => window.location.reload()}
+                >
+                  Tải lại trang để thử lại
+                </Button>
+              </Card>
+            ) : qrCodeUrl ? (
               <Card className="p-8 text-center shadow-sm border-vna-border rounded-xl flex flex-col items-center">
                 <h3 className="font-bold text-xl mb-2">Quét mã QR để thanh toán</h3>
                 <p className="text-slate-500 mb-6 text-sm">Sử dụng ứng dụng ngân hàng hoặc ví điện tử</p>

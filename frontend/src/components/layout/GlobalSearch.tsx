@@ -15,15 +15,19 @@ export function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
   const [loading, setLoading] = useState(false);
   const debouncedKeyword = useDebounce(keyword, 500);
   const inputRef = useRef<HTMLInputElement>(null);
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
 
   useEffect(() => {
+    let t: any;
     if (isOpen && inputRef.current) {
-      setTimeout(() => inputRef.current?.focus(), 100);
+      t = setTimeout(() => inputRef.current?.focus(), 100);
     } else {
       setKeyword('');
       setResults(null);
     }
+    return () => {
+      if (t) clearTimeout(t);
+    };
   }, [isOpen]);
 
   useEffect(() => {
@@ -38,8 +42,8 @@ export function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
         if (res.success) {
           setResults(res.data);
         }
-      } catch (error) {
-        console.error('Search error:', error);
+      } catch (_error: any) {
+        console.error('Search error:', _error);
       } finally {
         setLoading(false);
       }
@@ -50,7 +54,7 @@ export function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
 
   const handleNavigate = (path: string) => {
     onClose();
-    navigate(path);
+    _navigate(path);
   };
 
   if (!isOpen) return null;
@@ -147,7 +151,7 @@ export function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
                       >
                         <div className="w-10 h-10 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center shrink-0 overflow-hidden">
                           {hotel.image ? (
-                            <img src={hotel.image} alt="" className="w-full h-full object-cover" />
+                            <img src={hotel.image} alt={hotel.name} className="w-full h-full object-cover" />
                           ) : (
                             <Hotel className="w-5 h-5" />
                           )}
@@ -181,7 +185,7 @@ export function GlobalSearch({ isOpen, onClose }: GlobalSearchProps) {
                       >
                         <div className="w-10 h-10 rounded-lg bg-green-50 text-green-600 flex items-center justify-center shrink-0 overflow-hidden">
                            {tour.image ? (
-                            <img src={tour.image} alt="" className="w-full h-full object-cover" />
+                            <img src={tour.image} alt={tour.title} className="w-full h-full object-cover" />
                           ) : (
                             <MapPin className="w-5 h-5" />
                           )}

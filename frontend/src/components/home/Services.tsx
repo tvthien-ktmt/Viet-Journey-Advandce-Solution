@@ -5,14 +5,14 @@ import { useT } from '@/store/langStore';
 import { toast } from 'sonner';
 
 export function Services() {
-  const t = useT();
+  const _t = useT();
 
   return (
     <section id="services" className="vna-tint-bg py-14 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="mb-8 text-center">
-          <h2 className="text-2xl font-extrabold tracking-tight text-[#023a78] sm:text-3xl">{t.sections.services}</h2>
-          <p className="mx-auto mt-1 max-w-xl text-sm text-slate-500">{t.sections.servicesSub}</p>
+          <h2 className="text-2xl font-extrabold tracking-tight text-[#023a78] sm:text-3xl">{_t.sections.services}</h2>
+          <p className="mx-auto mt-1 max-w-xl text-sm text-slate-500">{_t.sections.servicesSub}</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4">
@@ -33,7 +33,7 @@ export function Services() {
                   <div className="mt-0.5 line-clamp-2 text-[11px] text-slate-500">{s.desc}</div>
                 </div>
                 <div className="mt-auto inline-flex items-center gap-1 text-[11px] font-semibold text-[#1f6fb2] opacity-0 transition-opacity group-hover:opacity-100">
-                  {t.common.seeDetail}
+                  {_t.common.seeDetail}
                   <ArrowRight className="size-3" />
                 </div>
               </button>

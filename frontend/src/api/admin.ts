@@ -1,5 +1,5 @@
 import { api } from './client';
-import type { AdminFlight, AdminBooking, AdminUser, Kpi, ChartDataPoint, AdminNews } from '../types/admin';
+import type { AdminFlight, AdminBooking, AdminUser, AdminNews } from '../types/admin';
 
 export const adminApi = {
   kpi: (): Promise<any> => api.get('/admin/analytics'),

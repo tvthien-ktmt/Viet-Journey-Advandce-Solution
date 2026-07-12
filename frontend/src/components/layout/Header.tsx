@@ -1,5 +1,5 @@
 
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../store/authStore';
 import { useNotificationStore } from '../../store/notificationStore';
 import { useLang } from '../../store/langStore';
@@ -7,9 +7,9 @@ import { useState, useEffect } from 'react';
 import { GlobalSearch } from './GlobalSearch';
 
 export default function Header() {
-  const location = useLocation();
+  const _location = useLocation();
   const user = useAuth((s) => s.user);
-  const isAuthenticated = useAuth((s) => s.isAuthenticated);
+  const _isAuthenticated = useAuth((s) => s.isAuthenticated);
   const logout = useAuth((s) => s.logout);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -27,7 +27,7 @@ export default function Header() {
     } else {
       disconnectSocket();
     }
-  }, [user]);
+  }, [user, fetchNotifications, initSocket, disconnectSocket]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -56,7 +56,7 @@ export default function Header() {
           
           <nav className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => {
-              const isActive = location.pathname === link.path;
+              const isActive = _location.pathname === link.path;
               return (
                 <Link
                   key={link.path}
@@ -164,24 +164,24 @@ export default function Header() {
       {/* Mobile Navigation (Bottom Bar) */}
       <nav className="block md:hidden fixed bottom-0 left-0 w-full bg-surface border-t border-surface-container-highest z-50">
         <div className="flex justify-around items-center h-16">
-          <Link to="/" className={`flex flex-col items-center justify-center w-full h-full transition-colors duration-300 ${location.pathname === '/' ? 'text-primary' : 'text-onSurface-variant hover:text-primary'}`}>
-            <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname === '/' ? "'FILL' 1" : "'FILL' 0" }}>home</span>
+          <Link to="/" className={`flex flex-col items-center justify-center w-full h-full transition-colors duration-300 ${_location.pathname === '/' ? 'text-primary' : 'text-onSurface-variant hover:text-primary'}`}>
+            <span className="material-symbols-outlined" style={{ fontVariationSettings: _location.pathname === '/' ? "'FILL' 1" : "'FILL' 0" }}>home</span>
             <span className="text-[12px] mt-1 font-medium">Trang chủ</span>
           </Link>
-          <Link to="/destinations" className={`flex flex-col items-center justify-center w-full h-full transition-colors duration-300 ${location.pathname === '/destinations' ? 'text-primary' : 'text-onSurface-variant hover:text-primary'}`}>
-            <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname === '/destinations' ? "'FILL' 1" : "'FILL' 0" }}>explore</span>
+          <Link to="/destinations" className={`flex flex-col items-center justify-center w-full h-full transition-colors duration-300 ${_location.pathname === '/destinations' ? 'text-primary' : 'text-onSurface-variant hover:text-primary'}`}>
+            <span className="material-symbols-outlined" style={{ fontVariationSettings: _location.pathname === '/destinations' ? "'FILL' 1" : "'FILL' 0" }}>explore</span>
             <span className="text-[12px] mt-1 font-medium">Địa điểm</span>
           </Link>
-          <Link to="/tours" className={`flex flex-col items-center justify-center w-full h-full transition-colors duration-300 ${location.pathname === '/tours' ? 'text-primary' : 'text-onSurface-variant hover:text-primary'}`}>
-            <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname === '/tours' ? "'FILL' 1" : "'FILL' 0" }}>tour</span>
+          <Link to="/tours" className={`flex flex-col items-center justify-center w-full h-full transition-colors duration-300 ${_location.pathname === '/tours' ? 'text-primary' : 'text-onSurface-variant hover:text-primary'}`}>
+            <span className="material-symbols-outlined" style={{ fontVariationSettings: _location.pathname === '/tours' ? "'FILL' 1" : "'FILL' 0" }}>tour</span>
             <span className="text-[12px] mt-1 font-medium">Tour</span>
           </Link>
-          <Link to="/hotels" className={`flex flex-col items-center justify-center w-full h-full transition-colors duration-300 ${location.pathname === '/hotels' ? 'text-primary' : 'text-onSurface-variant hover:text-primary'}`}>
-            <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname === '/hotels' ? "'FILL' 1" : "'FILL' 0" }}>hotel</span>
+          <Link to="/hotels" className={`flex flex-col items-center justify-center w-full h-full transition-colors duration-300 ${_location.pathname === '/hotels' ? 'text-primary' : 'text-onSurface-variant hover:text-primary'}`}>
+            <span className="material-symbols-outlined" style={{ fontVariationSettings: _location.pathname === '/hotels' ? "'FILL' 1" : "'FILL' 0" }}>hotel</span>
             <span className="text-[12px] mt-1 font-medium">Khách sạn</span>
           </Link>
-          <Link to="/flights" className={`flex flex-col items-center justify-center w-full h-full transition-colors duration-300 ${location.pathname === '/flights' ? 'text-primary' : 'text-onSurface-variant hover:text-primary'}`}>
-            <span className="material-symbols-outlined" style={{ fontVariationSettings: location.pathname === '/flights' ? "'FILL' 1" : "'FILL' 0" }}>flight</span>
+          <Link to="/flights" className={`flex flex-col items-center justify-center w-full h-full transition-colors duration-300 ${_location.pathname === '/flights' ? 'text-primary' : 'text-onSurface-variant hover:text-primary'}`}>
+            <span className="material-symbols-outlined" style={{ fontVariationSettings: _location.pathname === '/flights' ? "'FILL' 1" : "'FILL' 0" }}>flight</span>
             <span className="text-[12px] mt-1 font-medium">Vé máy bay</span>
           </Link>
         </div>

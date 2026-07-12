@@ -1,12 +1,12 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { api } from '@/api/client';
 import { toast } from 'sonner';
 
 export default function PaymentCallbackPage() {
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
-  const [status, setStatus] = useState('processing');
+  const _navigate = useNavigate();
+
 
   useEffect(() => {
     const processCallback = async () => {
@@ -16,19 +16,19 @@ export default function PaymentCallbackPage() {
         
         if (response?.status === 'completed') {
           toast.success('Thanh toán thành công!');
-          navigate(`/booking-history`);
+          _navigate(`/booking-history`);
         } else {
           toast.error('Thanh toán thất bại hoặc bị hủy.');
-          navigate('/payment-failed');
+          _navigate('/payment-failed');
         }
-      } catch (error) {
+      } catch (_e: any) {
         toast.error('Lỗi khi xử lý thanh toán.');
-        navigate('/payment-failed');
+        _navigate('/payment-failed');
       }
     };
     
     processCallback();
-  }, [searchParams, navigate]);
+  }, [searchParams, _navigate]);
 
   return (
     <div className="min-h-screen flex items-center justify-center pt-20">

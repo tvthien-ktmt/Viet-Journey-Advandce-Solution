@@ -9,7 +9,7 @@ import { useQuery } from '@tanstack/react-query';
 import { blogApi } from '@/api/blog';
 
 export default function BlogPage() {
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
   const [filter, setFilter] = useState('Tất cả');
   
   const { data, isLoading, isError } = useQuery({
@@ -18,7 +18,7 @@ export default function BlogPage() {
   });
 
   const categories = ['Tất cả', 'Tin tức VNA', 'Cẩm nang du lịch', 'Khuyến mãi'];
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, _setSearchTerm] = useState('');
   
   const filteredBlogs = (data || []).filter((blog: any) => {
     const matchSearch = blog.title.toLowerCase().includes(searchTerm.toLowerCase());
@@ -73,7 +73,7 @@ export default function BlogPage() {
             <h2 className="text-2xl font-bold text-slate-800 mb-6">Bài viết nổi bật</h2>
             <Card 
               className="overflow-hidden cursor-pointer group border-0 shadow-lg rounded-xl"
-              onClick={() => navigate(`/blog/${featuredBlog.slug || featuredBlog.id}`)}
+              onClick={() => _navigate(`/blog/${featuredBlog.slug || featuredBlog.id}`)}
             >
               <div className="flex flex-col md:flex-row">
                 <div className="w-full md:w-2/3 h-[300px] md:h-[450px] relative overflow-hidden">
@@ -102,7 +102,7 @@ export default function BlogPage() {
                 <Card 
                   key={blog.id} 
                   className="overflow-hidden cursor-pointer group border-0 shadow hover:shadow-xl transition-all rounded-xl"
-                  onClick={() => navigate(`/blog/${blog.slug || blog.id}`)}
+                  onClick={() => _navigate(`/blog/${blog.slug || blog.id}`)}
                 >
                   <div className="h-[240px] relative overflow-hidden">
                     <img src={blog.image} alt={blog.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />

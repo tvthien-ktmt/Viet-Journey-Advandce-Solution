@@ -49,7 +49,7 @@ export default {
             800: '#022d5e',
             900: '#011f42', 50: '#eaf3fb', 100: '#c5dcf3', 200: '#9bc3ea',
             300: '#6faae0', 400: '#4a91d4', 500: '#1f6fb2', 600: '#023a78',
-            700: '#022d5e', 800: '#011f42', 900: '#011228',
+            700: '#022d5e'
           },
           'vna-gold': { DEFAULT: '#f5a623', light: '#ffd66b', dark: '#d4891a' },
           'vna-red': '#d4111a', 'vna-sky': '#1f6fb2', 'vna-tint': '#eaf3fb',

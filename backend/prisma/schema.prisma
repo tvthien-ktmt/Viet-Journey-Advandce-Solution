@@ -60,6 +60,8 @@ enum PaymentStatus {
   PENDING
   SUCCESS
   FAILED
+  EXPIRED
+  LATE_PAYMENT
 }
 
 model RefreshToken {
@@ -274,6 +276,11 @@ model Review {
   comment   String   @db.Text
   status    String   @default("PENDING_REVIEW") // 'PENDING_REVIEW', 'PUBLISHED', 'REJECTED'
   createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([tourId])
+  @@index([hotelId])
+  @@index([flightId])
 }
 
 model Wishlist {
@@ -285,6 +292,8 @@ model Wishlist {
   hotelId   Int?
   hotel     Hotel?   @relation(fields: [hotelId], references: [id])
   createdAt DateTime @default(now())
+
+  @@index([userId])
 }
 
 model Notification {

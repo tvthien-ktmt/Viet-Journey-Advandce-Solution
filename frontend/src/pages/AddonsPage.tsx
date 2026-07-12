@@ -8,7 +8,6 @@ import { Switch } from '@/components/ui';
 import { Label } from '@/components/ui';
 import { ChevronLeft, Luggage, Utensils, Coffee, ShieldCheck, Plus, Minus } from 'lucide-react';
 import { toast } from 'sonner';
-import { cn } from '@/lib/utils';
 
 interface Passenger {
   id: string;
@@ -30,9 +29,9 @@ const MEAL_OPTIONS = [
 
 export default function AddonsPage() {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
   
-  const { data: booking, isLoading } = useQuery({
+  const { data: booking, isLoading: _isLoading } = useQuery({
     queryKey: ['booking', id],
     queryFn: () => bookingApi.get(id as string),
     enabled: !!id,
@@ -88,7 +87,7 @@ export default function AddonsPage() {
   const updateAddonsMutation = useMutation({
     mutationFn: (payload: any[]) => bookingApi.updateAddons(id as string, payload),
     onSuccess: () => {
-      navigate(`/booking/${id}/payment`);
+      _navigate(`/booking/${id}/payment`);
     },
     onError: () => {
       toast.error('Lỗi khi cập nhật tiện ích');
@@ -117,7 +116,7 @@ export default function AddonsPage() {
       <div className="max-w-7xl mx-auto px-4">
         
         <div className="flex items-center gap-4 mb-6">
-          <Button className="flex items-center gap-2 rounded-lg" variant="ghost" size="icon" onClick={() => navigate(-1)}>
+          <Button className="flex items-center gap-2 rounded-lg" variant="ghost" size="icon" onClick={() => _navigate(-1)}>
             <ChevronLeft className="w-5 h-5" />
           </Button>
           <div>

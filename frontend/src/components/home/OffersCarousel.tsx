@@ -53,10 +53,10 @@ export function OffersCarousel() {
                       <h2 className="mb-2 text-2xl font-extrabold text-white drop-shadow-md sm:text-4xl">{s.title}</h2>
                       <p className="mb-5 text-sm text-white/85 sm:text-base">{s.text}</p>
                       <div>
-                        <a href="#booking" className={cn("flex items-center gap-2", buttonVariants(), "bg-[#f5a623] text-[#023a78] hover:bg-vna-gold")} onClick={(e) => { e.preventDefault(); document.getElementById('booking')?.scrollIntoView({ behavior: 'smooth' }); }}>
+                        <button type="button" className={cn("flex items-center gap-2", buttonVariants(), "bg-[#f5a623] text-[#023a78] hover:bg-vna-gold")} onClick={() => document.getElementById('booking')?.scrollIntoView({ behavior: 'smooth' })}>
                           {s.cta}
                           <ArrowRight className="size-4" />
-                        </a>
+                        </button>
                       </div>
                     </div>
                   </div>

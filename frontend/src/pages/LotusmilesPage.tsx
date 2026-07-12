@@ -9,17 +9,17 @@ import { profileApi } from '@/api/profile';
 
 export default function LotusmilesPage() {
   const { user, initAuth } = useAuth();
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
 
   useEffect(() => {
     if (!user) {
-      navigate('/login');
+      _navigate('/login');
     } else {
       initAuth();
     }
-  }, [user, navigate]);
+  }, [user, _navigate, initAuth]);
 
-  const { data: loyaltyData, isLoading } = useQuery({
+  const { data: loyaltyData, isLoading: _isLoading } = useQuery({
     queryKey: ['loyaltyHistory'],
     queryFn: () => profileApi.getLoyaltyHistory(),
     enabled: !!user
@@ -29,7 +29,7 @@ export default function LotusmilesPage() {
 
   const tier = loyaltyData?.data?.tier || user.lotusmilesTier || 'SILVER';
   const miles = loyaltyData?.data?.miles || user.lotusmilesMiles || 0;
-  const history = loyaltyData?.data?.history || [];
+  const _history = loyaltyData?.data?.history || [];
   
   const nextTierMiles = tier === 'SILVER' ? 1000 : tier === 'TITANIUM' ? 5000 : tier === 'GOLD' ? 10000 : miles;
   const progress = Math.min((miles / nextTierMiles) * 100, 100);

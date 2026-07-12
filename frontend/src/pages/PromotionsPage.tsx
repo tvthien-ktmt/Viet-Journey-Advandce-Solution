@@ -3,7 +3,6 @@ import { promotionsApi } from '@/api/promotions';
 import { Card, Button } from '@/components/ui';
 import { Tag, Clock } from 'lucide-react';
 import { formatVND, formatDate } from '@/lib/formatters';
-import { Link } from 'react-router-dom';
 
 export default function PromotionsPage() {
   const { data: promos, isLoading } = useQuery({

@@ -136,8 +136,8 @@ export function HeroSearch() {
     try {
       const json = await searchFlights(payload);
       setData(json);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error');
+    } catch (_err: any) {
+      setError(_err instanceof Error ? _err.message : 'Unknown error');
     } finally {
       setLoading(false);
     }

@@ -4,7 +4,7 @@ import { promotionsApi } from '@/api/promotions';
 import { Card, Button } from '@/components/ui';
 import { Tag, Calendar, Copy, Check, ArrowLeft } from 'lucide-react';
 import { formatVND, formatDate } from '@/lib/formatters';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { toast } from 'sonner';
 
 export default function PromotionDetailPage() {
@@ -17,14 +17,23 @@ export default function PromotionDetailPage() {
     enabled: !!code
   });
 
+  const timerRef = React.useRef<any>(null);
+
   const handleCopy = () => {
     if (promo?.code) {
       navigator.clipboard.writeText(promo.code);
       setCopied(true);
       toast.success('Đã sao chép mã khuyến mãi');
-      setTimeout(() => setCopied(false), 2000);
+      if (timerRef.current) clearTimeout(timerRef.current);
+      timerRef.current = setTimeout(() => setCopied(false), 2000);
     }
   };
+
+  React.useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
 
   if (isLoading) return <div className="text-center py-20">Đang tải...</div>;
   if (!promo) return <div className="text-center py-20 text-vna-red">Không tìm thấy mã khuyến mãi này.</div>;

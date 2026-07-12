@@ -26,8 +26,12 @@ export const globalErrorHandler = (err: any, req: Request, res: Response, next: 
         return;
     }
 
+    const isProduction = process.env.NODE_ENV === 'production';
+    const message = err.status ? err.message : (isProduction ? 'Internal Server Error' : err.message || 'Internal Server Error');
+
     res.status(err.status || 500).json({
         success: false,
-        message: err.message || 'Internal Server Error'
+        message,
+        ...(isProduction ? {} : { stack: err.stack })
     });
 };

@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { useQuery, useMutation } from '@tanstack/react-query';
+import { useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useMutation } from '@tanstack/react-query';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -8,14 +8,13 @@ import { bookingApi } from '@/api/booking';
 import { useCountdown } from '@/hooks/useCountdown';
 import { useLang, useT } from '@/store/langStore';
 import { useAuth } from '@/store/authStore';
-import { formatVND } from '@/lib/formatters';
 import { Clock } from 'lucide-react';
 import { Badge } from '@/components/ui';
 import { Button } from '@/components/ui';
 import { Card } from '@/components/ui';
 import { toast } from 'sonner';
-import type { HoldRequest, CreateBookingRequest } from '@/api/booking';
-import type { FlightBooking, Passenger } from '@/types/flight';
+import type { CreateBookingRequest } from '@/api/booking';
+import type { FlightBooking } from '@/types/flight';
 
 const passengerSchema = z.object({
   type: z.enum(['adult', 'child', 'infant']),
@@ -34,13 +33,13 @@ const holdFormSchema = z.object({
 type HoldFormValues = z.infer<typeof holdFormSchema>;
 
 export default function SeatHoldPage() {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const { lang } = useLang();
-  const t = useT();
+  const _navigate = useNavigate();
+  const _location = useLocation();
+
+  const _t = useT();
   const { user } = useAuth();
 
-  const [createdBookingId, setCreatedBookingId] = useState<string | null>(null);
+
   
   const holdStateStr = sessionStorage.getItem('holdState');
   const holdState = holdStateStr ? JSON.parse(holdStateStr) : null;
@@ -48,25 +47,25 @@ export default function SeatHoldPage() {
   const createBookingMutation = useMutation({
     mutationFn: (req: CreateBookingRequest) => bookingApi.createBooking(req),
     onSuccess: (data: FlightBooking) => {
-      navigate(`/booking/${data.id}/seats`);
+      _navigate(`/booking/${data.id}/seats`);
     }
   });
 
   useEffect(() => {
     if (!holdState) {
-      navigate('/');
+      _navigate('/');
     }
-  }, [holdState, navigate]);
+  }, [holdState, _navigate]);
 
   const expiresAt = new Date(Date.now() + 10 * 60 * 1000).toISOString();
   const remaining = useCountdown(expiresAt);
 
   useEffect(() => {
     if (remaining === 0) {
-      toast.error(t('hold.expired'));
-      navigate('/');
+      toast.error(_t('hold.expired'));
+      _navigate('/');
     }
-  }, [remaining, navigate, t]);
+  }, [remaining, _navigate, _t]);
 
   const { register, handleSubmit, formState: { errors }, control } = useForm<HoldFormValues>({
     resolver: zodResolver(holdFormSchema),
@@ -113,13 +112,13 @@ export default function SeatHoldPage() {
             <div className="flex items-center gap-3">
               <Clock className="text-vna-gold animate-pulse" />
               <div>
-                <p className="text-sm text-white/70">{t('hold.remaining')}</p>
+                <p className="text-sm text-white/70">{_t('hold.remaining')}</p>
                 <p className="text-2xl font-bold font-mono">{mm}:{ss}</p>
               </div>
             </div>
-            <Badge className="bg-vna-gold text-white">{t('hold.bookingCode')}: PENDING</Badge>
+            <Badge className="bg-vna-gold text-white">{_t('hold.bookingCode')}: PENDING</Badge>
           </div>
-          <p className="text-xs text-white/60 mt-2">{t('hold.warning')}</p>
+          <p className="text-xs text-white/60 mt-2">{_t('hold.warning')}</p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -128,27 +127,27 @@ export default function SeatHoldPage() {
             <div className="space-y-4">
               {fields.map((field, index) => (
                 <div key={field.id} className="grid grid-cols-1 md:grid-cols-4 gap-4 p-4 bg-slate-50 rounded-lg border border-vna-border">
-                  <div className="md:col-span-4 font-semibold">{t(`hold.passenger.${field.type}`)} {index + 1}</div>
+                  <div className="md:col-span-4 font-semibold">{_t(`hold.passenger.${field.type}`)} {index + 1}</div>
                   <div>
-                    <label className="text-xs font-medium">{t('hold.fullName')}</label>
+                    <label className="text-xs font-medium">{_t('hold.fullName')}</label>
                     <input {...register(`passengers.${index}.fullName`)} className="w-full border rounded p-2 text-sm uppercase rounded-lg" />
                     {errors.passengers?.[index]?.fullName && <p className="text-red-500 text-xs">{errors.passengers[index]?.fullName?.message}</p>}
                   </div>
                   <div>
-                    <label className="text-xs font-medium">{t('hold.idNumber')}</label>
+                    <label className="text-xs font-medium">{_t('hold.idNumber')}</label>
                     <input {...register(`passengers.${index}.idNumber`)} className="w-full border rounded p-2 text-sm rounded-lg" />
                     {errors.passengers?.[index]?.idNumber && <p className="text-red-500 text-xs">{errors.passengers[index]?.idNumber?.message}</p>}
                   </div>
                   <div>
-                    <label className="text-xs font-medium">{t('hold.birthDate')}</label>
+                    <label className="text-xs font-medium">{_t('hold.birthDate')}</label>
                     <input type="date" {...register(`passengers.${index}.birthDate`)} className="w-full border rounded p-2 text-sm rounded-lg" />
                     {errors.passengers?.[index]?.birthDate && <p className="text-red-500 text-xs">{errors.passengers[index]?.birthDate?.message}</p>}
                   </div>
                   <div>
-                    <label className="text-xs font-medium">{t('hold.gender')}</label>
+                    <label className="text-xs font-medium">{_t('hold.gender')}</label>
                     <select {...register(`passengers.${index}.gender`)} className="w-full border rounded p-2 text-sm rounded-lg">
-                      <option value="M">{t('hold.genderMale')}</option>
-                      <option value="F">{t('hold.genderFemale')}</option>
+                      <option value="M">{_t('hold.genderMale')}</option>
+                      <option value="F">{_t('hold.genderFemale')}</option>
                     </select>
                   </div>
                 </div>
@@ -160,12 +159,12 @@ export default function SeatHoldPage() {
             <h3 className="font-bold text-lg mb-4 text-vna-blue">Thông tin liên hệ</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-medium">{t('hold.contactEmail')}</label>
+                <label className="text-xs font-medium">{_t('hold.contactEmail')}</label>
                 <input {...register('contactEmail')} className="w-full border rounded p-2 text-sm rounded-lg" />
                 {errors.contactEmail && <p className="text-red-500 text-xs">{errors.contactEmail.message}</p>}
               </div>
               <div>
-                <label className="text-xs font-medium">{t('hold.contactPhone')}</label>
+                <label className="text-xs font-medium">{_t('hold.contactPhone')}</label>
                 <input {...register('contactPhone')} className="w-full border rounded p-2 text-sm rounded-lg" />
                 {errors.contactPhone && <p className="text-red-500 text-xs">{errors.contactPhone.message}</p>}
               </div>
@@ -173,7 +172,7 @@ export default function SeatHoldPage() {
           </Card>
 
           <Button type="submit" disabled={createBookingMutation.isPending} className="bg-vna-blue hover:bg-vna-blue-700 w-full py-6 text-lg rounded-lg transition-all duration-300">
-            {createBookingMutation.isPending ? 'Đang xử lý...' : `${t('hold.continue')} →`}
+            {createBookingMutation.isPending ? 'Đang xử lý...' : `${_t('hold.continue')} →`}
           </Button>
         </form>
       </div>

@@ -10,7 +10,7 @@ import { cn } from '@/lib/utils';
 const tierIcons = [Star, Award, Gem, Crown];
 
 export function LotusmilesSection() {
-  const t = useT();
+  const _t = useT();
 
   return (
     <section id="lotusmiles" className="relative overflow-hidden bg-[#023a78] py-14 text-white sm:py-20">
@@ -24,15 +24,15 @@ export function LotusmilesSection() {
             <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-[#f5a623]">
               <LotusLogo size={16} /> LOTUSMILES
             </div>
-            <h2 className="text-2xl font-extrabold tracking-tight sm:text-3xl">{t.sections.lotusmiles}</h2>
-            <p className="mt-1 max-w-xl text-sm text-white/80">{t.sections.lotusmilesSub}</p>
+            <h2 className="text-2xl font-extrabold tracking-tight sm:text-3xl">{_t.sections.lotusmiles}</h2>
+            <p className="mt-1 max-w-xl text-sm text-white/80">{_t.sections.lotusmilesSub}</p>
           </div>
           <Button
             type="button"
             className="flex items-center gap-2 bg-[#f5a623] text-[#023a78] hover:bg-vna-gold rounded-lg transition-all duration-300"
-            onClick={() => toast.success(t.sections.joinNow, { description: t.login.subtitle })}
+            onClick={() => toast.success(_t.sections.joinNow, { description: _t.login.subtitle })}
           >
-            {t.sections.joinNow}
+            {_t.sections.joinNow}
             <ArrowRight className="size-4" />
           </Button>
         </div>

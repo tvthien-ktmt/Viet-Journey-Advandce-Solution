@@ -6,7 +6,7 @@ import { Globe, DollarSign, Moon, Type, Bell } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function SettingsPage() {
-  const t = useT();
+  const _t = useT();
   const { lang, setLang } = useLang();
   const { currency, setCurrency } = useCurrency();
   const [theme, setTheme] = useState('light');
@@ -19,7 +19,7 @@ export default function SettingsPage() {
   });
 
   const handleSave = () => {
-    toast.success(t('Cài đặt đã được lưu thành công') || 'Cài đặt đã được lưu thành công');
+    toast.success(_t('Cài đặt đã được lưu thành công') || 'Cài đặt đã được lưu thành công');
   };
 
   return (

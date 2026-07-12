@@ -1,93 +1,112 @@
-
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router-dom';
 import LoginPage from './LoginPage';
-import { vi } from 'vitest';
-import { useAuth } from '@/store/authStore';
+import { BrowserRouter } from 'react-router-dom';
 import { authApi } from '@/api/auth';
+import { useAuth } from '@/store/authStore';
 
+// Mock the API
 vi.mock('@/api/auth', () => ({
   authApi: {
     login: vi.fn(),
+    sendLoginOtp: vi.fn(),
+    verifyLoginOtp: vi.fn(),
+    mockGoogleLogin: vi.fn()
   }
 }));
 
-// Mục đích test: Đảm bảo form Login demo UI hoạt động đúng.
+// Mock Zustand Store
+vi.mock('@/store/authStore', () => ({
+  useAuth: vi.fn()
+}));
+
+// Mock useT
+vi.mock('@/store/langStore', () => ({
+  useT: () => (key: string) => {
+    const dict: Record<string, string> = {
+      'login.title': 'Đăng nhập',
+      'login.email': 'Email',
+      'login.password': 'Mật khẩu',
+      'login.submit': 'Đăng nhập'
+    };
+    return dict[key] || key;
+  }
+}));
+
+const mockSetAuth = vi.fn();
+
 describe('LoginPage', () => {
-  afterEach(() => {
+  beforeEach(() => {
     vi.clearAllMocks();
-  });
-
-  it('should authenticate as admin on specific credentials', async () => {
-    render(
-      <MemoryRouter>
-        <LoginPage />
-      </MemoryRouter>
-    );
-
-    const emailInput = screen.getByPlaceholderText('Nhập email hoặc số thẻ');
-    const passwordInput = screen.getByPlaceholderText('Nhập mật khẩu');
-
-    await userEvent.clear(emailInput);
-    await userEvent.type(emailInput, 'admin@vna.com');
-    await userEvent.clear(passwordInput);
-    await userEvent.type(passwordInput, 'admin');
-
-    // Setup mock behavior
-    (authApi.login as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-      data: {
-        data: {
-          accessToken: 'fake-admin-token',
-          user: { id: '1', email: 'admin@vna.com', roles: ['ADMIN'] }
-        }
+    (useAuth as any).mockImplementation((selector: any) => {
+      // Return mockSetAuth when s => s.setAuth is called
+      if (typeof selector === 'function') {
+        const state = { setAuth: mockSetAuth };
+        return selector(state);
       }
-    });
-
-    await userEvent.click(screen.getByRole('button', { name: /đăng nhập/i }));
-
-
-
-    await waitFor(() => {
-      const state = useAuth.getState();
-      expect(state.user?.email).toBe('admin@vna.com');
-      expect(state.user?.roles).toContain('ADMIN');
+      return mockSetAuth;
     });
   });
 
-  it('should authenticate as normal user on other credentials', async () => {
-    render(
-      <MemoryRouter>
-        <LoginPage />
-      </MemoryRouter>
-    );
+  const renderWithRouter = (ui: React.ReactElement) => {
+    return render(<BrowserRouter>{ui}</BrowserRouter>);
+  };
 
-    const emailInput = screen.getByPlaceholderText('Nhập email hoặc số thẻ');
-    const passwordInput = screen.getByPlaceholderText('Nhập mật khẩu');
+  it('should render login form correctly', () => {
+    renderWithRouter(<LoginPage />);
+    expect(screen.getByRole('heading', { name: /Đăng nhập/i })).toBeInTheDocument();
+    expect(screen.getByLabelText(/Email/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/Mật khẩu/i)).toBeInTheDocument();
+  });
 
-    await userEvent.clear(emailInput);
-    await userEvent.type(emailInput, 'test@example.com');
-    await userEvent.clear(passwordInput);
-    await userEvent.type(passwordInput, 'pass123');
+  it('should show error toast if login fails', async () => {
+    // Setup API mock to reject
+    const mockError = { response: { data: { message: 'Sai email hoặc mật khẩu' } } };
+    (authApi.login as any).mockRejectedValue(mockError);
 
-    // Setup mock behavior
-    (authApi.login as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-      data: {
-        data: {
-          accessToken: 'fake-user-token',
-          user: { id: '2', email: 'test@example.com', roles: ['USER'] }
-        }
-      }
-    });
+    renderWithRouter(<LoginPage />);
+    const user = userEvent.setup();
 
-    await userEvent.click(screen.getByRole('button', { name: /đăng nhập/i }));
-
-
+    await user.type(screen.getByLabelText(/Email/i), 'wrong@test.com');
+    await user.type(screen.getByLabelText(/Mật khẩu/i), 'wrongpass');
+    
+    // Using testId or other role to get submit button
+    // It's a Button component, usually has role button
+    const submitBtns = screen.getAllByRole('button');
+    // Find the one that submits the form
+    // The submit button uses _t('login.submit') which mocks to 'Đăng nhập'
+    const loginBtn = submitBtns.find(b => b.textContent?.includes('Đăng nhập'));
+    if(loginBtn) await user.click(loginBtn);
 
     await waitFor(() => {
-      const state = useAuth.getState();
-      expect(state.user?.email).toBe('test@example.com');
-      expect(state.user?.roles).toContain('USER');
+      expect(authApi.login).toHaveBeenCalledWith('wrong@test.com', 'wrongpass');
     });
+    
+    expect(mockSetAuth).not.toHaveBeenCalled();
+  });
+
+  it('should call setAuth and navigate on successful login', async () => {
+    const mockResponse = {
+      user: { id: 1, email: 'test@test.com', role: 'USER' },
+      token: 'fake-token'
+    };
+    (authApi.login as any).mockResolvedValue(mockResponse);
+
+    renderWithRouter(<LoginPage />);
+    const user = userEvent.setup();
+
+    await user.type(screen.getByLabelText(/Email/i), 'test@test.com');
+    await user.type(screen.getByLabelText(/Mật khẩu/i), 'correctpass');
+    
+    const submitBtns = screen.getAllByRole('button');
+    const loginBtn = submitBtns.find(b => b.textContent?.includes('Đăng nhập'));
+    if(loginBtn) await user.click(loginBtn);
+
+    await waitFor(() => {
+      expect(authApi.login).toHaveBeenCalledWith('test@test.com', 'correctpass');
+    });
+
+    expect(mockSetAuth).toHaveBeenCalledWith(mockResponse.user, mockResponse.token, '');
   });
 });

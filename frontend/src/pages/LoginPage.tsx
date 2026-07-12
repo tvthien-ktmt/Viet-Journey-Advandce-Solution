@@ -11,8 +11,8 @@ import { useAuth } from '@/store/authStore';
 import { authApi } from '@/api/auth';
 
 export default function LoginPage() {
-  const t = useT();
-  const navigate = useNavigate();
+  const _t = useT();
+  const _navigate = useNavigate();
   const setAuth = useAuth(s => s.setAuth);
   
   const [showPassword, setShowPassword] = useState(false);
@@ -24,7 +24,7 @@ export default function LoginPage() {
   const [otp, setOtp] = useState('');
   const [otpSent, setOtpSent] = useState(false);
 
-  const location = useLocation();
+  const _location = useLocation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,16 +42,16 @@ export default function LoginPage() {
       }
       
       setAuth(res.user, res.token, '');
-      toast.success(t('login.success'));
+      toast.success(_t('login.success'));
       
-      const redirectPath = location.state?.from?.pathname 
-        ? location.state.from.pathname + (location.state.from.search || '')
+      const redirectPath = _location.state?.from?.pathname 
+        ? _location.state.from.pathname + (_location.state.from.search || '')
         : ((res.user.roles?.includes('ADMIN') || res.user.role === 'ADMIN') ? '/admin' : '/profile');
         
-      navigate(redirectPath, { replace: true });
-    } catch (e) {
-      const error = e as Error & { response?: { data?: { message?: string } } };
-      toast.error(error.response?.data?.message || t('login.failed'));
+      _navigate(redirectPath, { replace: true });
+    } catch (_e: any) {
+      const error = _e as Error & { response?: { data?: { message?: string } } };
+      toast.error(error.response?.data?.message || _t('login.failed'));
     } finally {
       setIsLoading(false);
     }
@@ -67,7 +67,7 @@ export default function LoginPage() {
       await authApi.sendLoginOtp(email);
       setOtpSent(true);
       toast.success('Đã gửi mã OTP, vui lòng kiểm tra email của bạn');
-    } catch (e) {
+    } catch (_e: any) {
       toast.error('Có lỗi xảy ra khi gửi mã OTP');
     } finally {
       setIsLoading(false);
@@ -80,8 +80,8 @@ export default function LoginPage() {
       const res = await authApi.mockGoogleLogin('mockuser@gmail.com', 'Mock Google User');
       setAuth(res.user, res.token, '');
       toast.success('Đăng nhập Google thành công (Mock)');
-      navigate('/profile', { replace: true });
-    } catch (e) {
+      _navigate('/profile', { replace: true });
+    } catch (_e: any) {
       toast.error('Đăng nhập Google thất bại');
     } finally {
       setIsLoading(false);
@@ -93,7 +93,7 @@ export default function LoginPage() {
       {/* Left side - Image */}
       <div className="hidden lg:flex lg:w-1/2 relative bg-vna-blue overflow-hidden">
         <img 
-          src="/placeholder.svg" 
+          src="/images/vna_login_bg.png" 
           alt="Vietnam Airlines" 
           className="absolute inset-0 w-full h-full object-cover opacity-60 mix-blend-overlay"
         />
@@ -101,8 +101,8 @@ export default function LoginPage() {
         
         <div className="absolute bottom-20 left-16 right-16 text-white">
           <img src="https://www.vietnamairlines.com/~/media/Images/VNANew/Home/Logo/logo_vna_menu.png" alt="Logo" className="h-12 mb-8 filter brightness-0 invert" />
-          <h2 className="text-4xl font-bold mb-4">{t('hero.title')}</h2>
-          <p className="text-xl text-slate-200">{t('hero.subtitle')}</p>
+          <h2 className="text-4xl font-bold mb-4">{_t('hero.title')}</h2>
+          <p className="text-xl text-slate-200">{_t('hero.subtitle')}</p>
         </div>
       </div>
 
@@ -110,13 +110,13 @@ export default function LoginPage() {
       <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
         <div className="w-full max-w-md">
           
-          <Button variant="ghost" className="flex items-center gap-2 mb-8 text-slate-500 hover:text-vna-blue rounded-lg transition-colors duration-200" onClick={() => navigate('/')}>
-            <ChevronLeft className="w-4 h-4 mr-2" /> {t('error.backToHome')}
+          <Button variant="ghost" className="flex items-center gap-2 mb-8 text-slate-500 hover:text-vna-blue rounded-lg transition-colors duration-200" onClick={() => _navigate('/')}>
+            <ChevronLeft className="w-4 h-4 mr-2" /> {_t('error.backToHome')}
           </Button>
 
           <div className="text-center mb-10">
-            <h1 className="text-3xl font-bold text-vna-blue mb-3">{t('login.title')}</h1>
-            <p className="text-slate-600">{t('login.subtitle')}</p>
+            <h1 className="text-3xl font-bold text-vna-blue mb-3">{_t('login.title')}</h1>
+            <p className="text-slate-600">{_t('login.subtitle')}</p>
           </div>
 
           <Card className="shadow-lg border-0 rounded-xl">
@@ -129,10 +129,10 @@ export default function LoginPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="email">{t('login.email')}</Label>
+                  <Label htmlFor="email">{_t('login.email')}</Label>
                   <Input 
                     id="email" 
-                    placeholder={t('login.emailPlaceholder')}
+                    placeholder={_t('login.emailPlaceholder')}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="h-12 rounded-xl"
@@ -143,16 +143,16 @@ export default function LoginPage() {
                 {loginMethod === 'password' ? (
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
-                      <Label htmlFor="password">{t('login.password')}</Label>
+                      <Label htmlFor="password">{_t('login.password')}</Label>
                       <Link to="/forgot-password" className="text-sm font-medium text-vna-blue hover:underline transition-colors duration-200">
-                        {t('login.forgot')}
+                        {_t('login.forgot')}
                       </Link>
                     </div>
                     <div className="relative">
                       <Input 
                         id="password" 
                         type={showPassword ? 'text' : 'password'}
-                        placeholder={t('login.passwordPlaceholder')}
+                        placeholder={_t('login.passwordPlaceholder')}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         className="h-12 pr-10 rounded-xl"
@@ -188,7 +188,7 @@ export default function LoginPage() {
                 )}
 
                 <Button type="submit" size="lg" className="w-full bg-vna-gold hover:bg-vna-gold/90 text-white text-base rounded-lg transition-colors duration-200" disabled={isLoading}>
-                  {isLoading ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : t('login.submit')}
+                  {isLoading ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : _t('login.submit')}
                 </Button>
 
                 <div className="relative my-6">
@@ -215,7 +215,7 @@ export default function LoginPage() {
 
           <p className="text-center mt-8 text-slate-600">
             <Link to="/register" className="font-semibold text-vna-blue hover:underline transition-colors duration-200">
-              {t('login.register')}
+              {_t('login.register')}
             </Link>
           </p>
 

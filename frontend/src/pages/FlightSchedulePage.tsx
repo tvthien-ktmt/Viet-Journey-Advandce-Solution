@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
+import { Card, CardContent } from '@/components/ui';
 import { Button } from '@/components/ui';
 import { Input } from '@/components/ui';
 import { Label } from '@/components/ui';
-import { ChevronLeft, Calendar, Plane, Search } from 'lucide-react';
+import { Plane, Search } from 'lucide-react';
 
 export default function FlightSchedulePage() {
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
   const [from, setFrom] = useState('');
   const [to, setTo] = useState('');
   const [date, setDate] = useState('');
@@ -23,10 +23,12 @@ export default function FlightSchedulePage() {
   }
   const [results, setResults] = useState<ScheduleResult[] | null>(null);
 
+  const timerRef = React.useRef<any>(null);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     setIsSearching(true);
-    setTimeout(() => {
+    timerRef.current = setTimeout(() => {
       setIsSearching(false);
       setResults([
         { id: 1, flightNo: 'VN201', depart: '08:00', arrive: '10:15', duration: '2h 15m', aircraft: 'Airbus A321', days: 'T2, T3, T4, T5, T6, T7, CN' },
@@ -35,6 +37,12 @@ export default function FlightSchedulePage() {
       ]);
     }, 1000);
   };
+
+  React.useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-slate-50 pb-20 pt-24">

@@ -6,10 +6,10 @@ export function useCountdown(expiresAt: string): number {
   );
 
   useEffect(() => {
-    const t = setInterval(() => {
+    const _t = setInterval(() => {
       setRemaining(Math.max(0, Math.floor((new Date(expiresAt).getTime() - Date.now()) / 1000)));
     }, 1000);
-    return () => clearInterval(t);
+    return () => clearInterval(_t);
   }, [expiresAt]);
 
   return remaining;

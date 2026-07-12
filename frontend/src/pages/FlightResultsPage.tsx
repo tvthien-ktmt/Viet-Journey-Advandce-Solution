@@ -10,21 +10,21 @@ import { Badge } from '@/components/ui';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Plane, Search } from 'lucide-react';
 import type { Flight, FlightSearchRequest } from '@/types/flight';
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect } from 'react';
 
 export default function FlightResultsPage() {
   const { t } = useLang();
-  const location = useLocation();
-  const navigate = useNavigate();
+  const _location = useLocation();
+  const _navigate = useNavigate();
   const { setRequest, outbound, return: ret, setOutbound, setReturn, total, reset } = useFlightSelection();
   
-  const form = location.state as FlightSearchRequest;
+  const form = _location.state as FlightSearchRequest;
 
   useEffect(() => {
-    if (!form) navigate('/');
+    if (!form) _navigate('/');
     else setRequest(form);
     return () => reset(); // clean up on unmount
-  }, [form, navigate, setRequest, reset]);
+  }, [form, _navigate, setRequest, reset]);
 
   const { data, isLoading } = useQuery({
     queryKey: ['flights', form],
@@ -84,7 +84,7 @@ export default function FlightResultsPage() {
               <Search className="w-16 h-16 text-gray-300 mb-4" />
               <h3 className="text-xl font-semibold text-[#0b1f3a]">Không tìm thấy chuyến bay</h3>
               <p className="text-[#64748b] mt-2">Thử thay đổi ngày hoặc điểm đến khác</p>
-              <button onClick={() => navigate(-1)}
+              <button onClick={() => _navigate(-1)}
                 className="mt-6 px-6 py-2 bg-[#023a78] text-white rounded-full hover:bg-[#022d5e] transition-colors">
                 Tìm lại
               </button>
@@ -128,7 +128,7 @@ export default function FlightResultsPage() {
                 className="bg-vna-gold hover:bg-vna-gold-dark text-white px-6 md:px-8 shadow-lg font-bold rounded-lg transition-all duration-300"
                 onClick={() => {
                   sessionStorage.setItem('holdState', JSON.stringify({ outbound, return: ret, request: form }));
-                  navigate('/booking/hold');
+                  _navigate('/booking/hold');
                 }}
               >
                 {t('flight.continue')} →

@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/componen
 import { Button } from '@/components/ui';
 import { Badge } from '@/components/ui';
 import { useT } from '@/store/langStore';
-import { Armchair, CheckCircle2, ChevronLeft, ChevronRight, Info } from 'lucide-react';
+import { Armchair, ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import type { BookingPassengerDTO } from '@/types/flight';
@@ -23,15 +23,15 @@ interface Seat {
   price: number;
 }
 
-const COLUMNS_BUSINESS = ['A', 'C', 'D', 'G'];
-const COLUMNS_ECONOMY = ['A', 'B', 'C', 'D', 'E', 'G'];
+const _COLUMNS_BUSINESS = ['A', 'C', 'D', 'G'];
+const _COLUMNS_ECONOMY = ['A', 'B', 'C', 'D', 'E', 'G'];
 
 import { getSeatMap } from '@/api/flights';
 
 export default function SeatSelectionPage() {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const t = useT();
+  const _navigate = useNavigate();
+  const _t = useT();
 
   const [seats, setSeats] = useState<Seat[]>([]);
   const [selectedSeats, setSelectedSeats] = useState<Seat[]>([]);
@@ -54,8 +54,8 @@ export default function SeatSelectionPage() {
         if (res.success && res.data) {
           setSeats(res.data);
         }
-      } catch (err) {
-        console.error('Failed to load seat map', err);
+      } catch (_err: any) {
+        console.error('Failed to load seat map', _err);
       }
     };
     if (booking) {
@@ -90,7 +90,7 @@ export default function SeatSelectionPage() {
     }
     // Save to local storage for demo
     localStorage.setItem(`booking_${id}_seats`, JSON.stringify(selectedSeats));
-    navigate(`/booking/${id}/extras`);
+    _navigate(`/booking/${id}/extras`);
   };
 
   const renderSeatButton = (seat: Seat | undefined) => {
@@ -135,7 +135,7 @@ export default function SeatSelectionPage() {
       <div className="max-w-7xl mx-auto px-4">
         
         <div className="flex items-center gap-4 mb-6">
-          <Button className="flex items-center gap-2 rounded-lg" variant="ghost" size="icon" onClick={() => navigate(-1)}>
+          <Button className="flex items-center gap-2 rounded-lg" variant="ghost" size="icon" onClick={() => _navigate(-1)}>
             <ChevronLeft className="w-5 h-5" />
           </Button>
           <div>

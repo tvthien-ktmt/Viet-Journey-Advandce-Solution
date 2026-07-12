@@ -1,4 +1,4 @@
-import type { FlightBooking, Flight, Passenger, FlightSearchRequest } from '@/types/flight';
+import type { FlightBooking, Flight, FlightSearchRequest } from '@/types/flight';
 import { api } from './client';
 
 

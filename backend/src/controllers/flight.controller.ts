@@ -34,7 +34,7 @@ export const searchFlights = async (req: Request, res: Response): Promise<void> 
             };
         }
 
-        const take = parseInt(size as string);
+        const take = Math.min(parseInt(size as string), 100);
         const skip = parseInt(page as string) * take;
 
         const [flights, totalElements] = await prisma.$transaction([

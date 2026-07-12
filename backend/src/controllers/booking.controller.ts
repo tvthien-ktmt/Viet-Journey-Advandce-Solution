@@ -32,11 +32,22 @@ export const getMyBookings = async (req: AuthRequest, res: Response): Promise<vo
 
 export const getAllBookings = async (req: Request, res: Response): Promise<void> => {
     try {
-        const bookings = await prisma.booking.findMany({
-            include: { user: true, tour: true, hotel: true, flight: true, payment: true },
-            orderBy: { createdAt: 'desc' }
-        });
-        res.json({ success: true, data: bookings });
+        const { page = '0', size = '10' } = req.query;
+        const take = Math.min(parseInt(size as string), 100);
+        const skip = parseInt(page as string) * take;
+
+        const [bookings, totalElements] = await prisma.$transaction([
+            prisma.booking.findMany({
+                skip,
+                take,
+                include: { user: true, tour: true, hotel: true, flight: true, payment: true },
+                orderBy: { createdAt: 'desc' }
+            }),
+            prisma.booking.count()
+        ]);
+        
+        const totalPages = Math.ceil(totalElements / take);
+        res.json({ success: true, data: { content: bookings, totalElements, totalPages } });
     } catch (error) {
         logger.error('getAllBookings error:', error);
         res.status(500).json({ success: false, message: 'Server error' });

@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui';
+import { Card, CardContent } from '@/components/ui';
 import { Button } from '@/components/ui';
 import { Input } from '@/components/ui';
 import { Label } from '@/components/ui';
 import { useT } from '@/store/langStore';
-import { Search, CheckCircle2, PlaneTakeoff, Printer, Download, MapPin, Calendar, Clock, AlertCircle } from 'lucide-react';
+import { CheckCircle2, PlaneTakeoff, Printer, Download, AlertCircle } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { toast } from 'sonner';
 import { bookingApi } from '@/api/booking';
 
 export default function CheckinPage() {
-  const t = useT();
+  const _t = useT();
   const [code, setCode] = useState('');
   const [lastName, setLastName] = useState('');
   const [step, setStep] = useState<1 | 2 | 3>(1);
@@ -60,7 +60,7 @@ export default function CheckinPage() {
       } else {
         toast.error('Không tìm thấy chuyến bay phù hợp');
       }
-    } catch (e) {
+    } catch {
       toast.error('Không tìm thấy đặt chỗ phù hợp để làm thủ tục.');
     } finally {
       setIsSearching(false);
@@ -75,7 +75,7 @@ export default function CheckinPage() {
         setBooking(prev => prev ? { ...prev, qrCodeUrl: res.data.qrCodeUrl } : null);
         setStep(3);
       }
-    } catch (e) {
+    } catch {
       toast.error('Có lỗi xảy ra khi check-in');
     }
   };
@@ -86,7 +86,7 @@ export default function CheckinPage() {
       {/* Non-printable header */}
       <div className="max-w-4xl mx-auto px-4 print:hidden">
         <div className="text-center mb-10">
-          <h1 className="text-3xl font-bold text-vna-blue mb-4">{t('checkin.title')}</h1>
+          <h1 className="text-3xl font-bold text-vna-blue mb-4">{_t('checkin.title')}</h1>
           <p className="text-slate-600">Làm thủ tục trực tuyến tiết kiệm thời gian chờ đợi tại sân bay.</p>
         </div>
 
@@ -121,20 +121,20 @@ export default function CheckinPage() {
 
               <form onSubmit={handleSearch} className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-2">
-                  <Label htmlFor="code">{t('manage.code')}</Label>
+                  <Label htmlFor="code">{_t('manage.code')}</Label>
                   <Input 
                     id="code" 
-                    placeholder={t('manage.codePlaceholder')} 
+                    placeholder={_t('manage.codePlaceholder')} 
                     className="uppercase font-semibold tracking-wider h-12 rounded-lg"
                     value={code}
                     onChange={(e) => setCode(e.target.value.toUpperCase())}
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="lastName">{t('manage.lastName')}</Label>
+                  <Label htmlFor="lastName">{_t('manage.lastName')}</Label>
                   <Input 
                     id="lastName" 
-                    placeholder={t('manage.lastNamePlaceholder')}
+                    placeholder={_t('manage.lastNamePlaceholder')}
                     className="uppercase font-semibold tracking-wider h-12 rounded-lg"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value.toUpperCase())}
@@ -142,7 +142,7 @@ export default function CheckinPage() {
                 </div>
                 <div className="md:col-span-2 text-center mt-4">
                   <Button type="submit" size="lg" className="w-full md:w-auto min-w-[200px] bg-vna-gold hover:bg-vna-gold/90 text-white rounded-lg transition-all duration-300" disabled={isSearching}>
-                    {isSearching ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : t('checkin.onlineCheckin')}
+                    {isSearching ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : _t('checkin.onlineCheckin')}
                   </Button>
                 </div>
               </form>
@@ -167,16 +167,16 @@ export default function CheckinPage() {
                   </div>
                 </div>
 
-                <h4 className="font-semibold mb-4 text-slate-800">{t('checkin.passengers')}</h4>
+                <h4 className="font-semibold mb-4 text-slate-800">{_t('checkin.passengers')}</h4>
                 <div className="space-y-3 mb-8">
-                  {booking.passengers.map((p: {id: string, name: string, seat: string}, idx: number) => (
+                  {booking.passengers.map((p: {id: string, name: string, seat: string}, _idx: number) => (
                     <div key={p.id} className="flex justify-between items-center p-4 bg-slate-50 rounded-lg border border-slate-100">
                       <div className="flex items-center gap-3">
                         <CheckCircle2 className="w-5 h-5 text-green-500" />
                         <span className="font-semibold">{p.name}</span>
                       </div>
                       <div className="flex items-center gap-4">
-                        <span className="text-sm text-slate-500">{t('checkin.seat')}:</span>
+                        <span className="text-sm text-slate-500">{_t('checkin.seat')}:</span>
                         <span className="font-bold bg-white px-3 py-1 rounded border border-slate-200">{p.seat}</span>
                       </div>
                     </div>
@@ -191,7 +191,7 @@ export default function CheckinPage() {
                 <div className="flex gap-4 justify-end">
                   <Button variant="outline" onClick={() => setStep(1)}>Quay lại</Button>
                   <Button className="bg-vna-gold hover:bg-vna-gold/90 text-white rounded-lg transition-all duration-300" onClick={handleCompleteCheckin}>
-                    {t('checkin.complete')}
+                    {_t('checkin.complete')}
                   </Button>
                 </div>
               </CardContent>
@@ -212,7 +212,7 @@ export default function CheckinPage() {
               
               <div className="flex gap-4 justify-center mb-8">
                 <Button variant="outline" onClick={() => window.print()} className="flex items-center gap-2">
-                  <Printer className="w-4 h-4" /> {t('checkin.print')}
+                  <Printer className="w-4 h-4" /> {_t('checkin.print')}
                 </Button>
                 <Button className="flex items-center gap-2 bg-vna-blue text-white rounded-lg">
                   <Download className="w-4 h-4" /> Lưu về máy

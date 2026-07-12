@@ -30,8 +30,8 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
       const data = res || [];
       const unreadCount = data.filter(n => !n.isRead).length;
       set({ notifications: data, unreadCount });
-    } catch (error) {
-      console.error('Failed to fetch notifications', error);
+    } catch (_error) {
+      console.error('Failed to fetch notifications', _error);
     }
   },
   markAsRead: async (id: number) => {
@@ -44,8 +44,8 @@ export const useNotificationStore = create<NotificationState>((set, get) => ({
         const unreadCount = notifications.filter(n => !n.isRead).length;
         return { notifications, unreadCount };
       });
-    } catch (error) {
-      console.error('Failed to mark notification as read', error);
+    } catch (_error) {
+      console.error('Failed to mark notification as read', _error);
     }
   },
   initSocket: (userId: string) => {

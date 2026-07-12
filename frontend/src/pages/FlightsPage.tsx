@@ -11,7 +11,7 @@ export default function FlightsPage() {
   const [departError, setDepartError] = useState(false);
   const [returnError, setReturnError] = useState(false);
   
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
 
   const handleSwap = () => {
     const temp = origin;
@@ -62,7 +62,7 @@ export default function FlightsPage() {
       sessionStorage.setItem('vj_flight_search', JSON.stringify({
         origin, dest, departDate, returnDate: activeTab === 'Một chiều' ? '' : returnDate
       }));
-      navigate('/flights/results');
+      _navigate('/flights/results');
     }
   };
 

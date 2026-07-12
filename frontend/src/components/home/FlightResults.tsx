@@ -32,7 +32,7 @@ const FlightRow = React.memo(function FlightRow({
   onSelect: () => void;
   cabinLabel: string;
 }) {
-  const t = useT();
+  const _t = useT();
   return (
     <div
       className={cn(
@@ -54,7 +54,7 @@ const FlightRow = React.memo(function FlightRow({
             <Plane className="absolute -top-1.5 left-1/2 size-3.5 -translate-x-1/2 rotate-90 text-[#1f6fb2]" />
           </div>
           <div className="text-[11px] text-slate-500">
-            {flight.stops === 0 ? t.results.nonstop : `${flight.stops} ${t.results.stops}`}
+            {flight.stops === 0 ? _t.results.nonstop : `${flight.stops} ${_t.results.stops}`}
           </div>
         </div>
         <div className="text-center">
@@ -80,7 +80,7 @@ const FlightRow = React.memo(function FlightRow({
       <div className="flex flex-row items-center justify-between gap-3 border-t border-dashed border-slate-200 pt-3 sm:flex-col sm:items-end sm:border-t-0 sm:pt-0">
         <div className="text-right">
           <div className="text-lg font-bold text-[#d4111a]">{formatVND(flight.priceVND)}</div>
-          <div className="text-[11px] text-slate-500">{flight.seatsLeft} {t.results.seatsLeft}</div>
+          <div className="text-[11px] text-slate-500">{flight.seatsLeft} {_t.results.seatsLeft}</div>
         </div>
         <Button
           type="button"
@@ -95,10 +95,10 @@ const FlightRow = React.memo(function FlightRow({
           {selected ? (
             <>
               <CheckCircle2 className="size-4" />
-              {t.results.selected}
+              {_t.results.selected}
             </>
           ) : (
-            t.results.select
+            _t.results.select
           )}
         </Button>
       </div>
@@ -109,10 +109,10 @@ const FlightRow = React.memo(function FlightRow({
 export function FlightResults({
   open, onOpenChange, loading, data, request, error,
 }: FlightResultsProps) {
-  const t = useT();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const isAuthenticated = useAuth((s) => s.isAuthenticated);
+  const _t = useT();
+  const _navigate = useNavigate();
+  const _location = useLocation();
+  const _isAuthenticated = useAuth((s) => s.isAuthenticated);
   const [activeTab, setActiveTab] = React.useState<string>('outbound');
   const [outbound, setOutbound] = React.useState<DisplayFlight | null>(null);
   const [ret, setRet] = React.useState<DisplayFlight | null>(null);
@@ -131,10 +131,10 @@ export function FlightResults({
   const isRound = request?.tripType === 'round';
 
   const cabinLabel =
-    request?.cabin === 'business' ? t.hero.book.cabinBusiness
-      : request?.cabin === 'premium' ? t.hero.book.cabinEconomySpecial
-        : request?.cabin === 'premiumBusiness' ? t.hero.book.cabinPremium
-          : t.hero.book.cabinEconomy;
+    request?.cabin === 'business' ? _t.hero.book.cabinBusiness
+      : request?.cabin === 'premium' ? _t.hero.book.cabinEconomySpecial
+        : request?.cabin === 'premiumBusiness' ? _t.hero.book.cabinPremium
+          : _t.hero.book.cabinEconomy;
 
   const totalPax = (request?.adults ?? 0) + (request?.children ?? 0) + (request?.infants ?? 0);
 
@@ -151,17 +151,17 @@ export function FlightResults({
   const canContinue = !!outbound && (!isRound || !!ret) && totalPax > 0;
 
   function onContinue() {
-    if (!isAuthenticated()) {
-      navigate('/login', { state: { from: location } });
+    if (!_isAuthenticated()) {
+      _navigate('/login', { state: { from: _location } });
       toast.info('Vui lòng đăng nhập để tiếp tục đặt vé');
       return;
     }
 
-    toast.success(t.results.bookingToast, {
-      description: `${request?.from} → ${request?.to}${isRound && t.results.return ? ` (${t.results.return.toLowerCase()})` : ''} · ${cabinLabel}`,
+    toast.success(_t.results.bookingToast, {
+      description: `${request?.from} → ${request?.to}${isRound && _t.results.return ? ` (${_t.results.return.toLowerCase()})` : ''} · ${cabinLabel}`,
     });
     onOpenChange(false);
-    navigate('/booking/hold', {
+    _navigate('/booking/hold', {
       state: {
         request,
         outbound,
@@ -191,7 +191,7 @@ export function FlightResults({
               </DialogDescription>
             </div>
             <Badge className="bg-[#f5a623] text-[#023a78] hover:bg-[#f5a623] transition-all duration-300">
-              {(data?.outbound?.length ?? 0) + (data?.return?.length ?? 0)} {t.results.flightsFound}
+              {(data?.outbound?.length ?? 0) + (data?.return?.length ?? 0)} {_t.results.flightsFound}
             </Badge>
           </div>
         </DialogHeader>
@@ -210,18 +210,18 @@ export function FlightResults({
               ))}
               <div className="flex items-center justify-center gap-2 py-2 text-sm text-[#023a78]">
                 <Loader2 className="size-4 animate-spin" />
-                {t.results.loading}
+                {_t.results.loading}
               </div>
             </div>
           ) : error ? (
             <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center text-sm text-red-700">{error}</div>
           ) : data && data.outbound.length === 0 && (data.return?.length ?? 0) === 0 ? (
-            <div className="rounded-xl border border-slate-200 bg-white p-10 text-center text-sm text-slate-500">{t.results.empty}</div>
+            <div className="rounded-xl border border-slate-200 bg-white p-10 text-center text-sm text-slate-500">{_t.results.empty}</div>
           ) : isRound ? (
             <Tabs value={activeTab} onValueChange={setActiveTab}>
               <TabsList className="mb-3 grid w-full grid-cols-1 md:grid-cols-2 bg-[#eaf3fb]">
-                <TabsTrigger value="outbound" className="data-[state=active]:bg-white">{t.results.outbound}</TabsTrigger>
-                <TabsTrigger value="return" className="data-[state=active]:bg-white">{t.results.return}</TabsTrigger>
+                <TabsTrigger value="outbound" className="data-[state=active]:bg-white">{_t.results.outbound}</TabsTrigger>
+                <TabsTrigger value="return" className="data-[state=active]:bg-white">{_t.results.return}</TabsTrigger>
               </TabsList>
               <TabsContent value="outbound" className="space-y-3">
                 {outFlights.map((f) => (
@@ -246,9 +246,9 @@ export function FlightResults({
         {(outbound || ret) && (
           <div className="border-t border-slate-200 bg-white p-4">
             <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-              <div className="text-sm font-semibold text-[#023a78]">{t.results.summary}</div>
+              <div className="text-sm font-semibold text-[#023a78]">{_t.results.summary}</div>
               <div className="text-right">
-                <div className="text-[11px] text-slate-500">{t.results.total}</div>
+                <div className="text-[11px] text-slate-500">{_t.results.total}</div>
                 <div className="text-lg font-bold text-[#d4111a]">{formatVND(total * Math.max(totalPax, 1))}</div>
               </div>
             </div>
@@ -267,7 +267,7 @@ export function FlightResults({
               )}
             </div>
             <Button type="button" className="flex items-center gap-2 w-full bg-[#023a78] hover:bg-[#022f60] disabled:opacity-50 rounded-lg transition-all duration-300" disabled={!canContinue} onClick={onContinue}>
-              {t.results.continue}
+              {_t.results.continue}
               <ArrowRight className="size-4" />
             </Button>
           </div>

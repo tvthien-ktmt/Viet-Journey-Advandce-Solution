@@ -3,12 +3,12 @@ import { useAuth } from '@/store/authStore';
 import type { ReactNode } from 'react';
 
 export function ProtectedRoute({ roles, children }: { roles?: ('USER' | 'ADMIN')[]; children?: ReactNode }) {
-  const isAuthenticated = useAuth((s) => s.isAuthenticated);
+  const _isAuthenticated = useAuth((s) => s.isAuthenticated);
   const hasRole = useAuth((s) => s.hasRole);
-  const location = useLocation();
+  const _location = useLocation();
 
-  if (!isAuthenticated()) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
+  if (!_isAuthenticated()) {
+    return <Navigate to="/login" state={{ from: _location }} replace />;
   }
   if (roles && !roles.some(r => hasRole(r))) {
     return <Navigate to="/" replace />;

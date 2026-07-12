@@ -11,7 +11,7 @@ import { Label } from '@/components/ui';
 import { User, Plane, CreditCard, Shield, LogOut, Award, ChevronRight } from 'lucide-react';
 
 export default function ProfilePage() {
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
   const user = useAuth((s) => s.user);
   const setAuth = useAuth((s) => s.setAuth);
   const logout = useAuth((s) => s.logout);
@@ -28,7 +28,7 @@ export default function ProfilePage() {
       const res = await profileApi.updateProfile({ fullName, phone });
       setAuth(res, useAuth.getState().token || '', useAuth.getState().refreshToken || '');
       toast.success('Cập nhật thông tin thành công');
-    } catch (error) {
+    } catch {
       toast.error('Cập nhật thất bại');
     } finally {
       setIsUpdating(false);
@@ -48,7 +48,7 @@ export default function ProfilePage() {
 
   const handleLogout = () => {
     logout();
-    navigate('/');
+    _navigate('/');
   };
 
   const getTierColor = (tier?: string) => {
@@ -186,7 +186,7 @@ export default function ProfilePage() {
                 <h2 className="text-xl font-bold mb-4">Chuyến bay sắp tới</h2>
                 
                 {bookings?.map((b) => (
-                  <Card key={b.id} className="hover:shadow-md transition-shadow cursor-pointer border-l-4 border-l-vna-blue rounded-xl mb-4" onClick={() => navigate(`/manage`)}>
+                  <Card key={b.id} className="hover:shadow-md transition-shadow cursor-pointer border-l-4 border-l-vna-blue rounded-xl mb-4" onClick={() => _navigate(`/manage`)}>
                     <CardContent className="p-6 flex items-center justify-between rounded-xl">
                       <div>
                         <div className="flex items-center gap-2 mb-2">

@@ -2,15 +2,12 @@
 import { useParams, useNavigate, Navigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { bookingApi } from '@/api/booking';
-import { Card } from '@/components/ui';
-import { Button } from '@/components/ui';
-import { Badge } from '@/components/ui';
-import { Separator } from '@/components/ui';
+import { Card, Button, Separator } from '@/components/ui';
 import { CheckCircle2 } from 'lucide-react';
 import { LotusLogo } from '@/components/common/LotusLogo';
 import { formatVND } from '@/lib/formatters';
 import { useLang } from '@/store/langStore';
-import type { Flight, Passenger, BookingPassengerDTO } from '@/types/flight';
+import type { BookingPassengerDTO } from '@/types/flight';
 
 export default function ConfirmationPage() {
   const { bookingId } = useParams<{ bookingId: string }>();
@@ -105,28 +102,5 @@ export default function ConfirmationPage() {
   );
 }
 
-function FlightDetail({ flight, label }: { flight: Flight, label: string }) {
-  return (
-    <div>
-      <Badge variant="outline" className="mb-3 text-vna-sky border-vna-sky">{label}</Badge>
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-2xl font-bold">{flight.departTime}</p>
-          <p className="text-xs text-vna-muted mt-1">{flight.flightNo}</p>
-        </div>
-        <div className="flex-1 px-4 flex flex-col items-center">
-          <p className="text-[10px] text-vna-muted">{flight.duration}</p>
-          <div className="w-full h-px bg-vna-border relative my-2">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full border border-vna-blue bg-white" />
-          </div>
-          <p className="text-[10px] text-vna-muted">{flight.aircraft}</p>
-        </div>
-        <div className="text-right">
-          <p className="text-2xl font-bold">{flight.arriveTime}</p>
-          <p className="text-xs text-vna-muted mt-1 uppercase">{flight.cabin}</p>
-        </div>
-      </div>
-    </div>
-  );
-}
+
 

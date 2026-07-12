@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, X, Plane, Map, Tag, Newspaper } from 'lucide-react';
-import { Input, Button } from '@/components/ui';
+import { Search, X, Plane, Map } from 'lucide-react';
+import { Button } from '@/components/ui';
 import { api } from '@/api/client';
 import { useQuery } from '@tanstack/react-query';
 import { useDebounce } from '@/hooks/useDebounce';
@@ -9,13 +9,17 @@ import { useDebounce } from '@/hooks/useDebounce';
 export function GlobalSearch({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const [query, setQuery] = useState('');
   const debouncedQuery = useDebounce(query, 500);
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'k' && (e.ctrlKey || e.metaKey)) {
         e.preventDefault();
-        isOpen ? onClose() : document.dispatchEvent(new CustomEvent('open-global-search'));
+        if (isOpen) {
+          onClose();
+        } else {
+          document.dispatchEvent(new CustomEvent('open-global-search'));
+        }
       }
       if (e.key === 'Escape' && isOpen) {
         onClose();
@@ -77,7 +81,7 @@ export function GlobalSearch({ isOpen, onClose }: { isOpen: boolean; onClose: ()
                     <div 
                       key={f.id} 
                       className="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-lg cursor-pointer"
-                      onClick={() => { navigate('/flights'); onClose(); }}
+                      onClick={() => { _navigate('/flights'); onClose(); }}
                     >
                       <div className="bg-blue-100 p-2 rounded-lg text-vna-blue"><Plane size={16} /></div>
                       <div>
@@ -95,7 +99,7 @@ export function GlobalSearch({ isOpen, onClose }: { isOpen: boolean; onClose: ()
                     <div 
                       key={t.id} 
                       className="flex items-center gap-3 p-2 hover:bg-slate-50 rounded-lg cursor-pointer"
-                      onClick={() => { navigate(`/tours/${t.slug}`); onClose(); }}
+                      onClick={() => { _navigate(`/tours/${t.slug}`); onClose(); }}
                     >
                       <div className="bg-green-100 p-2 rounded-lg text-green-700"><Map size={16} /></div>
                       <div>

@@ -7,14 +7,14 @@ import { useT } from '@/store/langStore';
 import { toast } from 'sonner';
 
 export function SpecialOffers() {
-  const t = useT();
+  const _t = useT();
 
   return (
     <section className="bg-white py-14 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="mb-8 text-center">
-          <h2 className="text-2xl font-extrabold tracking-tight text-[#023a78] sm:text-3xl">{t.sections.offers}</h2>
-          <p className="mx-auto mt-1 max-w-xl text-sm text-slate-500">{t.sections.offersSub}</p>
+          <h2 className="text-2xl font-extrabold tracking-tight text-[#023a78] sm:text-3xl">{_t.sections.offers}</h2>
+          <p className="mx-auto mt-1 max-w-xl text-sm text-slate-500">{_t.sections.offersSub}</p>
         </div>
 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -35,9 +35,9 @@ export function SpecialOffers() {
                   type="button"
                   size="sm"
                   className="flex items-center gap-2 mt-3 w-full bg-[#023a78] text-white hover:bg-[#022f60] rounded-lg transition-all duration-300"
-                  onClick={() => toast.success(t.common.bookNow, { description: o.title })}
+                  onClick={() => toast.success(_t.common.bookNow, { description: o.title })}
                 >
-                  {t.common.bookNow}
+                  {_t.common.bookNow}
                   <ArrowRight className="size-4" />
                 </Button>
               </div>

@@ -4,7 +4,7 @@ import { useT } from '@/store/langStore';
 import { LotusLogo } from '@/components/common/LotusLogo';
 
 export function SiteFooter() {
-  const t = useT();
+  const _t = useT();
 
   return (
     <footer className="bg-[#023a78] text-white">
@@ -15,7 +15,7 @@ export function SiteFooter() {
               <LotusLogo size={48} />
               <div className="text-sm font-bold tracking-[0.15em] uppercase">Vietnam Airlines</div>
             </div>
-            <p className="mb-6 text-sm text-white/80">{t.footer.about}</p>
+            <p className="mb-6 text-sm text-white/80">{_t.footer.about}</p>
             <div className="flex items-center gap-4">
               <a href="#" className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-50 text-[#023a78] transition-colors hover:bg-[#023a78] hover:text-white">
                 <span className="sr-only">Facebook</span>FB
@@ -30,29 +30,29 @@ export function SiteFooter() {
           </div>
           
           <div>
-            <h3 className="mb-4 text-sm font-bold uppercase">{t.footer.about}</h3>
+            <h3 className="mb-4 text-sm font-bold uppercase">{_t.footer.about}</h3>
             <ul className="space-y-3 text-sm text-white/80">
-              <li><a href="#" className="hover:text-white transition-all duration-300">{t.footer.aboutLinks.intro}</a></li>
-              <li><a href="#" className="hover:text-white transition-all duration-300">{t.footer.aboutLinks.team}</a></li>
-              <li><a href="#" className="hover:text-white transition-all duration-300">{t.footer.aboutLinks.routes}</a></li>
+              <li><a href="#" className="hover:text-white transition-all duration-300">{_t.footer.aboutLinks.intro}</a></li>
+              <li><a href="#" className="hover:text-white transition-all duration-300">{_t.footer.aboutLinks.team}</a></li>
+              <li><a href="#" className="hover:text-white transition-all duration-300">{_t.footer.aboutLinks.routes}</a></li>
             </ul>
           </div>
 
           <div>
-            <h3 className="mb-4 text-sm font-bold uppercase">{t.footer.services}</h3>
+            <h3 className="mb-4 text-sm font-bold uppercase">{_t.footer.services}</h3>
             <ul className="space-y-3 text-sm text-white/80">
-              <li><a href="#" className="hover:text-white transition-all duration-300">{t.footer.serviceLinks.book}</a></li>
-              <li><a href="#" className="hover:text-white transition-all duration-300">{t.footer.serviceLinks.manage}</a></li>
-              <li><a href="#" className="hover:text-white transition-all duration-300">{t.footer.serviceLinks.checkin}</a></li>
+              <li><a href="#" className="hover:text-white transition-all duration-300">{_t.footer.serviceLinks.book}</a></li>
+              <li><a href="#" className="hover:text-white transition-all duration-300">{_t.footer.serviceLinks.manage}</a></li>
+              <li><a href="#" className="hover:text-white transition-all duration-300">{_t.footer.serviceLinks.checkin}</a></li>
             </ul>
           </div>
 
           <div>
-            <h3 className="mb-4 text-sm font-bold uppercase">{t.footer.support}</h3>
+            <h3 className="mb-4 text-sm font-bold uppercase">{_t.footer.support}</h3>
             <ul className="space-y-3 text-sm text-white/80">
-              <li><a href="#" className="hover:text-white transition-all duration-300">{t.footer.supportLinks.faq}</a></li>
-              <li><a href="#" className="hover:text-white transition-all duration-300">{t.footer.supportLinks.guide}</a></li>
-              <li><a href="#" className="hover:text-white flex items-center gap-1 transition-all duration-300"><Phone className="size-3" /> {t.footer.supportLinks.complaint}</a></li>
+              <li><a href="#" className="hover:text-white transition-all duration-300">{_t.footer.supportLinks.faq}</a></li>
+              <li><a href="#" className="hover:text-white transition-all duration-300">{_t.footer.supportLinks.guide}</a></li>
+              <li><a href="#" className="hover:text-white flex items-center gap-1 transition-all duration-300"><Phone className="size-3" /> {_t.footer.supportLinks.complaint}</a></li>
             </ul>
           </div>
         </div>
@@ -62,10 +62,10 @@ export function SiteFooter() {
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 py-4 text-xs text-white/70 sm:flex-row sm:px-6">
           <div className="flex items-center gap-2">
             <Award className="size-4 text-[#f5a623]" />
-            <span>{t.footer.certify}</span>
+            <span>{_t.footer.certify}</span>
           </div>
           <div className="text-center sm:text-right">
-            {t.footer.copyright}
+            {_t.footer.copyright}
           </div>
         </div>
       </div>

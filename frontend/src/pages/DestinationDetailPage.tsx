@@ -2,7 +2,7 @@ import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui';
 import { Button } from '@/components/ui';
-import { ChevronLeft, MapPin, Plane, Info, Calendar, Camera } from 'lucide-react';
+import { ChevronLeft, MapPin, Plane, Calendar, Camera } from 'lucide-react';
 
 const db: Record<string, {
   name: string;
@@ -46,7 +46,7 @@ const db: Record<string, {
 
 export default function DestinationDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
 
   // Fallback to Hanoi if id not found in mock db
   const data = db[id || 'han'] || db['han'];
@@ -64,7 +64,7 @@ export default function DestinationDetailPage() {
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
         
         <div className="absolute top-24 left-4 z-10">
-          <Button variant="outline" className="flex items-center gap-2 bg-white/20 text-white border-white/30 backdrop-blur-md hover:bg-white/40 rounded-lg transition-all duration-300" onClick={() => navigate('/destinations')}>
+          <Button variant="outline" className="flex items-center gap-2 bg-white/20 text-white border-white/30 backdrop-blur-md hover:bg-white/40 rounded-lg transition-all duration-300" onClick={() => _navigate('/destinations')}>
             <ChevronLeft className="w-5 h-5 mr-1" /> Tất cả điểm đến
           </Button>
         </div>
@@ -108,7 +108,7 @@ export default function DestinationDetailPage() {
           </div>
           
           <div className="flex gap-4 items-center md:justify-end">
-            <Button size="lg" className="w-full md:w-auto bg-vna-gold text-white shadow-md hover:bg-vna-gold/90 rounded-lg transition-all duration-300" onClick={() => navigate('/')}>
+            <Button size="lg" className="w-full md:w-auto bg-vna-gold text-white shadow-md hover:bg-vna-gold/90 rounded-lg transition-all duration-300" onClick={() => _navigate('/')}>
               Đặt vé đi {data?.name}
             </Button>
           </div>

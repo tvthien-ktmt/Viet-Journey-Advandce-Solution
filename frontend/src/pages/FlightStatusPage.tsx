@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui';
 import { Button } from '@/components/ui';
 import { Input } from '@/components/ui';
 import { Label } from '@/components/ui';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui';
 import { useT } from '@/store/langStore';
-import { Search, Plane, Clock, MapPin, RefreshCw, AlertCircle } from 'lucide-react';
+import { Search, Plane, MapPin, RefreshCw, AlertCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { getFlightStatus, getFlightStatusByRoute } from '@/api/flights';
 import { toast } from 'sonner';
@@ -26,7 +26,7 @@ interface FlightStatusData {
   terminal: string;
 }
 
-const mockStatuses: FlightStatusData[] = [
+const _mockStatuses: FlightStatusData[] = [
   { id: '1', flightNo: 'VN201', from: 'HAN', to: 'SGN', scheduledDepart: '08:00', actualDepart: '08:00', scheduledArrive: '10:15', actualArrive: '10:15', status: 'onTime', gate: '12', terminal: 'T1' },
   { id: '2', flightNo: 'VN203', from: 'HAN', to: 'SGN', scheduledDepart: '09:00', actualDepart: '09:45', scheduledArrive: '11:15', actualArrive: '12:00', status: 'delayed', gate: '14', terminal: 'T1' },
   { id: '3', flightNo: 'VN205', from: 'HAN', to: 'SGN', scheduledDepart: '10:00', actualDepart: '10:00', scheduledArrive: '12:15', actualArrive: '12:15', status: 'boarding', gate: '15', terminal: 'T1' },
@@ -35,7 +35,7 @@ const mockStatuses: FlightStatusData[] = [
 ];
 
 export default function FlightStatusPage() {
-  const t = useT();
+  const _t = useT();
   const [isSearching, setIsSearching] = useState(false);
   const [results, setResults] = useState<FlightStatusData[] | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
@@ -104,7 +104,7 @@ export default function FlightStatusPage() {
           setResults([]);
         }
       }
-    } catch (e) {
+    } catch {
       toast.error('Không tìm thấy chuyến bay');
       setResults([]);
     } finally {
@@ -114,12 +114,12 @@ export default function FlightStatusPage() {
 
   const getStatusBadge = (status: FlightStatus) => {
     switch(status) {
-      case 'onTime': return <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold uppercase">{t('flightstatus.statuses.onTime')}</span>;
-      case 'delayed': return <span className="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-bold uppercase">{t('flightstatus.statuses.delayed')}</span>;
-      case 'cancelled': return <span className="px-3 py-1 bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 rounded-full text-xs font-bold uppercase">{t('flightstatus.statuses.cancelled')}</span>;
-      case 'boarding': return <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold uppercase animate-pulse">{t('flightstatus.statuses.boarding')}</span>;
-      case 'departed': return <span className="px-3 py-1 bg-sky-100 text-sky-700 rounded-full text-xs font-bold uppercase">{t('flightstatus.statuses.departed')}</span>;
-      case 'landed': return <span className="px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full text-xs font-bold uppercase">{t('flightstatus.statuses.landed')}</span>;
+      case 'onTime': return <span className="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold uppercase">{_t('flightstatus.statuses.onTime')}</span>;
+      case 'delayed': return <span className="px-3 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-bold uppercase">{_t('flightstatus.statuses.delayed')}</span>;
+      case 'cancelled': return <span className="px-3 py-1 bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 rounded-full text-xs font-bold uppercase">{_t('flightstatus.statuses.cancelled')}</span>;
+      case 'boarding': return <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-bold uppercase animate-pulse">{_t('flightstatus.statuses.boarding')}</span>;
+      case 'departed': return <span className="px-3 py-1 bg-sky-100 text-sky-700 rounded-full text-xs font-bold uppercase">{_t('flightstatus.statuses.departed')}</span>;
+      case 'landed': return <span className="px-3 py-1 bg-emerald-100 text-emerald-800 rounded-full text-xs font-bold uppercase">{_t('flightstatus.statuses.landed')}</span>;
       default: return <span className="px-3 py-1 bg-slate-100 text-slate-700 rounded-full text-xs font-bold uppercase">{status}</span>;
     }
   };
@@ -129,7 +129,7 @@ export default function FlightStatusPage() {
       <div className="max-w-5xl mx-auto px-4">
         
         <div className="text-center mb-10">
-          <h1 className="text-3xl font-bold text-vna-blue mb-4">{t('flightstatus.title')}</h1>
+          <h1 className="text-3xl font-bold text-vna-blue mb-4">{_t('flightstatus.title')}</h1>
           <p className="text-slate-600">Cập nhật thông tin nhanh chóng và chính xác về chuyến bay của bạn.</p>
         </div>
 
@@ -137,24 +137,24 @@ export default function FlightStatusPage() {
           <CardContent className="p-0 rounded-xl">
             <Tabs defaultValue="flight" className="w-full">
               <TabsList className="w-full grid grid-cols-1 md:grid-cols-2 rounded-b-none h-14 bg-slate-100 p-0">
-                <TabsTrigger value="flight" className="text-base rounded-none data-[state=active]:bg-white data-[state=active]:border-b-2 data-[state=active]:border-vna-blue data-[state=active]:shadow-none">{t('flightstatus.byFlight')}</TabsTrigger>
-                <TabsTrigger value="route" className="text-base rounded-none data-[state=active]:bg-white data-[state=active]:border-b-2 data-[state=active]:border-vna-blue data-[state=active]:shadow-none">{t('flightstatus.byRoute')}</TabsTrigger>
+                <TabsTrigger value="flight" className="text-base rounded-none data-[state=active]:bg-white data-[state=active]:border-b-2 data-[state=active]:border-vna-blue data-[state=active]:shadow-none">{_t('flightstatus.byFlight')}</TabsTrigger>
+                <TabsTrigger value="route" className="text-base rounded-none data-[state=active]:bg-white data-[state=active]:border-b-2 data-[state=active]:border-vna-blue data-[state=active]:shadow-none">{_t('flightstatus.byRoute')}</TabsTrigger>
               </TabsList>
               
               <TabsContent value="flight" className="p-6 md:p-8 m-0 border-t-0">
                 <form onSubmit={handleSearchByFlight} className="grid md:grid-cols-4 gap-6 items-end">
                   <div className="md:col-span-1 space-y-2">
-                    <Label htmlFor="flightNo">{t('flightstatus.flightNo')}</Label>
+                    <Label htmlFor="flightNo">{_t('flightstatus.flightNo')}</Label>
                     <Input 
                       id="flightNo" 
-                      placeholder={t('flightstatus.flightNoPlaceholder')} 
+                      placeholder={_t('flightstatus.flightNoPlaceholder')} 
                       className="uppercase font-semibold tracking-wider h-12 rounded-lg"
                       value={flightNo}
                       onChange={(e) => setFlightNo(e.target.value.toUpperCase())}
                     />
                   </div>
                   <div className="md:col-span-2 space-y-2">
-                    <Label htmlFor="date">{t('flightstatus.date')}</Label>
+                    <Label htmlFor="date">{_t('flightstatus.date')}</Label>
                     <Input 
                       id="date" 
                       type="date"
@@ -194,7 +194,7 @@ export default function FlightStatusPage() {
                     />
                   </div>
                   <div className="md:col-span-1 space-y-2">
-                    <Label htmlFor="date2">{t('flightstatus.date')}</Label>
+                    <Label htmlFor="date2">{_t('flightstatus.date')}</Label>
                     <Input 
                       id="date2" 
                       type="date"

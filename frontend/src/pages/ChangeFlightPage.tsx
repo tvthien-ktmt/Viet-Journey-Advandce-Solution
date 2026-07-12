@@ -4,12 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui';
 import { Input } from '@/components/ui';
 import { Label } from '@/components/ui';
-import { ChevronLeft, Search, CalendarDays, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { ChevronLeft, Search, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { bookingApi } from '@/api/booking';
 
 export default function ChangeFlightPage() {
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
   const [code, setCode] = useState('');
   const [email, setEmail] = useState(''); // use as lastName
   const [isSearching, setIsSearching] = useState(false);
@@ -40,7 +40,7 @@ export default function ChangeFlightPage() {
       }
       
       let snap: Record<string, string> = {};
-      try { snap = JSON.parse(b.itemSnapshot || '{}'); } catch(e) {}
+      try { snap = JSON.parse(b.itemSnapshot || '{}'); } catch {}
 
       setBooking({
         id: b.id.toString(),
@@ -51,7 +51,7 @@ export default function ChangeFlightPage() {
         fareDifference: 150000,
       });
       setStep(2);
-    } catch (e) {
+    } catch {
       toast.error('Không tìm thấy đặt chỗ');
     } finally {
       setIsSearching(false);
@@ -69,7 +69,7 @@ export default function ChangeFlightPage() {
       await bookingApi.changeFlight(booking.id, 1);
       setStep(3);
       toast.success('Đổi chuyến thành công!');
-    } catch (e) {
+    } catch {
       toast.error('Không thể đổi chuyến lúc này');
     } finally {
       setIsProcessing(false);
@@ -81,7 +81,7 @@ export default function ChangeFlightPage() {
       <div className="max-w-3xl mx-auto px-4">
         
         <div className="flex items-center gap-4 mb-8">
-          <Button className="flex items-center gap-2 rounded-lg" variant="ghost" size="icon" onClick={() => navigate(-1)}>
+          <Button className="flex items-center gap-2 rounded-lg" variant="ghost" size="icon" onClick={() => _navigate(-1)}>
             <ChevronLeft className="w-5 h-5" />
           </Button>
           <div>
@@ -177,7 +177,7 @@ export default function ChangeFlightPage() {
             </div>
             <h2 className="text-2xl font-bold text-slate-800 mb-2">Đổi chuyến thành công!</h2>
             <p className="text-slate-500 mb-6">Mã đặt chỗ của bạn được giữ nguyên: <strong>BK1234</strong><br/>Vé điện tử mới đã được gửi vào email của bạn.</p>
-            <Button onClick={() => navigate(`/manage`)}>Quản lý đặt chỗ</Button>
+            <Button onClick={() => _navigate(`/manage`)}>Quản lý đặt chỗ</Button>
           </div>
         )}
 

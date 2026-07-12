@@ -274,28 +274,40 @@ export const createQRPayment = async (req: AuthRequest, res: Response): Promise<
             return;
         }
 
-        const transactionId = crypto.randomUUID();
-        await prisma.payment.upsert({
-            where: { bookingId: booking.id },
-            update: { transactionId },
-            create: {
-                bookingId: booking.id,
-                amount: booking.totalPrice,
-                status: 'PENDING',
-                transactionId
-            }
+        let paymentRecord = await prisma.payment.findUnique({ where: { bookingId: booking.id } });
+        if (!paymentRecord) {
+            paymentRecord = await prisma.payment.create({
+                data: {
+                    bookingId: booking.id,
+                    amount: booking.totalPrice,
+                    status: 'PENDING'
+                }
+            });
+        }
+        
+        const transactionId = `VTJ${paymentRecord.id}`;
+        await prisma.payment.update({
+            where: { id: paymentRecord.id },
+            data: { transactionId }
         });
 
-        // Generate a mock QR payload. For a real VietQR, this would be a specialized string.
-        const qrPayload = JSON.stringify({ bookingId: booking.id, transactionId, gateway, amount: Number(booking.totalPrice) });
-        const qrCodeUrl = `data:image/png;base64,${Buffer.from(qrPayload).toString('base64')}`;
+        const amount = Number(booking.totalPrice);
+        const accountNo = process.env.SEPAY_ACCOUNT_NUMBER || '';
+        const bankCode = process.env.SEPAY_BANK_CODE || '';
+        const template = process.env.SEPAY_TEMPLATE || 'compact2';
+        const accountName = process.env.SEPAY_ACCOUNT_NAME || '';
+        
+        // Use SePay's official QR generator
+        const qrCodeUrl = `https://qr.sepay.vn/img?acc=${accountNo}&bank=${bankCode}&amount=${amount}&des=${transactionId}&template=${template}&accName=${accountName}`;
+        
+        const expiresIn = Number(process.env.PAYMENT_TIMEOUT || 300000) / 1000;
 
         res.json({
             success: true,
             data: {
                 qrCodeUrl,
                 transactionId,
-                expiresIn: 300 // 5 minutes
+                expiresIn
             }
         });
     } catch (error) {
@@ -403,6 +415,109 @@ export const mockWebhook = async (req: Request, res: Response): Promise<void> =>
         res.status(200).json({ success: true, message: 'Webhook processed successfully' });
     } catch (error) {
         logger.error('mockWebhook error:', error);
+        res.status(500).json({ success: false, message: 'Server error' });
+    }
+};
+
+export const sepayWebhook = async (req: Request, res: Response): Promise<void> => {
+    try {
+        const { amount, content, bankAccount } = req.body;
+
+        if (!content) {
+            res.status(200).json({ success: true, message: 'Ignore' });
+            return;
+        }
+
+        const payments = await prisma.payment.findMany({
+            where: { status: { in: ['PENDING', 'EXPIRED'] } }
+        });
+
+        const initialPayment = payments.find(p => p.transactionId && content.includes(p.transactionId));
+
+        if (!initialPayment) {
+            res.status(200).json({ success: true, message: 'Ignore: Payment not found' });
+            return;
+        }
+
+        let updatedBookingResult: any = null;
+        let earnedMilesResult: number = 0;
+
+        await prisma.$transaction(async (tx) => {
+            await tx.$executeRawUnsafe(`SELECT * FROM \`Payment\` WHERE id = ? FOR UPDATE`, initialPayment.id);
+            const payment = await tx.payment.findUnique({ where: { id: initialPayment.id } });
+            
+            if (!payment) return;
+
+            // Check if EXPIRED status
+            if (payment.status === 'EXPIRED') {
+                await tx.payment.update({
+                    where: { id: payment.id },
+                    data: { status: 'LATE_PAYMENT', paymentDate: new Date() }
+                });
+                return;
+            }
+
+            // Check if over 5 mins
+            const timeout = Number(process.env.PAYMENT_TIMEOUT || 300000);
+            const isExpired = new Date(payment.createdAt).getTime() + timeout < Date.now();
+            if (isExpired && payment.status === 'PENDING') {
+                await tx.payment.update({
+                    where: { id: payment.id },
+                    data: { status: 'LATE_PAYMENT', paymentDate: new Date() }
+                });
+                return;
+            }
+
+            if (payment.status !== 'PENDING') {
+                return;
+            }
+
+            if (Number(amount) < Number(payment.amount)) {
+                return;
+            }
+
+            // Mark as success
+            await tx.payment.update({
+                where: { id: payment.id },
+                data: { status: 'SUCCESS', paymentDate: new Date() }
+            });
+
+            updatedBookingResult = await tx.booking.update({
+                where: { id: payment.bookingId },
+                data: { status: 'CONFIRMED' },
+                include: { user: true }
+            });
+
+            if (updatedBookingResult.userId) {
+                earnedMilesResult = Math.floor(Number(payment.amount) / 10000);
+                await tx.user.update({
+                    where: { id: updatedBookingResult.userId },
+                    data: { lotusmilesMiles: { increment: earnedMilesResult } }
+                });
+                
+                await tx.notification.create({
+                    data: {
+                        userId: updatedBookingResult.userId,
+                        title: 'Thanh toán thành công & Tích lũy dặm',
+                        message: `Đơn hàng ${updatedBookingResult.bookingCode} thanh toán thành công qua SePay. Bạn đã tích lũy được ${earnedMilesResult} dặm thưởng Lotusmiles.`,
+                    }
+                });
+            }
+        });
+
+        if (updatedBookingResult && updatedBookingResult.bookingCode) {
+            try {
+                getIO().to(`booking-${updatedBookingResult.bookingCode}`).emit('payment-success', { bookingCode: updatedBookingResult.bookingCode });
+            } catch (e) { logger.error('Socket emit error', e); }
+
+            if (updatedBookingResult.user?.email) {
+                await sendInvoice(updatedBookingResult.user.email, updatedBookingResult.bookingCode, Number(initialPayment.amount));
+            }
+        }
+
+        res.status(200).json({ success: true });
+    } catch (error) {
+        logger.error('sepayWebhook error:', error);
         res.status(500).json({ success: false, message: 'Server error' });
     }
 };

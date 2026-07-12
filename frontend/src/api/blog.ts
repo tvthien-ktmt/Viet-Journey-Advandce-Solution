@@ -1,5 +1,4 @@
 import { api } from './client';
-import { BLOGS } from '@/data/blogs';
 import type { Blog } from '@/data/blogs';
 
 

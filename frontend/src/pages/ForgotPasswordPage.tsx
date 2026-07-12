@@ -12,7 +12,7 @@ import { toast } from 'sonner';
 type Step = 'EMAIL' | 'OTP' | 'NEW_PASSWORD' | 'SUCCESS';
 
 export default function ForgotPasswordPage() {
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
   
   const [step, setStep] = useState<Step>('EMAIL');
   const [email, setEmail] = useState('');
@@ -181,7 +181,7 @@ export default function ForgotPasswordPage() {
                 </div>
                 <h2 className="text-2xl font-bold text-slate-800 mb-2">Thành công!</h2>
                 <p className="text-slate-600 mb-8 text-sm">Mật khẩu của bạn đã được cập nhật thành công.</p>
-                <Button className="w-full h-12 rounded-lg bg-vna-blue text-white" onClick={() => navigate('/login')}>
+                <Button className="w-full h-12 rounded-lg bg-vna-blue text-white" onClick={() => _navigate('/login')}>
                   Đăng nhập ngay
                 </Button>
               </div>

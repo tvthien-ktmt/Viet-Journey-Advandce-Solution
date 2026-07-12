@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui';
 import { Button } from '@/components/ui';
 import { Badge } from '@/components/ui';
-import { MapPin, Clock, Calendar, Star, Users, Heart } from 'lucide-react';
+import { MapPin, Clock, Star, Users, Heart } from 'lucide-react';
 
 const mockTours = [
   { id: '1', name: 'Khám phá Mùa Thu Nhật Bản', duration: '6 Ngày 5 Đêm', location: 'Tokyo - Kyoto - Osaka', price: 25900000, rating: 4.8, image: '/placeholder.svg' },
@@ -61,10 +61,10 @@ import { getTours } from '@/api/tours';
 import type { Tour } from '@/api/tours';
 
 export default function ToursPage() {
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
   const [wishlist, setWishlist] = useState<Record<string, boolean>>({});
 
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ['tours'],
     queryFn: () => getTours(),
   });
@@ -116,7 +116,7 @@ export default function ToursPage() {
                 tour={tour} 
                 isWishlist={!!wishlist[tour.id]} 
                 onToggleWishlist={toggleWishlist} 
-                onClick={() => navigate(`/tour/${tour.slug || tour.id}`)} 
+                onClick={() => _navigate(`/tour/${tour.slug || tour.id}`)} 
               />
             ))
           ) : (

@@ -2,15 +2,9 @@
 import * as React from 'react';
 import { Phone, Plane, UserRound, Globe } from 'lucide-react';
 import { Button } from '@/components/ui';
-import {
-  Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger,
-} from '@/components/ui';
-import { Input } from '@/components/ui';
-import { Label } from '@/components/ui';
+
 import { useLang, useT, type Lang } from '@/store/langStore';
-import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
-import { LotusLogo } from '@/components/common/LotusLogo';
 import { cn } from '@/lib/utils';
 import { ThemeSettings } from '@/components/common/ThemeSettings';
 import { CurrencySwitcher } from '@/components/common/CurrencySwitcher';
@@ -24,14 +18,14 @@ export function LotusLoginButton({
   variant?: 'ghost' | 'default' | 'outline' | 'secondary';
   fullWidth?: boolean;
 }) {
-  const t = useT();
-  const navigate = useNavigate();
+  const _t = useT();
+  const _navigate = useNavigate();
 
   return (
     <Button
       variant={variant}
       size="sm"
-      onClick={() => navigate('/login')}
+      onClick={() => _navigate('/login')}
       className={cn(
         'flex items-center gap-2',
         'gap-1.5 text-white hover:bg-white/10 hover:text-white',
@@ -40,13 +34,13 @@ export function LotusLoginButton({
       )}
     >
       <UserRound className="size-3.5" />
-      <span>{t.topbar.login}</span>
+      <span>{_t.topbar.login}</span>
     </Button>
   );
 }
 
 function LangToggle() {
-  const lang = useLang((s) => s.lang);
+  const _lang = useLang((s) => s.lang);
   const setLang = useLang((s) => s.setLang);
   const options: { id: Lang; label: string }[] = [
     { id: 'vn', label: 'VN' },
@@ -62,9 +56,9 @@ function LangToggle() {
           onClick={() => setLang(o.id)}
           className={cn(
             'rounded-full px-2.5 py-1 transition-colors',
-            lang === o.id ? 'bg-[#f5a623] text-[#023a78]' : 'text-white/80 hover:text-white',
+            _lang === o.id ? 'bg-[#f5a623] text-[#023a78]' : 'text-white/80 hover:text-white',
           )}
-          aria-pressed={lang === o.id}
+          aria-pressed={_lang === o.id}
         >
           {o.label}
         </button>
@@ -74,7 +68,7 @@ function LangToggle() {
 }
 
 export function TopBar() {
-  const t = useT();
+  const _t = useT();
   return (
     <div className="bg-[#023a78] text-white">
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-1.5 text-xs sm:px-6">
@@ -84,22 +78,22 @@ export function TopBar() {
         </div>
         <div className="flex items-center gap-1 sm:gap-3">
           <ThemeSettings />
-          <a href="#" onClick={(e) => e.preventDefault()} className="hidden items-center gap-1.5 text-white/85 transition-colors hover:text-[#f5a623] sm:inline-flex">
+          <button type="button" className="hidden items-center gap-1.5 text-white/85 transition-colors hover:text-[#f5a623] sm:inline-flex">
             <Phone className="size-3.5" />
-            <span>{t.topbar.contact}</span>
-          </a>
-          <a href="#" onClick={(e) => e.preventDefault()} className="hidden items-center gap-1.5 text-white/85 transition-colors hover:text-[#f5a623] sm:inline-flex">
+            <span>{_t.topbar.contact}</span>
+          </button>
+          <button type="button" className="hidden items-center gap-1.5 text-white/85 transition-colors hover:text-[#f5a623] sm:inline-flex">
             <Plane className="size-3.5" />
-            <span>{t.topbar.flightStatus}</span>
-          </a>
-          <a href="#" onClick={(e) => e.preventDefault()} className="flex items-center gap-2 text-white/85 transition-colors hover:text-[#f5a623] sm:hidden" aria-label={t.topbar.contact}>
+            <span>{_t.topbar.flightStatus}</span>
+          </button>
+          <button type="button" className="flex items-center gap-2 text-white/85 transition-colors hover:text-[#f5a623] sm:hidden" aria-label={_t.topbar.contact}>
             <Phone className="size-4" />
-          </a>
-          <a href="#" onClick={(e) => e.preventDefault()} className="flex items-center gap-2 text-white/85 transition-colors hover:text-[#f5a623] sm:hidden" aria-label={t.topbar.flightStatus}>
+          </button>
+          <button type="button" className="flex items-center gap-2 text-white/85 transition-colors hover:text-[#f5a623] sm:hidden" aria-label={_t.topbar.flightStatus}>
             <Plane className="size-4" />
-          </a>
+          </button>
           <span className="hidden h-3 w-px bg-white/25 sm:inline-block" aria-hidden />
-          <span className="hidden text-white/70 sm:inline">{t.topbar.lotusmiles}</span>
+          <span className="hidden text-white/70 sm:inline">{_t.topbar.lotusmiles}</span>
           <LotusLoginButton />
         </div>
       </div>

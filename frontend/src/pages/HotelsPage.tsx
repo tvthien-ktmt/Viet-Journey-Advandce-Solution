@@ -58,7 +58,7 @@ import { useNavigate } from 'react-router-dom';
 export default function HotelsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [wishlist, setWishlist] = useState<Record<number, boolean>>({});
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['hotels', searchTerm],

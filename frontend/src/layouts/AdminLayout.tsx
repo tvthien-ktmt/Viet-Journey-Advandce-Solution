@@ -5,16 +5,15 @@ import { LotusLogo } from '@/components/common/LotusLogo';
 import { useAuth } from '@/store/authStore';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui';
 import { Avatar } from '@/components/ui';
-import { Button } from '@/components/ui';
 
 export default function AdminLayout() {
   const user = useAuth((s) => s.user);
   const logout = useAuth((s) => s.logout);
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    _navigate('/login');
   };
 
   const navItems = [

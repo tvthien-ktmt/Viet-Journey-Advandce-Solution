@@ -11,8 +11,8 @@ import { toast } from 'sonner';
 import { bookingApi } from '@/api/booking';
 
 export default function ManageBookingPage() {
-  const t = useT();
-  const navigate = useNavigate();
+  const _t = useT();
+  const _navigate = useNavigate();
   
   const [code, setCode] = useState('');
   const [lastName, setLastName] = useState('');
@@ -47,7 +47,7 @@ export default function ManageBookingPage() {
     try {
       const b = await bookingApi.search(code, lastName);
       let snap: Record<string, string> = {};
-      try { snap = JSON.parse(b.itemSnapshot || '{}'); } catch(e) {}
+      try { snap = JSON.parse(b.itemSnapshot || '{}'); } catch {}
       
       setBooking({
         id: b.id ? `${b.id}` : b.bookingCode || code,
@@ -64,8 +64,8 @@ export default function ManageBookingPage() {
         amount: b.totalPrice || 0,
       });
       setHasSearched(true);
-    } catch (e) {
-      const error = e as Error & { response?: { data?: { message?: string } } };
+    } catch (_e: any) {
+      const error = _e as Error & { response?: { data?: { message?: string } } };
       setBooking(null);
       setHasSearched(true);
       toast.error(error.response?.data?.message || 'Không tìm thấy đặt chỗ');
@@ -83,7 +83,7 @@ export default function ManageBookingPage() {
       <div className="max-w-4xl mx-auto px-4">
         
         <div className="text-center mb-10">
-          <h1 className="text-3xl font-bold text-vna-blue mb-4">{t('manage.title')}</h1>
+          <h1 className="text-3xl font-bold text-vna-blue mb-4">{_t('manage.title')}</h1>
           <p className="text-slate-600">Tra cứu thông tin, đổi chuyến, hoàn vé hoặc mua thêm hành lý và chỗ ngồi.</p>
         </div>
 
@@ -91,20 +91,20 @@ export default function ManageBookingPage() {
           <CardContent className="p-6 rounded-xl">
             <form onSubmit={handleSearch} className="grid md:grid-cols-5 gap-6 items-end">
               <div className="md:col-span-2 space-y-2">
-                <Label htmlFor="code">{t('manage.code')}</Label>
+                <Label htmlFor="code">{_t('manage.code')}</Label>
                 <Input 
                   id="code" 
-                  placeholder={t('manage.codePlaceholder')} 
+                  placeholder={_t('manage.codePlaceholder')} 
                   className="uppercase font-semibold tracking-wider rounded-lg"
                   value={code}
                   onChange={(e) => setCode(e.target.value.toUpperCase())}
                 />
               </div>
               <div className="md:col-span-2 space-y-2">
-                <Label htmlFor="lastName">{t('manage.lastName')}</Label>
+                <Label htmlFor="lastName">{_t('manage.lastName')}</Label>
                 <Input 
                   id="lastName" 
-                  placeholder={t('manage.lastNamePlaceholder')}
+                  placeholder={_t('manage.lastNamePlaceholder')}
                   className="uppercase font-semibold tracking-wider rounded-lg"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value.toUpperCase())}
@@ -112,7 +112,7 @@ export default function ManageBookingPage() {
               </div>
               <div className="md:col-span-1">
                 <Button type="submit" className="flex items-center gap-2 w-full bg-vna-gold hover:bg-vna-gold/90 text-white rounded-lg transition-all duration-300" disabled={isSearching}>
-                  {isSearching ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <><Search className="w-4 h-4 mr-2"/> {t('manage.search')}</>}
+                  {isSearching ? <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <><Search className="w-4 h-4 mr-2"/> {_t('manage.search')}</>}
                 </Button>
               </div>
             </form>
@@ -153,9 +153,9 @@ export default function ManageBookingPage() {
         {hasSearched && !isSearching && !booking && (
           <div className="text-center py-16 bg-white rounded-2xl shadow-sm border border-slate-200">
             <Ticket className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-            <h2 className="text-xl font-bold text-slate-800 mb-2">{t('manage.notFound')}</h2>
-            <p className="text-slate-500 mb-6">{t('manage.notFoundDesc')}</p>
-            <Button variant="outline" onClick={() => navigate('/help')}>Cần hỗ trợ?</Button>
+            <h2 className="text-xl font-bold text-slate-800 mb-2">{_t('manage.notFound')}</h2>
+            <p className="text-slate-500 mb-6">{_t('manage.notFoundDesc')}</p>
+            <Button variant="outline" onClick={() => _navigate('/help')}>Cần hỗ trợ?</Button>
           </div>
         )}
 
@@ -230,19 +230,19 @@ export default function ManageBookingPage() {
             <div className="space-y-4">
               <h3 className="font-bold text-slate-800 text-lg">Quản lý chuyến bay</h3>
               
-              <Button variant="outline" className="flex items-center gap-2 w-full justify-start h-12 rounded-lg" onClick={() => navigate(`/booking/${booking.id}/seats`)}>
+              <Button variant="outline" className="flex items-center gap-2 w-full justify-start h-12 rounded-lg" onClick={() => _navigate(`/booking/${booking.id}/seats`)}>
                 <Armchair className="w-5 h-5 mr-3 text-vna-blue" /> Chọn chỗ ngồi
               </Button>
               
-              <Button variant="outline" className="flex items-center gap-2 w-full justify-start h-12 rounded-lg" onClick={() => navigate(`/booking/${booking.id}/extras`)}>
+              <Button variant="outline" className="flex items-center gap-2 w-full justify-start h-12 rounded-lg" onClick={() => _navigate(`/booking/${booking.id}/extras`)}>
                 <Settings className="w-5 h-5 mr-3 text-vna-blue" /> Mua thêm tiện ích (Hành lý, suất ăn)
               </Button>
               
-              <Button variant="outline" className="flex items-center gap-2 w-full justify-start h-12 rounded-lg" onClick={() => navigate(`/manage/${booking.id}/change`)}>
+              <Button variant="outline" className="flex items-center gap-2 w-full justify-start h-12 rounded-lg" onClick={() => _navigate(`/manage/${booking.id}/change`)}>
                 <Edit className="w-5 h-5 mr-3 text-vna-gold" /> Đổi ngày / Đổi chuyến
               </Button>
               
-              <Button variant="outline" className="flex items-center gap-2 w-full justify-start h-12 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all duration-300" onClick={() => navigate(`/refund`)}>
+              <Button variant="outline" className="flex items-center gap-2 w-full justify-start h-12 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg transition-all duration-300" onClick={() => _navigate(`/refund`)}>
                 <XCircle className="w-5 h-5 mr-3" /> Hủy đặt chỗ / Hoàn vé
               </Button>
               

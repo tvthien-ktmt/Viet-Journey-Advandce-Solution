@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { profileApi } from '@/api/profile';
 import { useT } from '@/store/langStore';
@@ -9,7 +9,7 @@ import { formatVND } from '@/lib/formatters';
 import { toast } from 'sonner';
 
 export default function WishlistPage() {
-  const t = useT();
+  const _t = useT();
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['wishlist'],
@@ -23,7 +23,7 @@ export default function WishlistPage() {
       await profileApi.wishlist.remove(String(id));
       toast.success('Đã xoá khỏi danh sách yêu thích');
       refetch();
-    } catch (e) {
+    } catch {
       toast.error('Có lỗi xảy ra');
     }
   };

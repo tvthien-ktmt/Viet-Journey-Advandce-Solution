@@ -8,6 +8,7 @@ router.post('/create', authenticate, controller.createPaymentUrl);
 router.post('/qr', authenticate, controller.createQRPayment);
 router.get('/:id/status', authenticate, controller.getPaymentStatus);
 router.post('/webhook', controller.mockWebhook);
+router.post('/sepay/webhook', controller.sepayWebhook);
 router.get('/vnpay-ipn', controller.vnpayIpn);
 
 export default router;

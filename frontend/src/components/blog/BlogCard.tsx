@@ -5,11 +5,11 @@ import { Calendar, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export const BlogCard = React.memo(({ blog }: { blog: any }) => {
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
   return (
     <Card 
       className="overflow-hidden cursor-pointer group border-0 shadow hover:shadow-xl transition-all rounded-xl"
-      onClick={() => navigate(`/blog/${blog.slug || blog.id}`)}
+      onClick={() => _navigate(`/blog/${blog.slug || blog.id}`)}
     >
       <div className="h-[240px] relative overflow-hidden">
         <img src={blog.image} alt={blog.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />

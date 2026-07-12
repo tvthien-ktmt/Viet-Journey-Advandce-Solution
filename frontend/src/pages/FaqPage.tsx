@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Card, CardContent } from '@/components/ui';
+import { Card } from '@/components/ui';
 import { ChevronDown, Search } from 'lucide-react';
 
 const faqs = [

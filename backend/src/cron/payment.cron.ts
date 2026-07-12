@@ -22,10 +22,10 @@ export const startPaymentCron = () => {
 
             for (const payment of expiredPayments) {
                 await prisma.$transaction(async (tx) => {
-                    // Update Payment to EXPIRED (or FAILED)
+                    // Update Payment to EXPIRED
                     await tx.payment.update({
                         where: { id: payment.id },
-                        data: { status: 'FAILED' } // Using FAILED as PaymentStatus doesn't have EXPIRED
+                        data: { status: 'EXPIRED' }
                     });
 
                     // Update Booking to CANCELLED

@@ -1,8 +1,8 @@
 import React from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui';
 import { Badge } from '@/components/ui';
-import { ChevronLeft, Calendar, Share2, Link as LinkIcon } from 'lucide-react';
+import { ChevronLeft, Calendar, Link as LinkIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import DOMPurify from 'dompurify';
 
@@ -11,7 +11,7 @@ import { blogApi } from '@/api/blog';
 
 export default function BlogDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['blog', id],
@@ -39,7 +39,7 @@ export default function BlogDetailPage() {
       
       <div className="max-w-4xl mx-auto px-4">
         
-        <Button variant="ghost" className="flex items-center gap-2 mb-8 text-slate-500 hover:text-vna-blue rounded-lg transition-all duration-300" onClick={() => navigate('/blog')}>
+        <Button variant="ghost" className="flex items-center gap-2 mb-8 text-slate-500 hover:text-vna-blue rounded-lg transition-all duration-300" onClick={() => _navigate('/blog')}>
           <ChevronLeft className="w-5 h-5 mr-1" /> Trở về danh sách
         </Button>
 
@@ -78,7 +78,7 @@ export default function BlogDetailPage() {
           <h3 className="font-bold text-xl mb-6">Bạn có thể quan tâm</h3>
           <div className="grid md:grid-cols-2 gap-6">
             
-            <div className="flex gap-4 cursor-pointer group" onClick={() => navigate('/blog/2')}>
+            <Link to="/blog/2" className="flex gap-4 cursor-pointer group block text-left">
               <div className="w-24 h-24 rounded-xl overflow-hidden shrink-0">
                 <img src="/placeholder.svg" className="w-full h-full object-cover group-hover:scale-110 transition-transform" alt="Thumnail"/>
               </div>
@@ -86,9 +86,9 @@ export default function BlogDetailPage() {
                 <h4 className="font-bold text-slate-800 group-hover:text-vna-blue line-clamp-2 mb-2 transition-all duration-300">Top 5 điểm đến không thể bỏ lỡ tại Nhật Bản mùa thu</h4>
                 <p className="text-xs text-slate-500">12/09/2025</p>
               </div>
-            </div>
+            </Link>
 
-            <div className="flex gap-4 cursor-pointer group" onClick={() => navigate('/blog/3')}>
+            <Link to="/blog/3" className="flex gap-4 cursor-pointer group block text-left">
               <div className="w-24 h-24 rounded-xl overflow-hidden shrink-0">
                 <img src="/placeholder.svg" className="w-full h-full object-cover group-hover:scale-110 transition-transform" alt="Thumnail"/>
               </div>
@@ -96,7 +96,7 @@ export default function BlogDetailPage() {
                 <h4 className="font-bold text-slate-800 group-hover:text-vna-blue line-clamp-2 mb-2 transition-all duration-300">Ưu đãi hạng Thương gia: Trải nghiệm đẳng cấp với giá hấp dẫn</h4>
                 <p className="text-xs text-slate-500">01/09/2025</p>
               </div>
-            </div>
+            </Link>
 
           </div>
         </div>

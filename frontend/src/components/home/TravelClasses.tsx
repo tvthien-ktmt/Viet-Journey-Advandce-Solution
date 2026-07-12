@@ -5,15 +5,15 @@ import { travelClasses, IMAGES } from '@/data/vna-data';
 import { useLang, useT } from '@/store/langStore';
 
 export function TravelClasses() {
-  const t = useT();
-  const lang = useLang((s) => s.lang);
+  const _t = useT();
+  const _lang = useLang((s) => s.lang);
 
   return (
     <section className="bg-white py-14 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="mb-8 text-center">
-          <h2 className="text-2xl font-extrabold tracking-tight text-[#023a78] sm:text-3xl">{t.sections.travelClasses}</h2>
-          <p className="mx-auto mt-1 max-w-xl text-sm text-slate-500">{t.sections.travelClassesSub}</p>
+          <h2 className="text-2xl font-extrabold tracking-tight text-[#023a78] sm:text-3xl">{_t.sections.travelClasses}</h2>
+          <p className="mx-auto mt-1 max-w-xl text-sm text-slate-500">{_t.sections.travelClassesSub}</p>
         </div>
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-start">
@@ -26,7 +26,7 @@ export function TravelClasses() {
                 Vietnam Airlines
               </div>
               <h3 className="text-xl font-bold drop-shadow sm:text-2xl">
-                {lang === 'vn' ? 'Trải nghiệm đẳng cấp trên từng chuyến bay' : 'A premium experience on every flight'}
+                {_lang === 'vn' ? 'Trải nghiệm đẳng cấp trên từng chuyến bay' : 'A premium experience on every flight'}
               </h3>
             </div>
           </div>

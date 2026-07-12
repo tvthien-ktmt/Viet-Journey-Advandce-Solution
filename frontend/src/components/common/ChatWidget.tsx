@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { MessageSquare, X, Send } from 'lucide-react';
 import { Button } from '@/components/ui';
 
@@ -8,6 +8,7 @@ export function ChatWidget() {
     { role: 'bot', text: 'Xin chào! Viet Journey có thể giúp gì cho bạn hôm nay?' }
   ]);
   const [input, setInput] = useState('');
+  const timerRef = React.useRef<any>(null);
 
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
@@ -17,13 +18,19 @@ export function ChatWidget() {
     setInput('');
     
     // Simulate bot response
-    setTimeout(() => {
+    timerRef.current = setTimeout(() => {
       setMessages(prev => [...prev, { 
         role: 'bot', 
         text: 'Cảm ơn bạn đã liên hệ. Hiện tại các tổng đài viên đang bận. Chúng tôi sẽ phản hồi lại qua email của bạn sớm nhất có thể!' 
       }]);
     }, 1000);
   };
+
+  React.useEffect(() => {
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
 
   return (
     <div className="fixed bottom-6 right-6 z-50">

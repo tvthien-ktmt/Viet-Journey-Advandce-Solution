@@ -14,9 +14,9 @@ import { Textarea } from '@/components/ui';
 
 export default function TourDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
-  const location = useLocation();
-  const isAuthenticated = useAuth((s) => s.isAuthenticated);
+  const _navigate = useNavigate();
+  const _location = useLocation();
+  const _isAuthenticated = useAuth((s) => s.isAuthenticated);
   const [isBooking, setIsBooking] = useState(false);
 
   const { data, isLoading, isError } = useQuery({
@@ -47,7 +47,7 @@ export default function TourDetailPage() {
 
   const handleReviewSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isAuthenticated()) {
+    if (!_isAuthenticated()) {
       toast.error('Vui lòng đăng nhập để đánh giá');
       return;
     }
@@ -57,9 +57,9 @@ export default function TourDetailPage() {
   };
 
   const handleBook = async () => {
-    if (!isAuthenticated()) {
+    if (!_isAuthenticated()) {
       toast.error('Vui lòng đăng nhập để đặt tour');
-      navigate('/login', { state: { from: location.pathname } });
+      _navigate('/login', { state: { from: _location.pathname } });
       return;
     }
 
@@ -73,9 +73,9 @@ export default function TourDetailPage() {
         passengers: []
       });
       toast.success('Đặt tour thành công! Chuyển hướng đến trang thanh toán...');
-      navigate(`/payment/${response.id}`);
-    } catch (error: any) {
-      toast.error(error.message || 'Lỗi khi đặt tour. Vui lòng thử lại.');
+      _navigate(`/payment/${response.id}`);
+    } catch (_error: any) {
+      toast.error(_error.message || 'Lỗi khi đặt tour. Vui lòng thử lại.');
     } finally {
       setIsBooking(false);
     }
@@ -85,7 +85,7 @@ export default function TourDetailPage() {
     <div className="min-h-screen bg-slate-50 pb-20 pt-24">
       
       <div className="max-w-6xl mx-auto px-4">
-        <Button variant="ghost" className="flex items-center gap-2 mb-6 text-slate-500 hover:text-vna-blue rounded-lg transition-all duration-300" onClick={() => navigate(-1)}>
+        <Button variant="ghost" className="flex items-center gap-2 mb-6 text-slate-500 hover:text-vna-blue rounded-lg transition-all duration-300" onClick={() => _navigate(-1)}>
           <ChevronLeft className="w-5 h-5 mr-1" /> Quay lại danh sách
         </Button>
 

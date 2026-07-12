@@ -60,11 +60,11 @@ apiClient.interceptors.response.use(
         processQueue(null, data.data?.token ?? null);
         
         return apiClient(originalRequest);
-      } catch (err) {
-        processQueue(err, null);
+      } catch (_err: any) {
+        processQueue(_err, null);
         useAuth.getState().logout();
         window.location.href = '/login';
-        return Promise.reject(err);
+        return Promise.reject(_err);
       } finally {
         isRefreshing = false;
       }

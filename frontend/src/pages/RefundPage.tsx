@@ -4,12 +4,12 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui';
 import { Input } from '@/components/ui';
 import { Label } from '@/components/ui';
-import { ChevronLeft, RefreshCcw, Search, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { ChevronLeft, Search, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { bookingApi } from '@/api/booking';
 
 export default function RefundPage() {
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
   const [code, setCode] = useState('');
   const [email, setEmail] = useState(''); // We use this for lastName now
   const [isSearching, setIsSearching] = useState(false);
@@ -38,7 +38,7 @@ export default function RefundPage() {
       }
       
       let snap: Record<string, string> = {};
-      try { snap = JSON.parse(b.itemSnapshot || '{}'); } catch(e) {}
+      try { snap = JSON.parse(b.itemSnapshot || '{}'); } catch {}
       
       setBooking({
         id: b.id.toString(),
@@ -48,7 +48,7 @@ export default function RefundPage() {
         refundFee: 500000,
         passengers: b.passengers?.length || 1,
       });
-    } catch (e) {
+    } catch {
       toast.error('Không tìm thấy đặt chỗ');
     } finally {
       setIsSearching(false);
@@ -62,7 +62,7 @@ export default function RefundPage() {
       await bookingApi.cancelBooking(booking.id);
       setIsRefunded(true);
       toast.success('Yêu cầu hoàn vé đã được tiếp nhận và xử lý!');
-    } catch (e) {
+    } catch {
       toast.error('Không thể hoàn vé lúc này');
     } finally {
       setIsRefunding(false);
@@ -74,7 +74,7 @@ export default function RefundPage() {
       <div className="max-w-3xl mx-auto px-4">
         
         <div className="flex items-center gap-4 mb-8">
-          <Button className="flex items-center gap-2 rounded-lg" variant="ghost" size="icon" onClick={() => navigate(-1)}>
+          <Button className="flex items-center gap-2 rounded-lg" variant="ghost" size="icon" onClick={() => _navigate(-1)}>
             <ChevronLeft className="w-5 h-5" />
           </Button>
           <div>
@@ -176,7 +176,7 @@ export default function RefundPage() {
             </div>
             <h2 className="text-2xl font-bold text-slate-800 mb-2">Đã gửi yêu cầu hoàn vé!</h2>
             <p className="text-slate-500 mb-6">Mã tham chiếu: <strong>RF-{Math.floor(Math.random()*10000)}</strong><br/>Chúng tôi đã gửi email xác nhận cho bạn.</p>
-            <Button onClick={() => navigate('/')}>Về trang chủ</Button>
+            <Button onClick={() => _navigate('/')}>Về trang chủ</Button>
           </div>
         )}
 

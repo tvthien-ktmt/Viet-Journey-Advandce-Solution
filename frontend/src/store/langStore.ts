@@ -36,8 +36,8 @@ export const useLang = create<LangState>((set, get) => ({
 }));
 
 export function useT(): CallableDict {
-  const lang = useLang((s) => s.lang);
-  const data = dict[lang];
+  const _lang = useLang((s) => s.lang);
+  const data = dict[_lang];
   const tFn = (key: string) => key.split('.').reduce((acc: any, k) => acc?.[k], data) || key;
   Object.assign(tFn, data);
   return tFn as CallableDict;

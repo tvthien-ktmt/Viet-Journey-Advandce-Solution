@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { adminApi } from '@/api/admin';
 import type { AdminBooking } from '@/types/admin';
-import { Card } from '@/components/ui';
 import { Input } from '@/components/ui';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui';
 import { Badge } from '@/components/ui';

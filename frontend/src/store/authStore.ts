@@ -48,7 +48,7 @@ export const useAuth = create<AuthState>()(
       try {
         const user = await authApi.me();
         set({ user, isInitialized: true });
-      } catch (err) {
+      } catch {
         set({ user: null, token: null, refreshToken: null, isInitialized: true });
       }
     }
